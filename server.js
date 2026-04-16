@@ -17,7 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
 // Route: root page
 // Redirects user from the main URL to the dashboard page
 app.get('/', (req, res) => {
