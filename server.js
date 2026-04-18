@@ -7,7 +7,14 @@ const session = require('express-session');
 const app = express();
 
 // Temporary in-memory user storage
-const users = [];
+const users = [
+  {
+    id: 1,
+    name: 'Test',
+    email: 'admin@myshop.local',
+    password: '123'
+  }
+];
 
 // Define server port
 const PORT = 3000;
