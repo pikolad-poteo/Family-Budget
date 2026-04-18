@@ -6,7 +6,15 @@
     <h1 class="page-title">Login</h1>
     <p class="page-text">Sign in to continue working with your personal budget.</p>
 
-    <form class="auth-form" action="#" method="post">
+    <% if (errorMessage) { %>
+      <div class="auth-message auth-message-error"><%= errorMessage %></div>
+    <% } %>
+
+    <% if (successMessage) { %>
+      <div class="auth-message auth-message-success"><%= successMessage %></div>
+    <% } %>
+
+    <form class="auth-form" action="/login" method="post">
       <div class="form-group">
         <label class="form-label" for="email">Email</label>
         <input

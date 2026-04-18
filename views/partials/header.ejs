@@ -9,20 +9,27 @@
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="/dashboard" class="logo">My Budget</a>
+      <a href="<%= currentUser ? '/dashboard' : '/login' %>" class="logo">My Budget</a>
 
-      <nav class="nav">
-        <a href="/dashboard" class="nav-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">Dashboard</a>
-        <a href="/categories" class="nav-link <%= activePage === 'categories' ? 'is-active' : '' %>">Categories</a>
-        <a href="/transactions" class="nav-link <%= activePage === 'transactions' ? 'is-active' : '' %>">Transactions</a>
-        <a href="/family" class="nav-link <%= activePage === 'family' ? 'is-active' : '' %>">Family</a>
-        <a href="/wishlist" class="nav-link <%= activePage === 'wishlist' ? 'is-active' : '' %>">Wishlist</a>
-        <a href="/calendar" class="nav-link <%= activePage === 'calendar' ? 'is-active' : '' %>">Calendar</a>
-      </nav>
+      <% if (currentUser) { %>
+        <nav class="nav">
+          <a href="/dashboard" class="nav-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">Dashboard</a>
+          <a href="/categories" class="nav-link <%= activePage === 'categories' ? 'is-active' : '' %>">Categories</a>
+          <a href="/transactions" class="nav-link <%= activePage === 'transactions' ? 'is-active' : '' %>">Transactions</a>
+          <a href="/family" class="nav-link <%= activePage === 'family' ? 'is-active' : '' %>">Family</a>
+          <a href="/wishlist" class="nav-link <%= activePage === 'wishlist' ? 'is-active' : '' %>">Wishlist</a>
+          <a href="/calendar" class="nav-link <%= activePage === 'calendar' ? 'is-active' : '' %>">Calendar</a>
+        </nav>
+      <% } %>
 
       <div class="header-actions">
-        <a href="/login" class="header-link">Login</a>
-        <a href="/register" class="btn btn-primary btn-small">Register</a>
+        <% if (currentUser) { %>
+          <span class="header-user">Hello, <%= currentUser.name %></span>
+          <a href="/logout" class="btn btn-secondary btn-small">Logout</a>
+        <% } else { %>
+          <a href="/login" class="header-link">Login</a>
+          <a href="/register" class="btn btn-primary btn-small">Register</a>
+        <% } %>
       </div>
     </div>
   </header>
