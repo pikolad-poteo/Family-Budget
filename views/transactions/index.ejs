@@ -1,24 +1,346 @@
 <%- include('../partials/header') %>
 
 <section class="container page-heading">
-  <div>
-    <p class="eyebrow">Operations</p>
+  <div class="transactions-page-intro">
+    <p class="eyebrow">Money flow</p>
     <h1 class="page-title">Transactions</h1>
     <p class="page-text">
-      This page will show transaction history, filters and transaction creation form.
+      Add income and expenses quickly, keep the form compact and use extra options only when needed.
     </p>
   </div>
 </section>
 
-<section class="container section-block">
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Transaction history</h2>
-    </div>
+<section class="container transactions-layout">
+  <aside class="transactions-sidebar">
+    <section class="section-card transaction-form-card">
+      <div class="section-header transaction-card-header">
+        <div>
+          <p class="section-label">New record</p>
+          <h2>Add transaction</h2>
+        </div>
+      </div>
 
-    <div class="placeholder-box">
-      <p>Transaction table and filter controls will be implemented later.</p>
-    </div>
+      <form class="transaction-form">
+        <div class="transaction-type-switch" role="group" aria-label="Transaction type">
+          <button class="transaction-type-option is-active is-expense" type="button">
+            <i class="bi bi-dash-circle"></i>
+            <span>Expense</span>
+          </button>
+
+          <button class="transaction-type-option is-income" type="button">
+            <i class="bi bi-plus-circle"></i>
+            <span>Income</span>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="transactionAmount">Amount</label>
+          <div class="transaction-amount-field">
+            <span>€</span>
+            <input
+              class="form-input"
+              id="transactionAmount"
+              name="transactionAmount"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        <div class="transaction-quick-categories">
+          <div class="transaction-inline-heading">
+            <label class="form-label" for="transactionCategory">Category</label>
+            <span class="transaction-helper-text">Popular</span>
+          </div>
+
+          <div class="transaction-chip-list">
+            <button class="transaction-category-chip is-active" type="button">
+              <span class="transaction-category-dot" style="background-color: #ef4444;"></span>
+              <i class="bi bi-cart3"></i>
+              <span>Groceries</span>
+            </button>
+
+            <button class="transaction-category-chip" type="button">
+              <span class="transaction-category-dot" style="background-color: #3b82f6;"></span>
+              <i class="bi bi-car-front"></i>
+              <span>Transport</span>
+            </button>
+
+            <button class="transaction-category-chip" type="button">
+              <span class="transaction-category-dot" style="background-color: #8b5cf6;"></span>
+              <i class="bi bi-house-door"></i>
+              <span>Rent</span>
+            </button>
+
+            <button class="transaction-category-chip" type="button">
+              <span class="transaction-category-dot" style="background-color: #10b981;"></span>
+              <i class="bi bi-basket2"></i>
+              <span>Shopping</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="transactionCategory">All categories</label>
+          <div class="transaction-select-wrap">
+            <i class="bi bi-grid-1x2-fill transaction-select-icon"></i>
+            <select class="form-input form-select transaction-select-with-icon" id="transactionCategory" name="transactionCategory">
+              <option selected>🛒 Groceries</option>
+              <option>🚗 Transport</option>
+              <option>🏠 Rent</option>
+              <option>💼 Salary</option>
+              <option>🛍 Shopping</option>
+              <option>☕ Cafes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="transactionDescription">Description</label>
+          <input
+            class="form-input"
+            id="transactionDescription"
+            name="transactionDescription"
+            type="text"
+            placeholder="Optional note for this transaction"
+          />
+        </div>
+
+        <details class="transaction-expandable">
+          <summary class="transaction-expandable-summary">
+            <span>
+              <i class="bi bi-sliders"></i>
+              Additional parameters
+            </span>
+            <span class="transaction-expandable-hint">Date and payer</span>
+          </summary>
+
+          <div class="transaction-expandable-body">
+            <div class="transaction-inline-grid">
+              <div class="form-group">
+                <label class="form-label" for="transactionDate">Date</label>
+                <input
+                  class="form-input"
+                  id="transactionDate"
+                  name="transactionDate"
+                  type="date"
+                  value="2026-04-19"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="transactionMember">Paid by</label>
+                <select class="form-input form-select" id="transactionMember" name="transactionMember">
+                  <option selected>Martin</option>
+                  <option>Anna</option>
+                  <option>Shared</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="transaction-form-actions">
+          <button class="btn btn-primary" type="submit">Save transaction</button>
+          <button class="btn btn-secondary" type="button">Clear form</button>
+        </div>
+      </form>
+    </section>
+  </aside>
+
+  <div class="transactions-main">
+    <section class="section-card transaction-filters-card">
+      <div class="section-header transaction-card-header">
+        <div>
+          <p class="section-label">History tools</p>
+          <h2>Filters</h2>
+        </div>
+        <a href="#" class="transaction-clear-link">Reset filters</a>
+      </div>
+
+      <form class="transaction-filters-form">
+        <div class="transaction-filters-main-grid">
+          <div class="form-group">
+            <label class="form-label" for="filterSearch">Search</label>
+            <input
+              class="form-input"
+              id="filterSearch"
+              name="filterSearch"
+              type="text"
+              placeholder="Search description"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="filterCategory">Category</label>
+            <div class="transaction-select-wrap">
+              <i class="bi bi-funnel-fill transaction-select-icon"></i>
+              <select class="form-input form-select transaction-select-with-icon" id="filterCategory" name="filterCategory">
+                <option selected>All categories</option>
+                <option>🛒 Groceries</option>
+                <option>🚗 Transport</option>
+                <option>🏠 Rent</option>
+                <option>💼 Salary</option>
+                <option>🛍 Shopping</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <details class="transaction-expandable">
+          <summary class="transaction-expandable-summary">
+            <span>
+              <i class="bi bi-funnel"></i>
+              Additional filters
+            </span>
+            <span class="transaction-expandable-hint">Type, period and member</span>
+          </summary>
+
+          <div class="transaction-expandable-body">
+            <div class="transaction-filters-grid">
+              <div class="form-group">
+                <label class="form-label" for="filterType">Type</label>
+                <select class="form-input form-select" id="filterType" name="filterType">
+                  <option selected>All types</option>
+                  <option>Expenses</option>
+                  <option>Income</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="filterMember">Member</label>
+                <select class="form-input form-select" id="filterMember" name="filterMember">
+                  <option selected>All members</option>
+                  <option>Martin</option>
+                  <option>Anna</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="filterFrom">From</label>
+                <input class="form-input" id="filterFrom" name="filterFrom" type="date" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="filterTo">To</label>
+                <input class="form-input" id="filterTo" name="filterTo" type="date" />
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="transaction-filter-actions">
+          <button class="btn btn-primary" type="submit">Apply filters</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section-card transaction-table-card">
+      <div class="section-header transaction-card-header">
+        <div>
+          <p class="section-label">Latest activity</p>
+          <h2>Transaction history</h2>
+        </div>
+        <span class="transaction-history-count">8 entries</span>
+      </div>
+
+      <div class="transactions-table-wrap">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Paid by</th>
+              <th>Type</th>
+              <th class="is-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-04-19</td>
+              <td>
+                <div class="transaction-category-cell">
+                  <span class="transaction-table-icon" style="background-color: #fee2e2; color: #b91c1c;">
+                    <i class="bi bi-cart3"></i>
+                  </span>
+                  <span>Groceries</span>
+                </div>
+              </td>
+              <td>Weekly supermarket visit</td>
+              <td>Martin</td>
+              <td><span class="transaction-row-badge is-expense">Expense</span></td>
+              <td class="is-right"><span class="transaction-amount is-expense">-48.90 €</span></td>
+            </tr>
+
+            <tr>
+              <td>2026-04-18</td>
+              <td>
+                <div class="transaction-category-cell">
+                  <span class="transaction-table-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+                    <i class="bi bi-car-front"></i>
+                  </span>
+                  <span>Transport</span>
+                </div>
+              </td>
+              <td>Fuel refill</td>
+              <td>Anna</td>
+              <td><span class="transaction-row-badge is-expense">Expense</span></td>
+              <td class="is-right"><span class="transaction-amount is-expense">-35.00 €</span></td>
+            </tr>
+
+            <tr>
+              <td>2026-04-17</td>
+              <td>
+                <div class="transaction-category-cell">
+                  <span class="transaction-table-icon" style="background-color: #ede9fe; color: #6d28d9;">
+                    <i class="bi bi-house-door"></i>
+                  </span>
+                  <span>Rent</span>
+                </div>
+              </td>
+              <td>Monthly apartment payment</td>
+              <td>Shared</td>
+              <td><span class="transaction-row-badge is-expense">Expense</span></td>
+              <td class="is-right"><span class="transaction-amount is-expense">-620.00 €</span></td>
+            </tr>
+
+            <tr>
+              <td>2026-04-16</td>
+              <td>
+                <div class="transaction-category-cell">
+                  <span class="transaction-table-icon" style="background-color: #dcfce7; color: #15803d;">
+                    <i class="bi bi-wallet2"></i>
+                  </span>
+                  <span>Salary</span>
+                </div>
+              </td>
+              <td>Main monthly salary</td>
+              <td>Martin</td>
+              <td><span class="transaction-row-badge is-income">Income</span></td>
+              <td class="is-right"><span class="transaction-amount is-income">+1800.00 €</span></td>
+            </tr>
+
+            <tr>
+              <td>2026-04-15</td>
+              <td>
+                <div class="transaction-category-cell">
+                  <span class="transaction-table-icon" style="background-color: #fef3c7; color: #b45309;">
+                    <i class="bi bi-cup-hot"></i>
+                  </span>
+                  <span>Cafes</span>
+                </div>
+              </td>
+              <td>Coffee with friends</td>
+              <td>Anna</td>
+              <td><span class="transaction-row-badge is-expense">Expense</span></td>
+              <td class="is-right"><span class="transaction-amount is-expense">-12.80 €</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 </section>
 
