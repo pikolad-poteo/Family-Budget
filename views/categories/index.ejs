@@ -1,25 +1,300 @@
 <%- include('../partials/header') %>
 
 <section class="container page-heading">
-  <div>
-    <p class="eyebrow">Budget setup</p>
+  <div class="categories-page-intro">
+    <p class="eyebrow">Budget structure</p>
     <h1 class="page-title">Categories</h1>
     <p class="page-text">
-      This section will contain category creation, editing and grouping for income and expenses.
+      Organize income and expense categories with custom colors and icons for a clearer budget overview.
     </p>
   </div>
 </section>
 
-<section class="container section-block">
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Category management</h2>
-    </div>
+<section class="container categories-layout">
+  <div class="categories-main">
+    <section class="section-card categories-section">
+      <div class="section-header categories-section-header">
+        <div>
+          <p class="section-label">Expenses</p>
+          <h2>Expense categories</h2>
+        </div>
+        <span class="categories-section-count">12 categories</span>
+      </div>
 
-    <div class="placeholder-box">
-      <p>Category forms and tables will be added in the next development steps.</p>
-    </div>
+      <div class="categories-grid">
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #fee2e2; color: #b91c1c;">
+              <i class="bi bi-cart3"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Groceries</h3>
+          <p>Food and household shopping</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #dbeafe; color: #1d4ed8;">
+              <i class="bi bi-house-door"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Rent</h3>
+          <p>Monthly housing payments</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #dcfce7; color: #15803d;">
+              <i class="bi bi-car-front"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Transport</h3>
+          <p>Fuel, parking and commuting</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #ede9fe; color: #6d28d9;">
+              <i class="bi bi-lightning-charge"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Utilities</h3>
+          <p>Electricity, water and internet</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #fef3c7; color: #b45309;">
+              <i class="bi bi-heart-pulse"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Health</h3>
+          <p>Medicine and medical services</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #fce7f3; color: #be185d;">
+              <i class="bi bi-controller"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Leisure</h3>
+          <p>Entertainment and hobbies</p>
+        </article>
+
+        <button class="category-card category-card-add" type="button">
+          <span class="category-add-icon">
+            <i class="bi bi-plus-lg"></i>
+          </span>
+          <strong>Add expense category</strong>
+          <span>Quick create new category</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section-card categories-section">
+      <div class="section-header categories-section-header">
+        <div>
+          <p class="section-label">Income</p>
+          <h2>Income categories</h2>
+        </div>
+        <span class="categories-section-count">6 categories</span>
+      </div>
+
+      <div class="categories-grid">
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #dcfce7; color: #15803d;">
+              <i class="bi bi-wallet2"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Salary</h3>
+          <p>Main monthly income source</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #dbeafe; color: #1d4ed8;">
+              <i class="bi bi-briefcase"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Freelance</h3>
+          <p>Additional project income</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #fef3c7; color: #b45309;">
+              <i class="bi bi-bank"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Bonuses</h3>
+          <p>Work bonuses and rewards</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-card-top">
+            <span class="category-icon-chip" style="background-color: #fce7f3; color: #be185d;">
+              <i class="bi bi-gift"></i>
+            </span>
+            <button class="category-card-action" type="button">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <h3>Gifts</h3>
+          <p>Received transfers and gifts</p>
+        </article>
+
+        <button class="category-card category-card-add" type="button">
+          <span class="category-add-icon">
+            <i class="bi bi-plus-lg"></i>
+          </span>
+          <strong>Add income category</strong>
+          <span>Quick create new category</span>
+        </button>
+      </div>
+    </section>
   </div>
+
+  <aside class="categories-sidebar">
+    <section class="section-card category-editor-card">
+      <div class="section-header categories-editor-header">
+        <div>
+          <p class="section-label">Editor</p>
+          <h2>Create category</h2>
+        </div>
+        <span class="category-mode-badge">Expense</span>
+      </div>
+
+      <form class="category-form">
+        <div class="form-group">
+          <label class="form-label" for="categoryType">Type</label>
+          <select class="form-input form-select" id="categoryType" name="categoryType">
+            <option value="expense" selected>Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="categoryName">Category name</label>
+          <input class="form-input" id="categoryName" name="categoryName" type="text" placeholder="Enter category name" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="categoryDescription">Description</label>
+          <input class="form-input" id="categoryDescription" name="categoryDescription" type="text" placeholder="Optional short description" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Quick colors</label>
+          <div class="category-color-swatches">
+            <button class="category-color-swatch is-active" type="button" style="background-color: #ef4444;" aria-label="Red"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #f59e0b;" aria-label="Orange"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #10b981;" aria-label="Green"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #3b82f6;" aria-label="Blue"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #8b5cf6;" aria-label="Purple"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #ec4899;" aria-label="Pink"></button>
+            <button class="category-color-swatch" type="button" style="background-color: #6b7280;" aria-label="Gray"></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="customColor">Custom color</label>
+          <div class="category-custom-color-row">
+            <input class="category-color-picker" id="customColor" name="customColor" type="color" value="#ef4444" />
+            <span class="category-color-value">#EF4444</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Selected icon</label>
+          <div class="category-selected-icon">
+            <span class="category-icon-chip is-large" style="background-color: #fee2e2; color: #b91c1c;">
+              <i class="bi bi-cart3"></i>
+            </span>
+            <div class="category-selected-icon-text">
+              <strong>cart3</strong>
+              <span>Used for shopping and groceries</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="category-icon-picker-header">
+            <label class="form-label">Popular icons</label>
+            <button class="category-inline-link" type="button">Show more</button>
+          </div>
+
+          <div class="category-icons-grid">
+            <button class="category-icon-option is-active" type="button"><i class="bi bi-cart3"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-house-door"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-car-front"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-bus-front"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-heart-pulse"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-controller"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-cup-hot"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-lightning-charge"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-wallet2"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-bank"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-briefcase"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-gift"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-airplane"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-book"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-basket"></i></button>
+            <button class="category-icon-option" type="button"><i class="bi bi-phone"></i></button>
+          </div>
+        </div>
+
+        <div class="category-editor-actions">
+          <button class="btn btn-primary" type="submit">Save category</button>
+          <button class="btn btn-secondary" type="reset">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section-card category-help-card">
+      <div class="section-header categories-editor-header">
+        <div>
+          <p class="section-label">Guidelines</p>
+          <h2>Category tips</h2>
+        </div>
+      </div>
+
+      <ul class="category-help-list">
+        <li>Keep names short and easy to scan.</li>
+        <li>Use clear icons for fast recognition.</li>
+        <li>Keep colors consistent for similar groups.</li>
+        <li>Create separate categories only when needed.</li>
+      </ul>
+    </section>
+  </aside>
 </section>
 
 <%- include('../partials/footer') %>
