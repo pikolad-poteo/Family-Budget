@@ -1,10 +1,26 @@
 // Import core dependencies
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const mysql = require('mysql2/promise');
 
 // Create Express application instance
 const app = express();
+
+// Create MySQL connection pool
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'my_budget',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  charset: 'utf8mb4'
+});
 
 // Temporary in-memory user storage
 const users = [
@@ -17,7 +33,7 @@ const users = [
 ];
 
 // Define server port
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Configure template engine and views directory
 app.set('view engine', 'ejs');
@@ -25,10 +41,11 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Register global middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
-    secret: 'my-budget-secret-key',
+    secret: process.env.SESSION_SECRET || 'my-budget-secret-key',
     resave: false,
     saveUninitialized: false
   })
@@ -39,6 +56,23 @@ app.use(
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   next();
+});
+
+// Middleware: database connection check
+// Ensures that MySQL is available before handling application routes
+app.use(async (req, res, next) => {
+  try {
+    await db.query('SELECT 1');
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+
+    res.status(500).send(`
+      <h1>Database connection error</h1>
+      <p>My-Budget cannot connect to MySQL right now.</p>
+      <p>Please check your database settings and server status.</p>
+    `);
+  }
 });
 
 // Middleware: authentication guard
@@ -156,6 +190,7 @@ app.post('/login', (req, res) => {
   }
 
   req.session.user = {
+    id: user.id,
     name: user.name,
     email: user.email
   };
@@ -213,6 +248,7 @@ app.post('/register', (req, res) => {
   }
 
   users.push({
+    id: users.length + 1,
     name,
     email,
     password
@@ -227,6 +263,12 @@ app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
+});
+
+// Fallback route: page not found
+// Handles requests to undefined routes
+app.use((req, res) => {
+  res.status(404).send('404 - Page not found');
 });
 
 // Start server and show local address in console
