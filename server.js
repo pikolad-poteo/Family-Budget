@@ -95,23 +95,215 @@ async function getUserFamily(userId) {
 
 // Helper: load categories available for current user
 // Includes personal and family categories
-async function getUserCategories(userId, familyId = null) {
-  let query = `
-    SELECT id, name, type, color, icon, family_id
-    FROM categories
-    WHERE user_id = ?
-  `;
+async function getUserCategories(userId, familyId = null, searchTerm = '') {
   const params = [userId];
+
+  let query = `
+    SELECT id, user_id, family_id, name, type, color, icon
+    FROM categories
+    WHERE (user_id = ?
+  `;
 
   if (familyId) {
     query += ' OR family_id = ?';
     params.push(familyId);
   }
 
-  query += ' ORDER BY type ASC, name ASC';
+  query += ')';
+
+  const normalizedSearch = (searchTerm || '').trim();
+
+  if (normalizedSearch) {
+    query += ' AND name LIKE ?';
+    params.push(`%${normalizedSearch}%`);
+  }
+
+  query += `
+    ORDER BY
+      CASE WHEN type = 'expense' THEN 0 ELSE 1 END,
+      name ASC
+  `;
 
   const [rows] = await db.query(query, params);
   return rows;
+}
+
+// Helper: find category available for current user
+// Returns personal category or shared family category accessible to the user
+async function getCategoryByIdForUser(categoryId, userId, familyId = null) {
+  let query = `
+    SELECT id, user_id, family_id, name, type, color, icon
+    FROM categories
+    WHERE id = ?
+      AND (
+        user_id = ?
+  `;
+  const params = [categoryId, userId];
+
+  if (familyId) {
+    query += ' OR family_id = ?';
+    params.push(familyId);
+  }
+
+  query += ') LIMIT 1';
+
+  const [rows] = await db.query(query, params);
+  return rows[0] || null;
+}
+
+// Helper: allowed category icons from UI
+const ALLOWED_CATEGORY_ICONS = new Set([
+  'cart3',
+  'house-door',
+  'car-front',
+  'bus-front',
+  'heart-pulse',
+  'controller',
+  'cup-hot',
+  'lightning-charge',
+  'wallet2',
+  'bank',
+  'briefcase',
+  'gift',
+  'airplane',
+  'book',
+  'basket',
+  'phone',
+  'cash-stack',
+  'piggy-bank',
+  'credit-card',
+  'bag',
+  'shop',
+  'shop-window',
+  'basket2',
+  'egg-fried',
+  'cake2',
+  'cup-straw',
+  'bicycle',
+  'fuel-pump',
+  'train-front',
+  'ev-front',
+  'capsule',
+  'hospital',
+  'tv',
+  'laptop',
+  'tablet',
+  'phone-fill',
+  'wifi',
+  'palette',
+  'camera',
+  'music-note-beamed',
+  'film',
+  'book-half',
+  'mortarboard',
+  'balloon',
+  'flower1',
+  'gem',
+  'sun',
+  'moon-stars',
+  'tree',
+  'hammer',
+  'tools',
+  'wrench-adjustable',
+  'house-heart',
+  'people',
+  'person-heart',
+  'trophy',
+  'rocket',
+  'globe2',
+  'map',
+  'geo-alt',
+  'archive',
+  'box-seam',
+  'tag',
+  'tags',
+  'receipt',
+  'clipboard-data',
+  'graph-up-arrow',
+  'coin'
+]);
+
+function sanitizeCategoryName(value = '') {
+  return String(value).trim().replace(/\s+/g, ' ').slice(0, 100);
+}
+
+function sanitizeCategoryType(value = '') {
+  return value === 'income' ? 'income' : 'expense';
+}
+
+function sanitizeCategoryScope(value = '', family) {
+  if (value === 'family' && family) {
+    return 'family';
+  }
+
+  return 'personal';
+}
+
+function sanitizeCategoryColor(value = '') {
+  const color = String(value || '').trim();
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#6c757d';
+}
+
+function sanitizeCategoryIcon(value = '') {
+  const icon = String(value || '').trim().toLowerCase();
+  return ALLOWED_CATEGORY_ICONS.has(icon) ? icon : 'tag';
+}
+
+function buildCategoriesRedirect(req, fallbackTab = 'expense') {
+  const params = new URLSearchParams();
+
+  const rawTab =
+    req.body.redirectTab ||
+    req.query.tab ||
+    fallbackTab;
+
+  const safeTab = rawTab === 'income' ? 'income' : 'expense';
+  params.set('tab', safeTab);
+
+  const rawQuery = String(req.body.redirectQuery || req.query.q || '').trim();
+  if (rawQuery) {
+    params.set('q', rawQuery);
+  }
+
+  return `/categories?${params.toString()}`;
+}
+
+function setCategoryFlash(req, type, message) {
+  req.session.categoryFlash = { type, message };
+}
+
+async function findDuplicateCategory({
+  userId,
+  familyId,
+  name,
+  type,
+  excludeId = null
+}) {
+  const params = [name, type];
+  let query = `
+    SELECT id
+    FROM categories
+    WHERE LOWER(name) = LOWER(?)
+      AND type = ?
+  `;
+
+  if (familyId) {
+    query += ' AND family_id = ?';
+    params.push(familyId);
+  } else {
+    query += ' AND user_id = ? AND family_id IS NULL';
+    params.push(userId);
+  }
+
+  if (excludeId) {
+    query += ' AND id <> ?';
+    params.push(excludeId);
+  }
+
+  query += ' LIMIT 1';
+
+  const [rows] = await db.query(query, params);
+  return rows[0] || null;
 }
 
 // Route: root page
@@ -135,31 +327,50 @@ app.get('/dashboard', requireAuth, (req, res) => {
 
 // Route: categories page
 // Displays the categories management page for authenticated users
+
+// Route: categories page
+// Displays the categories management page for authenticated users
 app.get('/categories', requireAuth, async (req, res) => {
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
+    const searchTerm = (req.query.q || '').trim();
+    const activeTab = req.query.tab === 'income' ? 'income' : 'expense';
+
     const categories = await getUserCategories(
       currentUserId,
-      family ? family.id : null
+      family ? family.id : null,
+      searchTerm
     );
 
-    const incomeCategories = categories.filter(
+    const normalizedCategories = categories.map((category) => ({
+      ...category,
+      color: sanitizeCategoryColor(category.color),
+      icon: sanitizeCategoryIcon(category.icon)
+    }));
+
+    const incomeCategories = normalizedCategories.filter(
       (category) => category.type === 'income'
     );
 
-    const expenseCategories = categories.filter(
+    const expenseCategories = normalizedCategories.filter(
       (category) => category.type === 'expense'
     );
+
+    const flash = req.session.categoryFlash || null;
+    delete req.session.categoryFlash;
 
     res.render('categories/index', {
       title: 'Categories',
       activePage: 'categories',
       family,
+      categories: normalizedCategories,
       incomeCategories,
       expenseCategories,
-      errorMessage: '',
-      successMessage: ''
+      searchTerm,
+      activeTab,
+      errorMessage: flash && flash.type === 'error' ? flash.message : '',
+      successMessage: flash && flash.type === 'success' ? flash.message : ''
     });
   } catch (error) {
     console.error('Categories page error:', error.message);
@@ -168,8 +379,11 @@ app.get('/categories', requireAuth, async (req, res) => {
       title: 'Categories',
       activePage: 'categories',
       family: null,
+      categories: [],
       incomeCategories: [],
       expenseCategories: [],
+      searchTerm: '',
+      activeTab: 'expense',
       errorMessage: 'Failed to load categories.',
       successMessage: ''
     });
@@ -266,9 +480,6 @@ app.get('/login', (req, res) => {
   });
 });
 
-// Route: login form submission
-// Checks user credentials and stores authenticated user in session
-
 // Route: register page
 // Renders the user registration form for guest users
 app.get('/register', (req, res) => {
@@ -284,6 +495,8 @@ app.get('/register', (req, res) => {
   });
 });
 
+// Route: login form submission
+// Checks user credentials and stores authenticated user in session
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -314,7 +527,6 @@ app.post('/login', async (req, res) => {
     }
 
     const user = rows[0];
-
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
@@ -346,7 +558,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Route: register form submission
-// Validates input and stores a temporary user in memory
+// Validates input and stores a new user in the database
 app.post('/register', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
 
@@ -442,24 +654,38 @@ app.post('/family/create', requireAuth, async (req, res) => {
 // Route: category creation
 // Creates a new personal or family category for the authenticated user
 app.post('/categories/create', requireAuth, async (req, res) => {
-  const { name, type, color, icon, scope } = req.body;
-
-  if (!name || !type) {
-    return res.redirect('/categories');
-  }
-
-  if (!['income', 'expense'].includes(type)) {
-    return res.redirect('/categories');
-  }
-
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
 
-    let familyId = null;
+    const name = sanitizeCategoryName(req.body.name);
+    const type = sanitizeCategoryType(req.body.type);
+    const color = sanitizeCategoryColor(req.body.color);
+    const icon = sanitizeCategoryIcon(req.body.icon);
+    const scope = sanitizeCategoryScope(req.body.scope, family);
 
+    const redirectUrl = buildCategoriesRedirect(req, type);
+
+    if (!name) {
+      setCategoryFlash(req, 'error', 'Category name is required.');
+      return res.redirect(redirectUrl);
+    }
+
+    let familyId = null;
     if (scope === 'family' && family) {
       familyId = family.id;
+    }
+
+    const duplicate = await findDuplicateCategory({
+      userId: currentUserId,
+      familyId,
+      name,
+      type
+    });
+
+    if (duplicate) {
+      setCategoryFlash(req, 'error', 'A category with this name already exists in the selected scope.');
+      return res.redirect(redirectUrl);
     }
 
     await db.query(
@@ -467,20 +693,120 @@ app.post('/categories/create', requireAuth, async (req, res) => {
       INSERT INTO categories (user_id, family_id, name, type, color, icon)
       VALUES (?, ?, ?, ?, ?, ?)
       `,
-      [
-        currentUserId,
-        familyId,
-        name.trim(),
-        type,
-        color || '#6c757d',
-        icon || 'tag'
-      ]
+      [currentUserId, familyId, name, type, color, icon]
     );
 
-    res.redirect('/categories');
+    setCategoryFlash(req, 'success', 'Category created successfully.');
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Category creation error:', error.message);
-    res.redirect('/categories');
+    setCategoryFlash(req, 'error', 'Failed to create category.');
+    return res.redirect(buildCategoriesRedirect(req));
+  }
+});
+
+// Route: category update
+// Updates an existing personal or family category for the authenticated user
+app.post('/categories/:id/update', requireAuth, async (req, res) => {
+  const categoryId = Number(req.params.id);
+
+  try {
+    const currentUserId = req.session.user.id;
+    const family = await getUserFamily(currentUserId);
+
+    const name = sanitizeCategoryName(req.body.name);
+    const type = sanitizeCategoryType(req.body.type);
+    const color = sanitizeCategoryColor(req.body.color);
+    const icon = sanitizeCategoryIcon(req.body.icon);
+
+    const redirectUrl = buildCategoriesRedirect(req, type);
+
+    if (!categoryId || !name) {
+      setCategoryFlash(req, 'error', 'Invalid category data.');
+      return res.redirect(redirectUrl);
+    }
+
+    const category = await getCategoryByIdForUser(
+      categoryId,
+      currentUserId,
+      family ? family.id : null
+    );
+
+    if (!category) {
+      setCategoryFlash(req, 'error', 'Category not found.');
+      return res.redirect(redirectUrl);
+    }
+
+    const duplicate = await findDuplicateCategory({
+      userId: currentUserId,
+      familyId: category.family_id || null,
+      name,
+      type,
+      excludeId: categoryId
+    });
+
+    if (duplicate) {
+      setCategoryFlash(req, 'error', 'A category with this name already exists in this scope.');
+      return res.redirect(redirectUrl);
+    }
+
+    await db.query(
+      `
+      UPDATE categories
+      SET name = ?, type = ?, color = ?, icon = ?
+      WHERE id = ?
+      LIMIT 1
+      `,
+      [name, type, color, icon, categoryId]
+    );
+
+    setCategoryFlash(req, 'success', 'Category updated successfully.');
+    return res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Category update error:', error.message);
+    setCategoryFlash(req, 'error', 'Failed to update category.');
+    return res.redirect(buildCategoriesRedirect(req));
+  }
+});
+
+// Route: category deletion
+// Deletes an existing personal or family category for the authenticated user
+app.post('/categories/:id/delete', requireAuth, async (req, res) => {
+  const categoryId = Number(req.params.id);
+
+  try {
+    const currentUserId = req.session.user.id;
+    const family = await getUserFamily(currentUserId);
+
+    const redirectUrl = buildCategoriesRedirect(req);
+
+    if (!categoryId) {
+      setCategoryFlash(req, 'error', 'Invalid category id.');
+      return res.redirect(redirectUrl);
+    }
+
+    const category = await getCategoryByIdForUser(
+      categoryId,
+      currentUserId,
+      family ? family.id : null
+    );
+
+    if (!category) {
+      setCategoryFlash(req, 'error', 'Category not found.');
+      return res.redirect(redirectUrl);
+    }
+
+    await db.query(
+      'DELETE FROM categories WHERE id = ? LIMIT 1',
+      [categoryId]
+    );
+
+    setCategoryFlash(req, 'success', 'Category deleted successfully.');
+    return res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Category deletion error:', error.message);
+    setCategoryFlash(req, 'error', 'Failed to delete category.');
+    return res.redirect(buildCategoriesRedirect(req));
   }
 });
 
