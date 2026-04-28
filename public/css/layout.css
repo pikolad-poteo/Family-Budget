@@ -1,62 +1,49 @@
 /* Header */
 
 .site-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  z-index: 1030;
 }
 
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.site-header .navbar {
   min-height: 72px;
-  gap: 20px;
+  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
 }
 
-.logo {
+.app-logo {
   font-size: 24px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: var(--app-heading);
+  letter-spacing: -0.03em;
 }
 
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.app-logo:hover {
+  color: var(--app-heading);
 }
 
-.nav-link {
-  padding: 10px 14px;
+.app-nav-link {
   border-radius: 10px;
+  padding: 10px 14px !important;
   color: #4b5563;
-  transition: 0.2s;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s ease;
 }
 
-.nav-link:hover {
-  background: #f3f4f6;
-  color: #111827;
+.app-nav-link:hover {
+  background: var(--app-soft);
+  color: var(--app-heading);
 }
 
-.nav-link.is-active {
-  background: #111827;
-  color: #ffffff;
+.app-nav-link.active {
+  background: var(--app-heading);
+  color: #ffffff !important;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-link {
-  font-size: 14px;
-  color: #4b5563;
-}
-
-.header-user {
+.app-header-user {
   font-size: 14px;
   color: #374151;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Page heading */
@@ -69,42 +56,31 @@
 
 .site-footer {
   padding: 24px 0 36px;
-  color: #6b7280;
+  color: var(--app-muted);
   font-size: 14px;
   text-align: center;
 }
 
-.footer-inner {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+/* Bootstrap small fixes */
+
+.navbar-toggler {
+  border-radius: 12px;
 }
 
-.footer-text {
-  margin: 0;
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
-/* Responsive */
-
-@media (max-width: 640px) {
-  .header-inner {
-    flex-direction: column;
-    justify-content: center;
-    padding: 16px 0;
+@media (max-width: 991px) {
+  .site-header .navbar {
+    min-height: 64px;
   }
 
-  .header-actions {
-    flex-wrap: wrap;
-    justify-content: center;
+  .app-nav-link {
+    text-align: center;
   }
 
-  .nav {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .footer-inner {
-    flex-direction: column;
+  .app-header-user {
     text-align: center;
   }
 }

@@ -4,11 +4,11 @@
 .auth-card,
 .info-card,
 .section-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+  box-shadow: var(--app-shadow);
 }
 
 .eyebrow {
@@ -16,14 +16,15 @@
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #6b7280;
+  color: var(--app-muted);
 }
 
 .page-title {
   margin: 0 0 12px;
   font-size: 36px;
   line-height: 1.2;
-  color: #111827;
+  color: var(--app-heading);
+  letter-spacing: -0.04em;
 }
 
 .page-text {
@@ -33,35 +34,39 @@
   color: #4b5563;
 }
 
-/* Buttons */
+/* Buttons compatibility layer */
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
   font-weight: 600;
 }
 
 .btn-primary {
-  background: #111827;
-  color: #ffffff;
+  --bs-btn-bg: #111827;
+  --bs-btn-border-color: #111827;
+  --bs-btn-hover-bg: #020617;
+  --bs-btn-hover-border-color: #020617;
+  --bs-btn-active-bg: #020617;
+  --bs-btn-active-border-color: #020617;
+  --bs-btn-color: #ffffff;
 }
 
 .btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
+  --bs-btn-bg: #e5e7eb;
+  --bs-btn-border-color: #e5e7eb;
+  --bs-btn-hover-bg: #d1d5db;
+  --bs-btn-hover-border-color: #d1d5db;
+  --bs-btn-active-bg: #d1d5db;
+  --bs-btn-active-border-color: #d1d5db;
+  --bs-btn-color: #111827;
+  --bs-btn-hover-color: #111827;
+  --bs-btn-active-color: #111827;
 }
 
 .btn-small {
-  min-height: 36px;
-  padding: 0 14px;
-  font-size: 14px;
+  --bs-btn-padding-y: 0.35rem;
+  --bs-btn-padding-x: 0.85rem;
+  --bs-btn-font-size: 0.875rem;
+  border-radius: 999px;
 }
 
 /* Hero */
@@ -72,6 +77,7 @@
 
 .hero-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
 }
@@ -81,25 +87,26 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 24px;
 }
 
 .info-card h2 {
   margin: 0 0 16px;
   font-size: 20px;
+  color: var(--app-heading);
 }
 
 .card-value {
   margin: 0 0 10px;
   font-size: 28px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: var(--app-heading);
 }
 
 .card-text {
   margin: 0;
-  color: #6b7280;
+  color: var(--app-muted);
   line-height: 1.5;
 }
 
@@ -124,7 +131,7 @@
 
 .form-label {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
 }
 
@@ -133,14 +140,16 @@
   min-height: 46px;
   padding: 0 14px;
   border: 1px solid #d1d5db;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
   background: #ffffff;
+  transition: 0.2s ease;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
 .form-group {
@@ -150,13 +159,13 @@
 }
 
 .form-select {
-  appearance: none;
+  border-radius: 12px;
 }
 
 .auth-message {
   margin-top: 18px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -176,19 +185,19 @@
 .auth-footer {
   margin-top: 20px;
   padding-top: 18px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-border);
 }
 
 .auth-footer-text {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--app-muted);
   line-height: 1.5;
 }
 
 .auth-link {
-  color: #111827;
-  font-weight: 600;
+  color: var(--app-heading);
+  font-weight: 700;
 }
 
 .auth-link:hover {
@@ -212,16 +221,17 @@
 .section-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #111827;
+  color: var(--app-heading);
+  letter-spacing: -0.03em;
 }
 
 .section-label {
   margin: 0 0 8px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--app-muted);
 }
 
 .placeholder-box {
@@ -233,7 +243,7 @@
 
 .placeholder-box p {
   margin: 0;
-  color: #6b7280;
+  color: var(--app-muted);
   line-height: 1.6;
 }
 
@@ -247,7 +257,7 @@
   display: block;
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border);
   background: #ffffff;
   transition: 0.2s;
 }
@@ -260,12 +270,13 @@
 .action-card h3 {
   margin: 0 0 8px;
   font-size: 16px;
+  color: var(--app-heading);
 }
 
 .action-card p {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--app-muted);
 }
 
 /* Badges */
@@ -308,5 +319,17 @@
 @media (max-width: 640px) {
   .hero-actions {
     flex-direction: column;
+  }
+
+  .section-header {
+    flex-direction: column;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 30px;
   }
 }

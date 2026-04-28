@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title><%= title ? `${title} | My Budget` : 'My Budget' %></title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -24,38 +28,97 @@
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/components.css" />
+
   <link rel="stylesheet" href="/css/pages/family.css" />
   <link rel="stylesheet" href="/css/pages/categories.css" />
   <link rel="stylesheet" href="/css/pages/transactions.css" />
   <link rel="stylesheet" href="/css/pages/wishlist.css" />
   <link rel="stylesheet" href="/css/pages/calendar.css" />
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="<%= currentUser ? '/dashboard' : '/login' %>" class="logo">My Budget</a>
+  <header class="site-header sticky-top">
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+      <div class="container">
+        <a class="navbar-brand app-logo" href="<%= currentUser ? '/dashboard' : '/login' %>">
+          My Budget
+        </a>
 
-      <% if (currentUser) { %>
-        <nav class="nav">
-          <a href="/dashboard" class="nav-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">Dashboard</a>
-          <a href="/categories" class="nav-link <%= activePage === 'categories' ? 'is-active' : '' %>">Categories</a>
-          <a href="/transactions" class="nav-link <%= activePage === 'transactions' ? 'is-active' : '' %>">Transactions</a>
-          <a href="/wishlist" class="nav-link <%= activePage === 'wishlist' ? 'is-active' : '' %>">Wishlist</a>
-          <a href="/calendar" class="nav-link <%= activePage === 'calendar' ? 'is-active' : '' %>">Calendar</a>
-          <a href="/family" class="nav-link <%= activePage === 'family' ? 'is-active' : '' %>">Family</a>
-        </nav>
-      <% } %>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <div class="header-actions">
-        <% if (currentUser) { %>
-          <span class="header-user">Hello, <%= currentUser.name %></span>
-          <a href="/logout" class="btn btn-secondary btn-small">Logout</a>
-        <% } else { %>
-          <a href="/login" class="header-link">Login</a>
-          <a href="/register" class="btn btn-primary btn-small">Register</a>
-        <% } %>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <% if (currentUser) { %>
+            <ul class="navbar-nav mx-lg-auto mt-3 mt-lg-0 gap-lg-1">
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+                  Dashboard
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'categories' ? 'active' : '' %>" href="/categories">
+                  Categories
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'transactions' ? 'active' : '' %>" href="/transactions">
+                  Transactions
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'wishlist' ? 'active' : '' %>" href="/wishlist">
+                  Wishlist
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'calendar' ? 'active' : '' %>" href="/calendar">
+                  Calendar
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link app-nav-link <%= activePage === 'family' ? 'active' : '' %>" href="/family">
+                  Family
+                </a>
+              </li>
+            </ul>
+          <% } %>
+
+          <div class="d-flex align-items-lg-center gap-2 ms-lg-auto mt-3 mt-lg-0 flex-column flex-lg-row">
+            <% if (currentUser) { %>
+              <span class="app-header-user">
+                Hello, <%= currentUser.name %>
+              </span>
+
+              <a href="/logout" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                Logout
+              </a>
+            <% } else { %>
+              <a href="/login" class="btn btn-link text-dark text-decoration-none px-2">
+                Login
+              </a>
+
+              <a href="/register" class="btn btn-dark btn-sm rounded-pill px-3">
+                Register
+              </a>
+            <% } %>
+          </div>
+        </div>
       </div>
-    </div>
+    </nav>
   </header>
 
   <main class="page">
