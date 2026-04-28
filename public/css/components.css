@@ -333,3 +333,29 @@
     font-size: 30px;
   }
 }
+
+/* Dashboard Bootstrap additions */
+
+.dashboard-stat-card {
+  overflow: hidden;
+}
+
+.dashboard-stat-icon,
+.dashboard-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 20px;
+}
+
+.dashboard-action-icon {
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}

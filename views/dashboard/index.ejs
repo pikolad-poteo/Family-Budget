@@ -1,61 +1,164 @@
 <%- include('../partials/header') %>
 
 <section class="container page-heading">
-  <div>
-    <p class="eyebrow">Overview</p>
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-text">
-      Main page with balance summary, category analytics and quick actions.
-    </p>
+  <div class="row align-items-end g-3">
+    <div class="col-lg-8">
+      <p class="eyebrow">Overview</p>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-text">
+        Main page with balance summary, category analytics and quick actions.
+      </p>
+    </div>
+
+    <div class="col-lg-4 text-lg-end">
+      <span class="badge rounded-pill text-bg-light border px-3 py-2">
+        Personal finance workspace
+      </span>
+    </div>
   </div>
 </section>
 
-<section class="container cards-grid">
-  <article class="info-card">
-    <h2>Total balance</h2>
-    <p class="card-value">0.00</p>
-    <p class="card-text">Balance summary will be connected after database setup.</p>
-  </article>
+<section class="container mb-4">
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-4">
+      <article class="card border-0 shadow-sm rounded-4 h-100 dashboard-stat-card">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+            <div>
+              <p class="section-label mb-2">Balance</p>
+              <h2 class="h5 fw-bold mb-0">Total balance</h2>
+            </div>
 
-  <article class="info-card">
-    <h2>Total income</h2>
-    <p class="card-value">0.00</p>
-    <p class="card-text">Income analytics will appear here in future updates.</p>
-  </article>
+            <span class="dashboard-stat-icon">
+              <i class="bi bi-wallet2"></i>
+            </span>
+          </div>
 
-  <article class="info-card">
-    <h2>Total expenses</h2>
-    <p class="card-value">0.00</p>
-    <p class="card-text">Expense analytics will be displayed after transactions integration.</p>
-  </article>
-</section>
-
-<section class="container section-block">
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Quick actions</h2>
+          <p class="card-value mb-2">0.00</p>
+          <p class="card-text">
+            Balance summary will be connected after database setup.
+          </p>
+        </div>
+      </article>
     </div>
 
-    <div class="actions-grid">
-      <a href="/categories" class="action-card">
-        <h3>Manage categories</h3>
-        <p>Create income and expense categories.</p>
-      </a>
+    <div class="col-md-6 col-xl-4">
+      <article class="card border-0 shadow-sm rounded-4 h-100 dashboard-stat-card">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+            <div>
+              <p class="section-label mb-2">Income</p>
+              <h2 class="h5 fw-bold mb-0">Total income</h2>
+            </div>
 
-      <a href="/transactions" class="action-card">
-        <h3>View transactions</h3>
-        <p>Open transaction history and filters.</p>
-      </a>
+            <span class="dashboard-stat-icon">
+              <i class="bi bi-arrow-down-circle"></i>
+            </span>
+          </div>
 
-      <a href="/wishlist" class="action-card">
-        <h3>Open wishlist</h3>
-        <p>Plan future purchases and goals.</p>
-      </a>
+          <p class="card-value mb-2">0.00</p>
+          <p class="card-text">
+            Income analytics will appear here in future updates.
+          </p>
+        </div>
+      </article>
+    </div>
 
-      <a href="/calendar" class="action-card">
-        <h3>Open calendar</h3>
-        <p>Manage events and reminders.</p>
-      </a>
+    <div class="col-md-12 col-xl-4">
+      <article class="card border-0 shadow-sm rounded-4 h-100 dashboard-stat-card">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+            <div>
+              <p class="section-label mb-2">Expenses</p>
+              <h2 class="h5 fw-bold mb-0">Total expenses</h2>
+            </div>
+
+            <span class="dashboard-stat-icon">
+              <i class="bi bi-arrow-up-circle"></i>
+            </span>
+          </div>
+
+          <p class="card-value mb-2">0.00</p>
+          <p class="card-text">
+            Expense analytics will be displayed after transactions integration.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="container">
+  <div class="card border-0 shadow-sm rounded-4 section-card">
+    <div class="card-body p-4">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Navigation</p>
+          <h2>Quick actions</h2>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <a href="/categories" class="action-card h-100">
+            <div class="d-flex align-items-start gap-3">
+              <span class="dashboard-action-icon">
+                <i class="bi bi-tags"></i>
+              </span>
+
+              <div>
+                <h3>Manage categories</h3>
+                <p>Create income and expense categories.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6">
+          <a href="/transactions" class="action-card h-100">
+            <div class="d-flex align-items-start gap-3">
+              <span class="dashboard-action-icon">
+                <i class="bi bi-receipt"></i>
+              </span>
+
+              <div>
+                <h3>View transactions</h3>
+                <p>Open transaction history and filters.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6">
+          <a href="/wishlist" class="action-card h-100">
+            <div class="d-flex align-items-start gap-3">
+              <span class="dashboard-action-icon">
+                <i class="bi bi-heart"></i>
+              </span>
+
+              <div>
+                <h3>Open wishlist</h3>
+                <p>Plan future purchases and goals.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6">
+          <a href="/calendar" class="action-card h-100">
+            <div class="d-flex align-items-start gap-3">
+              <span class="dashboard-action-icon">
+                <i class="bi bi-calendar-event"></i>
+              </span>
+
+              <div>
+                <h3>Open calendar</h3>
+                <p>Manage events and reminders.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
