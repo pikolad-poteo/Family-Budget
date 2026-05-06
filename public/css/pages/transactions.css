@@ -479,3 +479,195 @@
     max-height: calc(100vh - 48px);
   }
 }
+
+/* Align transaction page visuals with categories page */
+.transactions-overview-panel,
+.transaction-filters-card,
+.transaction-table-card {
+  padding: 0;
+}
+
+.transactions-toolbar-text {
+  max-width: 720px;
+  margin: 0;
+  color: var(--app-muted);
+  line-height: 1.6;
+}
+
+.transactions-bootstrap-stat {
+  border: 1px solid var(--app-border) !important;
+  box-shadow: none;
+}
+
+.transaction-create-panel-inline {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--app-border) !important;
+}
+
+.transaction-create-panel-inline[hidden] {
+  display: none !important;
+}
+
+.transaction-type-switch {
+  gap: 6px;
+  padding: 6px;
+  border-color: var(--app-border);
+  border-radius: 16px;
+  background: #f9fafb;
+  overflow: visible;
+}
+
+.transaction-type-switch .transaction-type-btn {
+  min-height: 40px;
+  border-radius: 12px !important;
+  color: var(--app-muted);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.transaction-type-switch .transaction-type-btn:hover {
+  background: transparent;
+  color: var(--app-heading);
+}
+
+.transaction-type-switch .transaction-type-btn.is-active {
+  background: var(--app-heading);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.transaction-inner-card {
+  border-color: var(--app-border) !important;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, 0.04);
+}
+
+.transaction-category-option {
+  border-color: var(--app-border);
+  border-radius: 16px;
+  color: var(--app-heading);
+  font-weight: 700;
+}
+
+.transaction-category-option:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.transaction-category-option.is-active {
+  border-color: var(--app-heading);
+  background: var(--app-heading);
+  box-shadow: none;
+}
+
+.transaction-filters-header {
+  align-items: center;
+}
+
+.transaction-filters-left {
+  align-items: center;
+  gap: 24px;
+}
+
+.transaction-view-switch {
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-color: var(--app-border);
+  background: #f9fafb;
+}
+
+.transaction-view-switch .transaction-view-pill,
+.transaction-view-switch .transaction-view-pill:first-child {
+  min-width: auto;
+}
+
+.transaction-view-switch .transaction-view-pill {
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--app-muted);
+  font-weight: 700;
+}
+
+.transaction-view-switch .transaction-view-pill:hover {
+  background: transparent;
+  color: var(--app-heading);
+}
+
+.transaction-view-switch .transaction-view-pill.is-active {
+  background: var(--app-heading);
+  color: #ffffff;
+}
+
+.transaction-show-all-toggle {
+  border-color: var(--app-border);
+  background: #f9fafb;
+  color: var(--app-muted);
+  font-weight: 700;
+}
+
+.transaction-show-all-toggle:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
+  color: var(--app-heading);
+}
+
+.transaction-show-all-toggle.is-active {
+  border-color: var(--app-heading);
+  background: var(--app-heading);
+  color: #ffffff;
+}
+
+.transaction-advanced-toggle {
+  color: var(--app-muted);
+  font-weight: 700;
+}
+
+.transaction-advanced-toggle:hover,
+.transaction-advanced-toggle.is-open,
+.transaction-advanced-toggle[aria-expanded='true'] {
+  color: var(--app-heading);
+}
+
+.transaction-advanced-panel.is-open {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--app-border);
+}
+
+.transaction-filters-form .form-select,
+.transaction-filters-form .form-control,
+.transaction-form .form-select,
+.transaction-form .form-control,
+.transaction-date-input,
+.transaction-money-input .input-group-text,
+.transaction-money-input .form-control {
+  border-color: var(--app-border);
+}
+
+.transactions-table thead th,
+.transactions-table tbody td {
+  border-bottom-color: var(--app-border);
+}
+
+.transactions-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.transactions-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.transaction-history-count {
+  border: 1px solid var(--app-border);
+  background: #f9fafb !important;
+  color: var(--app-muted) !important;
+  font-weight: 700;
+}
+
+.transaction-table-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  font-size: 18px;
+}

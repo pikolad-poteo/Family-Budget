@@ -58,10 +58,10 @@
           <h2 class="mb-0">Filters</h2>
         </div>
 
-        <div class="btn-group transaction-view-switch" role="group" aria-label="Transaction history view">
+        <div class="categories-switcher transaction-view-switch" role="group" aria-label="Transaction history view">
           <a
             href="<%= buildHistoryViewUrl('date') %>"
-            class="btn transaction-view-pill <%= (filters.view || 'date') === 'date' ? 'is-active' : '' %>"
+            class="categories-switcher-btn transaction-view-pill <%= (filters.view || 'date') === 'date' ? 'is-active' : '' %>"
             data-history-link
           >
             By date
@@ -69,7 +69,7 @@
 
           <a
             href="<%= buildHistoryViewUrl('expenses') %>"
-            class="btn transaction-view-pill <%= filters.view === 'expenses' ? 'is-active' : '' %>"
+            class="categories-switcher-btn transaction-view-pill <%= filters.view === 'expenses' ? 'is-active' : '' %>"
             data-history-link
           >
             Expenses
@@ -77,7 +77,7 @@
 
           <a
             href="<%= buildHistoryViewUrl('income') %>"
-            class="btn transaction-view-pill <%= filters.view === 'income' ? 'is-active' : '' %>"
+            class="categories-switcher-btn transaction-view-pill <%= filters.view === 'income' ? 'is-active' : '' %>"
             data-history-link
           >
             Income

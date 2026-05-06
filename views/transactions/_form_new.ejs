@@ -5,13 +5,13 @@
 
   function getTypeButtonClass(type) {
     return createDefaultType === type
-      ? `btn transaction-type-btn is-active transaction-toggle-${type}`
-      : `btn transaction-type-btn transaction-toggle-${type}`;
+      ? `form-toggle-btn transaction-type-btn is-active transaction-toggle-${type}`
+      : `form-toggle-btn transaction-type-btn transaction-toggle-${type}`;
   }
 %>
 
-<div class="transaction-create-panel-inline border-top pt-4" id="transactionCreatePanel" hidden>
-  <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+<div class="category-create-panel-inline transaction-create-panel-inline" id="transactionCreatePanel" hidden>
+  <div class="category-create-header d-flex align-items-center justify-content-between gap-3">
     <div>
       <p class="section-label">Create</p>
       <h2 class="h4 mb-0">New transaction</h2>
@@ -34,10 +34,10 @@
       <input type="hidden" name="redirectView" value="<%= filters.view || 'date' %>" />
       <input type="hidden" name="redirectShowAll" value="<%= filters.showAll ? '1' : '' %>" />
 
-      <div class="row g-3 align-items-end mb-3">
+      <div class="row g-3 align-items-end mb-3 transaction-form-grid-row">
         <div class="col-lg-4">
           <label class="form-label">Type</label>
-          <div class="btn-group w-100 transaction-type-switch" role="group" aria-label="Transaction type">
+          <div class="form-toggle-group transaction-type-switch" role="group" aria-label="Transaction type">
             <button class="<%= getTypeButtonClass('expense') %>" type="button" data-transaction-type-option data-value="expense">Expense</button>
             <button class="<%= getTypeButtonClass('income') %>" type="button" data-transaction-type-option data-value="income">Income</button>
           </div>

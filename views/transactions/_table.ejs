@@ -22,15 +22,17 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
         <p class="section-label">Transaction</p>
-        <h2 class="mb-0">History</h2>
+        <h2 class="h3 fw-bold mb-0">History</h2>
       </div>
 
       <span class="badge rounded-pill text-bg-light transaction-history-count"><%= transactions.length %> entries</span>
     </div>
 
     <% if (!transactions.length) { %>
-      <div class="alert alert-light border rounded-4 mb-0" role="alert">
-        No transactions match the selected filters yet.
+      <div class="categories-empty-state" role="status">
+        <span class="categories-empty-icon"><i class="bi bi-receipt"></i></span>
+        <h3>No transactions found</h3>
+        <p>No transactions match the selected filters yet.</p>
       </div>
     <% } else { %>
       <div class="table-responsive transaction-table-responsive">
