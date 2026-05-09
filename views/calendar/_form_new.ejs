@@ -1,0 +1,128 @@
+<div class="section-header">
+  <div>
+    <p class="section-label">Quick add</p>
+    <h2>New event</h2>
+  </div>
+</div>
+
+<form action="/calendar/create" method="POST" class="calendar-quick-form">
+  <input type="hidden" name="redirect_view" value="<%= calendarView %>">
+
+  <div class="form-group">
+    <label class="form-label" for="calendar-title">Title</label>
+    <input id="calendar-title" type="text" name="title" class="form-control" placeholder="Enter event title" required>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label class="form-label" for="calendar-date">Date</label>
+      <input id="calendar-date" type="date" name="event_date" class="form-control" value="<%= selectedDate %>" required>
+    </div>
+
+    <div class="form-group calendar-color-field">
+      <label class="form-label" for="calendar-color">Color</label>
+      <div class="calendar-color-control" style="--selected-color: #0d6efd;">
+        <input id="calendar-color" type="color" name="color" class="calendar-color-input" value="#0d6efd" aria-label="Choose event color">
+        <span class="calendar-color-preview" data-calendar-color-preview style="background-color: #0d6efd;"></span>
+        <span class="calendar-color-value" data-calendar-color-value>#0d6efd</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label class="form-label" for="calendar-type">Type</label>
+      <select id="calendar-type" name="type" class="form-select">
+        <option value="event">Event</option>
+        <option value="reminder">Reminder</option>
+        <option value="task">Task</option>
+        <option value="birthday">Birthday</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="calendar-member">Member</label>
+      <select id="calendar-member" name="member_name" class="form-select">
+        <option value="">All family</option>
+        <% members.forEach(function(member) { %>
+          <option value="<%= member.name %>"><%= member.name %></option>
+        <% }) %>
+      </select>
+    </div>
+  </div>
+
+  <% if (family) { %>
+    <div class="form-group">
+      <label class="form-label" for="calendar-scope">Scope</label>
+      <select id="calendar-scope" name="scope" class="form-select">
+        <option value="family">Family calendar</option>
+        <option value="personal">Personal only</option>
+      </select>
+    </div>
+  <% } %>
+
+  <details class="calendar-form-section calendar-form-section-muted calendar-more-options">
+    <summary class="calendar-more-options-summary">
+      <span>
+        <strong>More options</strong>
+        <small>Start time, description, repeat settings and additional event details</small>
+      </span>
+      <i class="bi bi-chevron-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="calendar-more-options-content">
+      <div class="form-grid">
+        <div class="form-group calendar-time-control">
+          <label class="form-label" for="calendar-time">Start time</label>
+          <input id="calendar-time" type="time" name="event_time" class="form-control">
+        </div>
+
+        <div class="form-group calendar-end-time-control">
+          <label class="form-label" for="calendar-end-time">End time</label>
+          <input id="calendar-end-time" type="time" name="end_time" class="form-control">
+        </div>
+      </div>
+
+      <div class="calendar-toggle-group">
+        <label class="calendar-toggle-btn">
+          <input type="checkbox" name="is_all_day" value="1" data-calendar-all-day>
+          <span>All day</span>
+        </label>
+
+        <label class="calendar-toggle-btn">
+          <input type="checkbox" name="is_important" value="1">
+          <span>Important</span>
+        </label>
+
+        <label class="calendar-toggle-btn">
+          <input type="checkbox" name="is_recurring" value="1" data-calendar-recurring>
+          <span>Repeat</span>
+        </label>
+      </div>
+
+      <div class="form-group calendar-recurring-control">
+        <label class="form-label" for="calendar-repeat">Repeat type</label>
+        <select id="calendar-repeat" name="recurring_type" class="form-select" disabled>
+          <option value="none">Does not repeat</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="calendar-description">Description</label>
+        <textarea id="calendar-description" name="description" class="form-control form-textarea" rows="4" placeholder="Add a note about this event"></textarea>
+      </div>
+    </div>
+  </details>
+
+  <div class="calendar-form-actions calendar-form-actions-bottom">
+    <button type="submit" class="btn btn-dark rounded-pill px-4">
+      <i class="bi bi-check-lg me-2"></i>
+      Save event
+    </button>
+    <button type="reset" class="btn btn-outline-secondary rounded-pill px-4">Clear</button>
+  </div>
+</form>

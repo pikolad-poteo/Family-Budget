@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Хост: localhost
--- Время создания: Май 08 2026 г., 10:11
--- Версия сервера: 10.4.28-MariaDB
--- Версия PHP: 8.2.4
+-- Хост: 127.0.0.1
+-- Время создания: Май 09 2026 г., 22:36
+-- Версия сервера: 10.4.32-MariaDB
+-- Версия PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,12 +34,17 @@ CREATE TABLE `calendar_events` (
   `title` varchar(255) NOT NULL,
   `event_date` date NOT NULL,
   `event_time` time DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
   `type` enum('event','reminder','task','birthday') NOT NULL DEFAULT 'event',
   `member_name` varchar(100) DEFAULT NULL,
   `description` varchar(1000) DEFAULT NULL,
-  `color` enum('blue','green','orange','red','purple') NOT NULL DEFAULT 'blue',
+  `color` varchar(20) NOT NULL DEFAULT '#0d6efd',
   `is_all_day` tinyint(1) NOT NULL DEFAULT 0,
   `is_important` tinyint(1) NOT NULL DEFAULT 0,
+  `is_recurring` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring_type` enum('none','daily','weekly','monthly','yearly') NOT NULL DEFAULT 'none',
+  `is_completed` tinyint(1) NOT NULL DEFAULT 0,
+  `completed_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -48,12 +53,13 @@ CREATE TABLE `calendar_events` (
 -- Дамп данных таблицы `calendar_events`
 --
 
-INSERT INTO `calendar_events` (`id`, `user_id`, `family_id`, `title`, `event_date`, `event_time`, `type`, `member_name`, `description`, `color`, `is_all_day`, `is_important`, `created_at`, `updated_at`) VALUES
-(1, 1, NULL, 'Pay personal subscription', '2026-05-15', '10:00:00', 'reminder', NULL, 'Check monthly subscriptions and cancel unused services.', 'blue', 0, 1, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(2, 1, 1, 'Family budget review', '2026-05-18', '19:00:00', 'event', 'Family', 'Review family expenses and wishlist priorities.', 'green', 0, 1, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(3, 1, NULL, 'Course deadline', '2026-05-22', NULL, 'task', NULL, 'Finish planned study task.', 'purple', 1, 0, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(4, 2, 1, 'Car audio installation', '2026-05-25', '14:30:00', 'event', 'Vladislav', 'Install and test new audio components.', 'orange', 0, 0, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(5, 1, 1, 'Birthday reminder', '2026-06-02', NULL, 'birthday', 'Family member', 'Prepare small gift and dinner plan.', 'red', 1, 1, '2026-05-08 08:01:22', '2026-05-08 08:01:22');
+INSERT INTO `calendar_events` (`id`, `user_id`, `family_id`, `title`, `event_date`, `event_time`, `end_time`, `type`, `member_name`, `description`, `color`, `is_all_day`, `is_important`, `is_recurring`, `recurring_type`, `is_completed`, `completed_at`, `created_at`, `updated_at`) VALUES
+(1, 1, NULL, 'Pay personal subscription', '2026-05-15', '10:00:00', NULL, 'reminder', NULL, 'Check monthly subscriptions and cancel unused services.', '#0d6efd', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
+(2, 1, 1, 'Family budget review', '2026-05-18', '19:00:00', NULL, 'event', NULL, 'Review family expenses and wishlist priorities.', '#198754', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
+(3, 1, NULL, 'Course deadline', '2026-05-22', NULL, NULL, 'task', NULL, 'Finish planned study task.', '#6f42c1', 1, 0, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
+(4, 2, 1, 'Car audio installation', '2026-05-25', '14:30:00', NULL, 'event', 'Vladislav', 'Install and test new audio components.', '#fd7e14', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 20:00:51'),
+(5, 1, 1, 'Birthday reminder', '2026-06-02', NULL, NULL, 'birthday', 'Family member', 'Prepare small gift and dinner plan.', '#dc3545', 1, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
+(6, 2, 1, 'Europa Päev', '2026-05-09', NULL, NULL, 'event', NULL, NULL, '#0d6efd', 1, 0, 0, 'none', 0, NULL, '2026-05-09 20:01:35', '2026-05-09 20:34:54');
 
 -- --------------------------------------------------------
 
@@ -399,7 +405,7 @@ ALTER TABLE `wishlist_items`
 -- AUTO_INCREMENT для таблицы `calendar_events`
 --
 ALTER TABLE `calendar_events`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT для таблицы `categories`

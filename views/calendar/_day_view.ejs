@@ -1,0 +1,144 @@
+<div class="calendar-day-list">
+  <% if (!dayEvents.length) { %>
+    <div class="calendar-empty-state">
+      <i class="bi bi-calendar2-plus"></i>
+      <h3>No events for this day</h3>
+      <p>Add a reminder, family task, birthday, or important date using the form.</p>
+    </div>
+  <% } %>
+
+  <% dayEvents.forEach(function(event) { %>
+    <article class="calendar-day-item <%= event.is_completed ? 'is-completed' : '' %>">
+      <div class="calendar-day-item-color" style="background-color: <%= event.color_style %>;"></div>
+
+      <div class="calendar-day-item-body">
+        <div class="calendar-day-item-top">
+          <h3><%= event.title %></h3>
+          <span class="calendar-day-item-time"><%= event.event_time_label %><%= event.end_time_label ? ' - ' + event.end_time_label : '' %></span>
+        </div>
+
+        <p class="calendar-day-item-meta">
+          <%= event.type_label %>
+          <% if (event.member_name) { %> • <%= event.member_name %><% } %>
+          <% if (event.is_important) { %> • Important<% } %>
+          <% if (event.is_recurring) { %> • <%= event.recurring_type %><% } %>
+        </p>
+
+        <% if (event.description) { %>
+          <p class="calendar-day-item-text"><%= event.description %></p>
+        <% } %>
+
+        <details class="calendar-edit-panel">
+          <summary>Edit event</summary>
+
+          <form action="/calendar/update" method="POST" class="calendar-edit-form">
+            <input type="hidden" name="id" value="<%= event.id %>">
+            <input type="hidden" name="redirect_view" value="<%= calendarView %>">
+            <input type="hidden" name="redirect_date" value="<%= selectedDate %>">
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" value="<%= event.title %>" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="event_date" class="form-control" value="<%= selectedDate %>" required>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Type</label>
+                <select name="type" class="form-select">
+                  <% ['event', 'reminder', 'task', 'birthday'].forEach(function(type) { %>
+                    <option value="<%= type %>" <%= event.type === type ? 'selected' : '' %>><%= type.charAt(0).toUpperCase() + type.slice(1) %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Member</label>
+                <select name="member_name" class="form-select">
+                  <option value="">All family</option>
+                  <% members.forEach(function(member) { %>
+                    <option value="<%= member.name %>" <%= event.member_name === member.name ? 'selected' : '' %>><%= member.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid calendar-edit-time-row">
+              <div class="form-group calendar-time-control">
+                <label class="form-label">Start time</label>
+                <input type="time" name="event_time" class="form-control" value="<%= event.event_time ? String(event.event_time).slice(0, 5) : '' %>">
+              </div>
+              <div class="form-group calendar-end-time-control">
+                <label class="form-label">End time</label>
+                <input type="time" name="end_time" class="form-control" value="<%= event.end_time ? String(event.end_time).slice(0, 5) : '' %>">
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group calendar-color-field">
+                <label class="form-label">Color</label>
+                <div class="calendar-color-control" style="--selected-color: <%= event.color_style %>;">
+                  <input type="color" name="color" class="calendar-color-input" value="<%= event.color_style %>" aria-label="Choose event color">
+                  <span class="calendar-color-preview" data-calendar-color-preview style="background-color: <%= event.color_style %>;"></span>
+                  <span class="calendar-color-value" data-calendar-color-value><%= event.color_style %></span>
+                </div>
+              </div>
+              <div class="form-group calendar-recurring-control">
+                <label class="form-label">Repeat type</label>
+                <select name="recurring_type" class="form-select" <%= event.is_recurring ? '' : 'disabled' %>>
+                  <% ['none', 'daily', 'weekly', 'monthly', 'yearly'].forEach(function(repeat) { %>
+                    <option value="<%= repeat %>" <%= event.recurring_type === repeat ? 'selected' : '' %>><%= repeat.charAt(0).toUpperCase() + repeat.slice(1) %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <div class="calendar-toggle-group">
+              <label class="calendar-toggle-btn">
+                <input type="checkbox" name="is_all_day" value="1" data-calendar-all-day <%= event.is_all_day ? 'checked' : '' %>>
+                <span>All day</span>
+              </label>
+              <label class="calendar-toggle-btn">
+                <input type="checkbox" name="is_important" value="1" <%= event.is_important ? 'checked' : '' %>>
+                <span>Important</span>
+              </label>
+              <label class="calendar-toggle-btn">
+                <input type="checkbox" name="is_recurring" value="1" data-calendar-recurring <%= event.is_recurring ? 'checked' : '' %>>
+                <span>Repeat</span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control form-textarea" rows="3"><%= event.description || '' %></textarea>
+            </div>
+
+            <div class="calendar-form-actions">
+              <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">Save changes</button>
+            </div>
+          </form>
+        </details>
+      </div>
+
+      <div class="calendar-day-item-actions">
+        <form action="/calendar/complete" method="POST">
+          <input type="hidden" name="id" value="<%= event.id %>">
+          <input type="hidden" name="redirect_view" value="<%= calendarView %>">
+          <input type="hidden" name="redirect_date" value="<%= selectedDate %>">
+          <button type="submit" class="icon-btn" title="Toggle completed"><i class="bi bi-check2-circle"></i></button>
+        </form>
+
+        <form action="/calendar/delete" method="POST" onsubmit="return confirm('Delete this event?');">
+          <input type="hidden" name="id" value="<%= event.id %>">
+          <input type="hidden" name="redirect_view" value="<%= calendarView %>">
+          <input type="hidden" name="redirect_date" value="<%= selectedDate %>">
+          <button type="submit" class="icon-btn icon-btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
+        </form>
+      </div>
+    </article>
+  <% }) %>
+</div>

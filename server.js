@@ -7,12 +7,13 @@ const session = require('express-session');
 const checkDatabase = require('./scr/checkDatabase');
 const { attachUser } = require('./scr/middleware');
 
-const pagesRoutes = require('./routes/pages.routes');
 const authRoutes = require('./routes/auth.routes');
 const familyRoutes = require('./routes/family.routes');
 const categoriesRoutes = require('./routes/categories.routes');
 const transactionsRoutes = require('./routes/transactions.routes');
 const wishlistRoutes = require('./routes/wishlist.routes');
+const calendarRoutes = require('./routes/calendar.routes');
+const pagesRoutes = require('./routes/pages.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,12 +36,17 @@ app.use(
 app.use(attachUser);
 app.use(checkDatabase);
 
-app.use(pagesRoutes);
+/*
+  Main application routes.
+  Specific CRUD routes should be registered before general page routes.
+*/
 app.use(authRoutes);
 app.use(familyRoutes);
 app.use(categoriesRoutes);
 app.use(transactionsRoutes);
 app.use(wishlistRoutes);
+app.use(calendarRoutes);
+app.use(pagesRoutes);
 
 app.use((req, res) => {
   res.status(404).send('404 - Page not found');

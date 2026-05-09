@@ -1,404 +1,179 @@
 <%- include('../partials/header') %>
 
-<section class="container page-heading">
-  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-    <div>
-      <p class="eyebrow">Planning</p>
-      <h1 class="page-title">Calendar</h1>
-      <p class="page-text">
-        Manage family events, reminders, tasks, and important dates in one place.
-      </p>
-    </div>
+<section class="container calendar-shell">
+  <% if (successMessage) { %>
+    <div class="alert alert-success rounded-3 mb-0" role="alert"><%= successMessage %></div>
+  <% } %>
+  <% if (errorMessage) { %>
+    <div class="alert alert-danger rounded-3 mb-0" role="alert"><%= errorMessage %></div>
+  <% } %>
 
-    <div>
-      <button type="button" class="btn btn-primary calendar-header-btn">
-        <i class="bi bi-plus-lg"></i>
-        Add event
-      </button>
-    </div>
-  </div>
-</section>
+  <section class="card border-0 shadow-sm rounded-4 section-card calendar-overview-panel">
+    <div class="card-body p-4">
+      <div class="row align-items-start g-4 mb-4">
+        <div class="col-lg-8">
+          <p class="section-label">Management</p>
+          <h2 class="h3 fw-bold mb-2">Calendar overview</h2>
+          <p class="calendar-toolbar-text">
+            Manage family events, reminders, tasks, and important dates in one clean workspace.
+          </p>
+        </div>
 
-<section class="container section-block calendar-page">
-  <div class="calendar-layout">
-    <aside class="calendar-sidebar section-card">
-      <div class="section-header">
-        <div>
-          <p class="section-label">Quick add</p>
-          <h2>New event</h2>
+        <div class="col-lg-4 text-lg-end">
+          <button
+            type="button"
+            class="btn btn-primary rounded-pill px-4"
+            id="toggleCalendarCreateButton"
+            aria-expanded="false"
+            aria-controls="calendarCreatePanel"
+          >
+            <i class="bi bi-plus-lg me-2"></i>
+            <span id="toggleCalendarCreateButtonText">Add event</span>
+          </button>
         </div>
       </div>
 
-      <form class="calendar-quick-form">
-        <div class="form-group">
-          <label for="eventTitle" class="form-label">Title</label>
-          <input
-            type="text"
-            id="eventTitle"
-            class="form-control"
-            placeholder="Enter event title"
-          />
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="eventDate" class="form-label">Date</label>
-            <input type="date" id="eventDate" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label for="eventTime" class="form-label">Time</label>
-            <input type="time" id="eventTime" class="form-control" />
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="eventType" class="form-label">Type</label>
-            <select id="eventType" class="form-select">
-              <option>Event</option>
-              <option>Reminder</option>
-              <option>Task</option>
-              <option>Birthday</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="eventMember" class="form-label">Member</label>
-            <select id="eventMember" class="form-select">
-              <option>All family</option>
-              <option>Alex</option>
-              <option>Maria</option>
-              <option>Chris</option>
-            </select>
-          </div>
-        </div>
-
-        <details class="calendar-expandable">
-          <summary>More options</summary>
-
-          <div class="calendar-expandable-content">
-            <div class="form-group">
-              <label for="eventDescription" class="form-label">Description</label>
-              <textarea
-                id="eventDescription"
-                class="form-control form-textarea"
-                rows="4"
-                placeholder="Add a note about this event"
-              ></textarea>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <article class="card border-0 rounded-4 bg-light h-100 categories-bootstrap-stat calendar-bootstrap-stat">
+            <div class="card-body p-3">
+              <span class="categories-stat-value d-block"><%= summary.monthTotal %></span>
+              <span class="categories-stat-label">Month events</span>
             </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="eventColor" class="form-label">Color</label>
-                <select id="eventColor" class="form-select">
-                  <option>Blue</option>
-                  <option>Green</option>
-                  <option>Orange</option>
-                  <option>Red</option>
-                  <option>Purple</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="eventRepeat" class="form-label">Repeat</label>
-                <select id="eventRepeat" class="form-select">
-                  <option>Does not repeat</option>
-                  <option>Daily</option>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Yearly</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="calendar-checks">
-              <label class="calendar-check">
-                <input type="checkbox" />
-                <span>All day</span>
-              </label>
-
-              <label class="calendar-check">
-                <input type="checkbox" />
-                <span>Important</span>
-              </label>
-            </div>
-          </div>
-        </details>
-
-        <div class="calendar-form-actions">
-          <button type="button" class="btn btn-primary">Save event</button>
-          <button type="reset" class="btn btn-outline-secondary">Clear</button>
+          </article>
         </div>
-      </form>
-    </aside>
 
-    <div class="calendar-main">
-      <section class="section-card calendar-board">
-        <div class="calendar-toolbar">
-          <div class="calendar-toolbar-left">
-            <div class="calendar-nav-group">
-              <button type="button" class="calendar-nav-btn">
+        <div class="col-6 col-lg-3">
+          <article class="card border-0 rounded-4 bg-light h-100 categories-bootstrap-stat calendar-bootstrap-stat">
+            <div class="card-body p-3">
+              <span class="categories-stat-value d-block"><%= summary.dayTotal %></span>
+              <span class="categories-stat-label">Selected day</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <article class="card border-0 rounded-4 bg-light h-100 categories-bootstrap-stat calendar-bootstrap-stat">
+            <div class="card-body p-3">
+              <span class="categories-stat-value d-block"><%= summary.important %></span>
+              <span class="categories-stat-label">Important</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <article class="card border-0 rounded-4 bg-light h-100 categories-bootstrap-stat calendar-bootstrap-stat">
+            <div class="card-body p-3">
+              <span class="categories-stat-value d-block"><%= family ? 'On' : 'Off' %></span>
+              <span class="categories-stat-label">Family mode</span>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="calendar-create-panel-inline" id="calendarCreatePanel" hidden>
+        <%- include('_form_new', { members, selectedDate, calendarView, family }) %>
+      </div>
+    </div>
+  </section>
+
+  <section id="calendarWorkArea" class="card border-0 shadow-sm rounded-4 section-card calendar-controls-panel">
+    <div class="card-body p-4">
+      <div class="calendar-controls-header">
+        <div class="calendar-controls-left">
+          <div class="calendar-controls-title">
+            <p class="section-label">Calendar controls</p>
+            <h2 class="mb-0"><%= calendarView === 'month' ? monthTitle : formattedSelectedDate %></h2>
+          </div>
+
+          <div class="calendar-nav-group" aria-label="Calendar navigation">
+            <% if (calendarView === 'month') { %>
+              <a href="/calendar?view=month&date=<%= nav.prevMonth %>" class="calendar-nav-btn" data-calendar-ajax aria-label="Previous month">
                 <i class="bi bi-chevron-left"></i>
-              </button>
-              <button type="button" class="calendar-nav-btn">
+              </a>
+
+              <a href="/calendar?view=month&date=<%= nav.today %>" class="calendar-toolbar-btn" data-calendar-ajax>
+                Today
+              </a>
+
+              <a href="/calendar?view=month&date=<%= nav.nextMonth %>" class="calendar-nav-btn" data-calendar-ajax aria-label="Next month">
                 <i class="bi bi-chevron-right"></i>
-              </button>
-            </div>
+              </a>
+            <% } else { %>
+              <a href="/calendar?view=day&date=<%= nav.prevDay %>" class="calendar-nav-btn" data-calendar-ajax aria-label="Previous day">
+                <i class="bi bi-chevron-left"></i>
+              </a>
 
-            <button type="button" class="btn btn-outline-secondary btn-sm">
-              Today
-            </button>
+              <a href="/calendar?view=day&date=<%= nav.today %>" class="calendar-toolbar-btn" data-calendar-ajax>
+                Today
+              </a>
 
-            <div class="calendar-current-period">April 2026</div>
-          </div>
-
-          <div class="calendar-toolbar-right">
-            <div class="calendar-view-switch">
-              <button type="button" class="calendar-view-btn is-active">Month</button>
-              <button type="button" class="calendar-view-btn">Day</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="calendar-weekdays">
-          <div>Mon</div>
-          <div>Tue</div>
-          <div>Wed</div>
-          <div>Thu</div>
-          <div>Fri</div>
-          <div>Sat</div>
-          <div>Sun</div>
-        </div>
-
-        <div class="calendar-month-grid">
-          <div class="calendar-day is-muted">
-            <div class="calendar-day-number">30</div>
-          </div>
-
-          <div class="calendar-day is-muted">
-            <div class="calendar-day-number">31</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">1</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-reminder">Pay rent</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">2</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">3</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-event">Family dinner</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">4</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">5</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">6</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">7</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">8</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-task">Budget review</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">9</div>
-          </div>
-
-          <div class="calendar-day is-selected">
-            <div class="calendar-day-number">10</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-birthday">Mom birthday</span>
-              <span class="calendar-event-pill type-event">Doctor visit</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">11</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">12</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">13</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">14</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">15</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">16</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">17</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">18</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-reminder">Electricity bill</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">19</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">20</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">21</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">22</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">23</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">24</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">25</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">26</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">27</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">28</div>
-            <div class="calendar-day-events">
-              <span class="calendar-event-pill type-task">Update expenses</span>
-            </div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">29</div>
-          </div>
-
-          <div class="calendar-day">
-            <div class="calendar-day-number">30</div>
-          </div>
-
-          <div class="calendar-day is-muted">
-            <div class="calendar-day-number">1</div>
-          </div>
-
-          <div class="calendar-day is-muted">
-            <div class="calendar-day-number">2</div>
-          </div>
-
-          <div class="calendar-day is-muted">
-            <div class="calendar-day-number">3</div>
+              <a href="/calendar?view=day&date=<%= nav.nextDay %>" class="calendar-nav-btn" data-calendar-ajax aria-label="Next day">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            <% } %>
           </div>
         </div>
-      </section>
 
-      <section class="section-card calendar-day-panel">
-        <div class="section-header">
+        <div class="calendar-view-switch" role="group" aria-label="Calendar view">
+          <a href="/calendar?view=month&date=<%= selectedDate %>" data-calendar-ajax class="calendar-view-btn <%= calendarView === 'month' ? 'is-active' : '' %>">
+            Month
+          </a>
+          <a href="/calendar?view=day&date=<%= selectedDate %>" data-calendar-ajax class="calendar-view-btn <%= calendarView === 'day' ? 'is-active' : '' %>">
+            Day
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card border-0 shadow-sm rounded-4 section-card calendar-board-panel">
+    <div class="card-body p-3 p-lg-4">
+      <div class="section-header calendar-section-heading">
+        <div>
+          <p class="section-label"><%= calendarView === 'month' ? 'Month view' : 'Day view' %></p>
+          <h2><%= calendarView === 'month' ? 'Month calendar' : formattedSelectedDate %></h2>
+        </div>
+
+        <% if (calendarView === 'month') { %>
+          <a href="/calendar?view=day&date=<%= selectedDate %>" data-calendar-ajax class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            Open selected day
+          </a>
+        <% } else { %>
+          <a href="/calendar?view=month&date=<%= selectedDate %>" data-calendar-ajax class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            Back to month
+          </a>
+        <% } %>
+      </div>
+
+      <% if (calendarView === 'month') { %>
+        <%- include('_month_view', { monthMatrix, selectedDate }) %>
+      <% } else { %>
+        <%- include('_day_view', { dayEvents, selectedDate, formattedSelectedDate, calendarView, members }) %>
+      <% } %>
+    </div>
+  </section>
+
+  <% if (calendarView === 'month') { %>
+    <section class="card border-0 shadow-sm rounded-4 section-card calendar-selected-panel">
+      <div class="card-body p-4">
+        <div class="section-header calendar-section-heading">
           <div>
             <p class="section-label">Selected date</p>
-            <h2>10 April 2026</h2>
+            <h2><%= formattedSelectedDate %></h2>
           </div>
 
-          <button type="button" class="btn btn-outline-secondary btn-sm">
+          <a href="/calendar?view=day&date=<%= selectedDate %>" data-calendar-ajax class="btn btn-outline-secondary btn-sm rounded-pill px-3">
             Day view
-          </button>
+          </a>
         </div>
 
-        <div class="calendar-day-list">
-          <article class="calendar-day-item">
-            <div class="calendar-day-item-color type-birthday"></div>
-            <div class="calendar-day-item-body">
-              <div class="calendar-day-item-top">
-                <h3>Mom birthday</h3>
-                <span class="calendar-day-item-time">All day</span>
-              </div>
-              <p class="calendar-day-item-meta">Birthday • Maria</p>
-              <p class="calendar-day-item-text">
-                Buy flowers and prepare a small family dinner in the evening.
-              </p>
-            </div>
-            <div class="calendar-day-item-actions">
-              <button type="button" class="icon-btn">
-                <i class="bi bi-check2-circle"></i>
-              </button>
-              <button type="button" class="icon-btn">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button type="button" class="icon-btn">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </article>
-
-          <article class="calendar-day-item">
-            <div class="calendar-day-item-color type-event"></div>
-            <div class="calendar-day-item-body">
-              <div class="calendar-day-item-top">
-                <h3>Doctor visit</h3>
-                <span class="calendar-day-item-time">14:30</span>
-              </div>
-              <p class="calendar-day-item-meta">Event • Alex</p>
-              <p class="calendar-day-item-text">
-                Regular appointment. Do not forget insurance documents.
-              </p>
-            </div>
-            <div class="calendar-day-item-actions">
-              <button type="button" class="icon-btn">
-                <i class="bi bi-check2-circle"></i>
-              </button>
-              <button type="button" class="icon-btn">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button type="button" class="icon-btn">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </article>
-        </div>
-      </section>
-    </div>
-  </div>
+        <%- include('_day_view', { dayEvents, selectedDate, formattedSelectedDate, calendarView, members }) %>
+      </div>
+    </section>
+  <% } %>
 </section>
+
+<script src="/js/calendar.js"></script>
 
 <%- include('../partials/footer') %>

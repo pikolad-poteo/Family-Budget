@@ -1,0 +1,44 @@
+<div class="calendar-weekdays">
+  <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+</div>
+
+<div class="calendar-month-grid">
+  <% monthMatrix.filter(function(week) {
+       return week.some(function(day) { return day.isCurrentMonth; });
+     }).forEach(function(week) { %>
+    <% week.forEach(function(day) { %>
+      <a
+        href="/calendar?view=day&date=<%= day.date %>"
+        data-calendar-ajax
+        class="calendar-day <%= day.isCurrentMonth ? '' : 'is-muted' %> <%= day.isToday ? 'is-today' : '' %> <%= day.date === selectedDate ? 'is-selected' : '' %>"
+      >
+        <div class="calendar-day-head">
+          <div class="calendar-day-number"><%= day.dayNumber %></div>
+          <% if (day.events.length) { %>
+            <span class="calendar-day-count"><%= day.events.length %></span>
+          <% } %>
+        </div>
+
+        <div class="calendar-day-events">
+          <% day.events.slice(0, 2).forEach(function(event) { %>
+            <span
+              class="calendar-event-chip <%= event.is_completed ? 'is-completed' : '' %>"
+              style="--event-color: <%= event.color_style %>;"
+              title="<%= event.event_time_label %> — <%= event.title %>"
+            >
+              <span class="calendar-event-dot" aria-hidden="true"></span>
+              <% if (!event.is_all_day && event.event_time) { %>
+                <span class="calendar-event-time"><%= String(event.event_time).slice(0, 5) %></span>
+              <% } %>
+              <span class="calendar-event-title"><%= event.title %></span>
+            </span>
+          <% }) %>
+
+          <% if (day.events.length > 2) { %>
+            <span class="calendar-more-events">+<%= day.events.length - 2 %> more</span>
+          <% } %>
+        </div>
+      </a>
+    <% }) %>
+  <% }) %>
+</div>
