@@ -1,43 +1,145 @@
 <%
-  const ownerMember = familyMembers.find((member) => member.role === 'owner');
-  const ownerName = ownerMember ? ownerMember.name : (currentUser ? currentUser.name : 'Current user');
-  const currentMember = familyMembers.find((member) => Number(member.id) === currentUserId);
-  const currentRoleLabel = currentMember ? currentMember.role : 'viewer';
+  const familyName = currentFamily.name || 'Family workspace';
+  const normalizedRole = activeRole ? String(activeRole).toLowerCase() : 'member';
+  const readableRole = normalizedRole ? normalizedRole.charAt(0).toUpperCase() + normalizedRole.slice(1) : 'Member';
+  const canManageFamilyAvatar = normalizedRole === 'owner' || normalizedRole === 'editor';
 %>
 
-<div class="card border-0 shadow-sm rounded-4 section-card family-overview-card">
-  <div class="card-body p-4">
-    <div class="section-header family-section-header">
-      <div>
-        <p class="section-label">Shared budget workspace</p>
-        <h2>Overview</h2>
+<div class="card family-card family-overview-card">
+  <div class="card-body">
+    <div class="family-overview-top-row">
+      <div class="family-overview-heading-block">
+        <p class="section-label family-overview-kicker">Shared budget workspace</p>
+        <h2 class="family-overview-main-title">Overview</h2>
       </div>
-      <span class="status-badge status-badge-active">Active</span>
+
+      <% if (familyPermissions.canManageMembers) { %>
+        <button class="btn btn-primary rounded-pill px-4 family-add-member-btn" type="button" data-bs-toggle="modal" data-bs-target="#addFamilyMemberModal">
+          <i class="bi bi-plus-lg me-2"></i>Add member
+        </button>
+      <% } %>
     </div>
 
-    <div class="row g-3 mb-4">
-      <div class="col-md-4">
-        <div class="family-stat-box h-100">
-          <span class="family-stat-label">Family name</span>
-          <strong class="family-stat-value"><%= currentFamily.name %></strong>
-        </div>
+    <div class="family-overview-layout">
+      <div class="family-overview-avatar-wrap">
+        <% if (canManageFamilyAvatar) { %>
+          <button
+            class="family-avatar-button"
+            type="button"
+            id="familyAvatarTrigger"
+            aria-label="Change family avatar"
+          >
+            <% if (currentFamily.avatar_url) { %>
+              <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> avatar" />
+            <% } else { %>
+              <span class="family-avatar family-avatar-lg family-avatar-fallback" aria-hidden="true">
+                <i class="bi bi-person family-avatar-fallback-icon"></i>
+              </span>
+            <% } %>
+            <span class="family-avatar-edit-hint"><i class="bi bi-camera"></i></span>
+          </button>
+
+          <form action="/family/avatar" method="POST" enctype="multipart/form-data" class="d-none" id="familyAvatarForm">
+            <input id="familyAvatarInput" name="avatar" type="file" accept="image/*" />
+          </form>
+
+          <% if (currentFamily.avatar_url) { %>
+            <form action="/family/avatar/delete" method="POST" class="family-avatar-delete-form family-preserve-scroll-form">
+              <button class="family-avatar-delete-btn" type="submit" aria-label="Delete family avatar" title="Delete avatar">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </form>
+          <% } %>
+        <% } else { %>
+          <% if (currentFamily.avatar_url) { %>
+            <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> avatar" />
+          <% } else { %>
+            <span class="family-avatar family-avatar-lg family-avatar-fallback" aria-hidden="true">
+                <i class="bi bi-person family-avatar-fallback-icon"></i>
+              </span>
+          <% } %>
+        <% } %>
       </div>
-      <div class="col-md-4">
-        <div class="family-stat-box h-100">
-          <span class="family-stat-label">Members</span>
-          <strong class="family-stat-value"><%= familyMembers.length %></strong>
-        </div>
+
+      <div class="family-overview-content">
+        <h2 class="family-hero-title"><%= familyName %></h2>
+        <p class="family-description family-overview-description">
+          Family settings · Manage family profile, household members, permissions and recent shared activity.
+        </p>
+
+
+        <% if (familyPermissions.canManageFamily) { %>
+          <form action="/family/update" method="POST" class="family-name-form family-preserve-scroll-form">
+            <label class="form-label" for="familyName">Family name</label>
+            <div class="family-inline-form">
+              <input class="form-control rounded-pill" id="familyName" name="familyName" type="text" value="<%= familyName %>" required />
+              <button class="btn btn-secondary rounded-pill px-4" type="submit">Save</button>
+            </div>
+          </form>
+        <% } else { %>
+          <div class="family-readonly-field family-name-readonly-field">
+            <span>Family name</span>
+            <strong><%= familyName %></strong>
+          </div>
+        <% } %>
       </div>
-      <div class="col-md-4">
-        <div class="family-stat-box h-100">
-          <span class="family-stat-label">Your role</span>
-          <strong class="family-stat-value"><%= currentRoleLabel.charAt(0).toUpperCase() + currentRoleLabel.slice(1) %></strong>
+
+      <div class="family-role-summary-field family-readonly-field family-role-summary-card">
+        <span class="family-role-icon family-role-icon-<%= normalizedRole || 'member' %>" aria-hidden="true">
+          <% if (normalizedRole === 'owner') { %>
+            <svg class="family-role-svg" viewBox="0 0 16 16" role="img" aria-label="Owner crown" focusable="false">
+              <path d="M3.1 12.4h9.8l.7-6.8a.5.5 0 0 0-.82-.43L10.3 7.3 8.45 3.45a.5.5 0 0 0-.9 0L5.7 7.3 3.22 5.17a.5.5 0 0 0-.82.43l.7 6.8Zm.2 1.1a.5.5 0 0 0 .5.5h8.4a.5.5 0 0 0 .5-.5v-.3H3.3v.3Z" fill="currentColor"/>
+            </svg>
+          <% } else if (normalizedRole === 'editor') { %>
+            <i class="bi bi-pencil-fill"></i>
+          <% } else { %>
+            <i class="bi bi-eye-fill"></i>
+          <% } %>
+        </span>
+        <div>
+          <span>Your role</span>
+          <strong><%= readableRole %></strong>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <p class="family-description">
-      Owner: <strong><%= ownerName %></strong>. This workspace connects shared categories, transactions, calendar events and wishlist data for the family budget.
-    </p>
+<div class="modal fade" id="addFamilyMemberModal" tabindex="-1" aria-labelledby="addFamilyMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content family-modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <p class="section-label mb-1">Invitation</p>
+          <h2 class="modal-title family-modal-title" id="addFamilyMemberModalLabel">Add family member</h2>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/family/members/add" method="POST" class="family-preserve-scroll-form">
+        <div class="modal-body pt-3">
+          <p class="family-modal-note">
+            Enter the email address of an existing registered user. If this email is not found, the page will show a warning.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label" for="familyMemberEmail">Email address</label>
+            <input class="form-control rounded-pill" id="familyMemberEmail" name="email" type="email" placeholder="Registered user email" required />
+          </div>
+
+          <div>
+            <label class="form-label" for="familyMemberRole">Role</label>
+            <select class="form-select rounded-pill" id="familyMemberRole" name="role">
+              <option value="viewer">Viewer - read only</option>
+              <option value="editor">Editor - can change budget</option>
+              <option value="owner">Owner - full access</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4">Add member</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

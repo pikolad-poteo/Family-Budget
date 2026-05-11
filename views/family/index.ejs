@@ -3,34 +3,37 @@
 <%
   const currentFamily = typeof family !== 'undefined' ? family : null;
   const familyMembers = Array.isArray(members) ? members : [];
-  const currentUserId = currentUser ? Number(currentUser.id) : null;
+  const activityItems = Array.isArray(activity) ? activity : [];
   const pageError = typeof errorMessage !== 'undefined' ? errorMessage : '';
   const pageSuccess = typeof successMessage !== 'undefined' ? successMessage : '';
   const familyPermissions = typeof permissions !== 'undefined' ? permissions : {};
+  const activeRole = typeof currentRole !== 'undefined' ? currentRole : null;
+  const memberActivity = Array.isArray(selectedMemberActivity) ? selectedMemberActivity : [];
+  const activeMember = typeof selectedMember !== 'undefined' ? selectedMember : null;
 %>
 
-<section class="container page-heading family-page-heading">
-  <% if (pageError) { %><div class="alert alert-danger rounded-3"><%= pageError %></div><% } %>
-  <% if (pageSuccess) { %><div class="alert alert-success rounded-3"><%= pageSuccess %></div><% } %>
-</section>
+<section class="container family-shell">
+  <section class="family-page">
+    <% if (pageError) { %>
+      <div class="alert alert-danger rounded-4 family-alert" role="alert"><%= pageError %></div>
+    <% } %>
 
-<section class="container family-page-shell">
-  <% if (!currentFamily) { %>
-    <%- include('./empty-state') %>
-  <% } else { %>
-    <div class="row g-4 align-items-start">
-      <div class="col-lg-8">
-        <div class="d-flex flex-column gap-4">
-          <%- include('./header', { currentFamily, familyMembers, currentUserId, familyPermissions }) %>
-          <%- include('./members', { currentFamily, familyMembers, currentUserId, familyPermissions }) %>
-        </div>
+    <% if (pageSuccess) { %>
+      <div class="alert alert-success rounded-4 family-alert" role="alert"><%= pageSuccess %></div>
+    <% } %>
+
+    <% if (!currentFamily) { %>
+      <%- include('./empty-state', { currentFamily, familyMembers }) %>
+    <% } else { %>
+      <div class="d-flex flex-column gap-4">
+        <%- include('./header', { currentFamily, familyMembers, activeRole, familyPermissions }) %>
+        <%- include('./members', { currentFamily, familyMembers, familyPermissions, currentUser }) %>
+        <%- include('./activity', { activityItems, familyMembers, activeMember, memberActivity }) %>
       </div>
-
-      <aside class="col-lg-4">
-        <%- include('./actions', { currentFamily, familyMembers, currentUserId, familyPermissions }) %>
-      </aside>
-    </div>
-  <% } %>
+    <% } %>
+  </section>
 </section>
+
+<script src="/js/family.js"></script>
 
 <%- include('../partials/footer') %>

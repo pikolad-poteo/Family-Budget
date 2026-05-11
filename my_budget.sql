@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Май 09 2026 г., 22:36
+-- Время создания: Май 11 2026 г., 14:57
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.0.30
 
@@ -57,7 +57,7 @@ INSERT INTO `calendar_events` (`id`, `user_id`, `family_id`, `title`, `event_dat
 (1, 1, NULL, 'Pay personal subscription', '2026-05-15', '10:00:00', NULL, 'reminder', NULL, 'Check monthly subscriptions and cancel unused services.', '#0d6efd', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
 (2, 1, 1, 'Family budget review', '2026-05-18', '19:00:00', NULL, 'event', NULL, 'Review family expenses and wishlist priorities.', '#198754', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
 (3, 1, NULL, 'Course deadline', '2026-05-22', NULL, NULL, 'task', NULL, 'Finish planned study task.', '#6f42c1', 1, 0, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
-(4, 2, 1, 'Car audio installation', '2026-05-25', '14:30:00', NULL, 'event', 'Vladislav', 'Install and test new audio components.', '#fd7e14', 0, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 20:00:51'),
+(4, 2, 1, 'Car audio installation', '2026-05-25', '14:30:00', NULL, 'event', 'Vladislav', 'Install and test new audio components.', '#fd7e14', 0, 1, 0, 'none', 0, '2026-05-09 20:00:51', '2026-05-08 08:01:22', '2026-05-09 20:00:51'),
 (5, 1, 1, 'Birthday reminder', '2026-06-02', NULL, NULL, 'birthday', 'Family member', 'Prepare small gift and dinner plan.', '#dc3545', 1, 1, 0, 'none', 0, NULL, '2026-05-08 08:01:22', '2026-05-09 19:54:07'),
 (6, 2, 1, 'Europa Päev', '2026-05-09', NULL, NULL, 'event', NULL, NULL, '#0d6efd', 1, 0, 0, 'none', 0, NULL, '2026-05-09 20:01:35', '2026-05-09 20:34:54');
 
@@ -98,7 +98,7 @@ INSERT INTO `categories` (`id`, `user_id`, `family_id`, `name`, `type`, `color`,
 (13, 1, 1, 'Home Bills', 'expense', '#6366f1', 'house', '2026-05-08 08:01:22'),
 (14, 1, 1, 'Family Food', 'expense', '#10b981', 'cart', '2026-05-08 08:01:22'),
 (15, 1, 1, 'Kids', 'expense', '#f59e0b', 'emoji-smile', '2026-05-08 08:01:22'),
-(16, 1, 1, 'Car Service', 'expense', '#0f766e', 'wrench', '2026-05-08 08:01:22'),
+(16, 1, 1, 'Car Service', 'expense', '#0f766e', 'tag', '2026-05-08 08:01:22'),
 (17, 1, 1, 'Family Income', 'income', '#8b5cf6', 'piggy-bank', '2026-05-08 08:01:22'),
 (18, 1, 1, 'Shared Refund', 'income', '#65a30d', 'wallet2', '2026-05-08 08:01:22'),
 (19, 2, NULL, 'Bank', 'income', '#2563eb', 'bank', '2026-05-08 08:01:22'),
@@ -115,16 +115,93 @@ INSERT INTO `categories` (`id`, `user_id`, `family_id`, `name`, `type`, `color`,
 CREATE TABLE `families` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
+  `avatar_url` varchar(500) DEFAULT NULL,
   `owner_user_id` int(10) UNSIGNED NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Дамп данных таблицы `families`
 --
 
-INSERT INTO `families` (`id`, `name`, `owner_user_id`, `created_at`) VALUES
-(1, 'Dudins', 3, '2026-04-21 15:24:14');
+INSERT INTO `families` (`id`, `name`, `avatar_url`, `owner_user_id`, `created_at`, `updated_at`) VALUES
+(1, 'Dudins', NULL, 1, '2026-04-21 15:24:14', '2026-05-11 12:52:06');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `family_activity_logs`
+--
+
+CREATE TABLE `family_activity_logs` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `family_id` int(10) UNSIGNED NOT NULL,
+  `actor_user_id` int(10) UNSIGNED NOT NULL,
+  `target_user_id` int(10) UNSIGNED DEFAULT NULL,
+  `action` varchar(80) NOT NULL,
+  `entity_type` varchar(80) NOT NULL DEFAULT 'family',
+  `entity_id` int(10) UNSIGNED DEFAULT NULL,
+  `description` varchar(1000) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `family_activity_logs`
+--
+
+INSERT INTO `family_activity_logs` (`id`, `family_id`, `actor_user_id`, `target_user_id`, `action`, `entity_type`, `entity_id`, `description`, `created_at`) VALUES
+(1, 1, 1, 1, 'member_existing', 'member', 1, 'Test is an existing family member with role viewer.', '2026-05-10 12:23:11'),
+(2, 1, 2, 2, 'member_existing', 'member', 2, 'Test2 is an existing family member with role viewer.', '2026-05-10 12:23:11'),
+(3, 1, 3, 3, 'member_existing', 'member', 3, 'Vladislav is an existing family member with role owner.', '2026-05-10 12:23:11'),
+(4, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-10 12:52:29'),
+(5, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from owner to editor.', '2026-05-10 12:53:05'),
+(6, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudins\" to \"Dudin\".', '2026-05-10 12:53:20'),
+(7, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudin\" to \"Dudins\".', '2026-05-10 12:53:25'),
+(8, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from editor to owner.', '2026-05-10 15:50:36'),
+(9, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from owner to editor.', '2026-05-10 15:50:37'),
+(10, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from editor to owner.', '2026-05-10 15:50:38'),
+(11, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from owner to editor.', '2026-05-10 15:50:39'),
+(12, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from editor to viewer.', '2026-05-10 15:50:40'),
+(13, 1, 1, 2, 'member_role_updated', 'member', 2, 'Changed Test2 role from viewer to editor.', '2026-05-10 15:50:40'),
+(14, 1, 1, 2, 'member_role_updated', 'member', 2, 'Changed Test2 role from editor to viewer.', '2026-05-10 15:50:43'),
+(15, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from viewer to editor.', '2026-05-10 15:50:45'),
+(16, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from editor to owner.', '2026-05-10 15:54:31'),
+(17, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from owner to editor.', '2026-05-10 15:54:32'),
+(18, 1, 1, 2, 'member_role_updated', 'member', 2, 'Changed Test2 role from viewer to owner.', '2026-05-10 16:05:04'),
+(19, 1, 1, 2, 'member_role_updated', 'member', 2, 'Changed Test2 role from owner to viewer.', '2026-05-10 16:05:12'),
+(20, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudins\" to \"Dudinsыыы\".', '2026-05-10 16:56:46'),
+(21, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudinsыыы\" to \"Dudinssss\".', '2026-05-10 16:56:50'),
+(22, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudinssss\" to \"Dudins\".', '2026-05-10 16:56:52'),
+(23, 1, 1, 3, 'member_role_updated', 'member', 3, 'Changed Vladislav role from editor to viewer.', '2026-05-10 16:59:40'),
+(24, 1, 1, 2, 'member_role_updated', 'member', 2, 'Changed Test2 role from viewer to editor.', '2026-05-10 16:59:42'),
+(25, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-10 16:59:54'),
+(26, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-10 17:00:03'),
+(27, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-10 17:00:37'),
+(28, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudins\" to \"Vladislav\".', '2026-05-11 11:50:24'),
+(29, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Vladislav\" to \"Dudins\".', '2026-05-11 11:50:29'),
+(30, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 11:54:39'),
+(31, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:06:26'),
+(32, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:08:59'),
+(33, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:09:03'),
+(34, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:26:54'),
+(35, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:26:56'),
+(36, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:37:25'),
+(37, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:37:32'),
+(38, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:37:40'),
+(39, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:39:16'),
+(40, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:39:20'),
+(41, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudins\" to \"Dudinss\".', '2026-05-11 12:47:35'),
+(42, 1, 1, NULL, 'family_name_updated', 'family', 1, 'Changed family name from \"Dudinss\" to \"Dudins\".', '2026-05-11 12:47:36'),
+(43, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:47:37'),
+(44, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:47:46'),
+(45, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:49:34'),
+(46, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:49:39'),
+(47, 1, 1, 3, 'member_removed', 'member', 3, 'Removed Vladislav from the family.', '2026-05-11 12:50:48'),
+(48, 1, 1, 3, 'member_added', 'member', 3, 'Added Vladislav as viewer.', '2026-05-11 12:50:54'),
+(49, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:51:58'),
+(50, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-11 12:52:03'),
+(51, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-11 12:52:06');
 
 -- --------------------------------------------------------
 
@@ -136,18 +213,19 @@ CREATE TABLE `family_members` (
   `id` int(10) UNSIGNED NOT NULL,
   `family_id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
-  `role` enum('owner','member') NOT NULL DEFAULT 'member',
-  `joined_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `role` enum('owner','editor','viewer') NOT NULL DEFAULT 'viewer',
+  `joined_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Дамп данных таблицы `family_members`
 --
 
-INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `role`, `joined_at`) VALUES
-(1, 1, 3, 'owner', '2026-04-21 15:24:14'),
-(2, 1, 1, 'member', '2026-04-21 15:24:26'),
-(3, 1, 2, 'member', '2026-04-21 15:25:16');
+INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `role`, `joined_at`, `updated_at`) VALUES
+(2, 1, 1, 'owner', '2026-04-21 15:24:26', '2026-05-10 12:41:35'),
+(3, 1, 2, 'editor', '2026-04-21 15:25:16', '2026-05-10 16:59:42'),
+(4, 1, 3, 'viewer', '2026-05-11 12:50:54', '2026-05-11 12:50:54');
 
 -- --------------------------------------------------------
 
@@ -336,7 +414,9 @@ INSERT INTO `wishlist_items` (`id`, `user_id`, `family_id`, `title`, `amount`, `
 ALTER TABLE `calendar_events`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_calendar_events_user_date` (`user_id`,`event_date`),
-  ADD KEY `idx_calendar_events_family_date` (`family_id`,`event_date`);
+  ADD KEY `idx_calendar_events_family_date` (`family_id`,`event_date`),
+  ADD KEY `idx_calendar_events_user_date_new` (`user_id`,`event_date`),
+  ADD KEY `idx_calendar_events_family_date_new` (`family_id`,`event_date`);
 
 --
 -- Индексы таблицы `categories`
@@ -352,6 +432,15 @@ ALTER TABLE `categories`
 ALTER TABLE `families`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_families_owner` (`owner_user_id`);
+
+--
+-- Индексы таблицы `family_activity_logs`
+--
+ALTER TABLE `family_activity_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_family_activity_family` (`family_id`),
+  ADD KEY `idx_family_activity_actor` (`actor_user_id`),
+  ADD KEY `idx_family_activity_target` (`target_user_id`);
 
 --
 -- Индексы таблицы `family_members`
@@ -405,13 +494,13 @@ ALTER TABLE `wishlist_items`
 -- AUTO_INCREMENT для таблицы `calendar_events`
 --
 ALTER TABLE `calendar_events`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT для таблицы `families`
@@ -420,16 +509,22 @@ ALTER TABLE `families`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT для таблицы `family_activity_logs`
+--
+ALTER TABLE `family_activity_logs`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+
+--
 -- AUTO_INCREMENT для таблицы `family_members`
 --
 ALTER TABLE `family_members`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT для таблицы `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
@@ -465,6 +560,14 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `families`
   ADD CONSTRAINT `fk_families_owner` FOREIGN KEY (`owner_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `family_activity_logs`
+--
+ALTER TABLE `family_activity_logs`
+  ADD CONSTRAINT `fk_family_activity_actor` FOREIGN KEY (`actor_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_family_activity_family` FOREIGN KEY (`family_id`) REFERENCES `families` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_family_activity_target` FOREIGN KEY (`target_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Ограничения внешнего ключа таблицы `family_members`

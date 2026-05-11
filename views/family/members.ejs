@@ -1,55 +1,130 @@
-<div class="card border-0 shadow-sm rounded-4 section-card family-members-card">
-  <div class="card-body p-4">
-    <div class="section-header family-section-header">
+<div class="card family-card family-members-card">
+  <div class="card-body">
+    <div class="family-section-header family-members-header">
       <div>
         <p class="section-label">Members</p>
         <h2>Current family members</h2>
       </div>
-      <span class="status-badge status-badge-active">Connected</span>
+
+      <button
+        class="btn btn-secondary rounded-pill px-4"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#familyPermissionsPanel"
+        aria-expanded="false"
+        aria-controls="familyPermissionsPanel"
+      >
+        <i class="bi bi-gear me-2"></i>Permissions
+      </button>
+    </div>
+
+    <div class="collapse" id="familyPermissionsPanel">
+      <div class="family-permissions-box">
+        <div><span class="family-role-badge family-role-owner">Owner</span><p>Full access to family settings, roles, members and delete action.</p></div>
+        <div><span class="family-role-badge family-role-editor">Editor</span><p>Can work with shared budget data, but cannot manage family settings.</p></div>
+        <div><span class="family-role-badge family-role-viewer">Viewer</span><p>Read-only access to family data and household activity.</p></div>
+      </div>
     </div>
 
     <div class="family-members-list">
       <% familyMembers.forEach((member) => { %>
-        <article class="family-member-item">
+        <% const isCurrentMember = currentUser && Number(member.id) === Number(currentUser.id); %>
+        <article class="family-member-item family-member-role-row-<%= member.role %>">
           <div class="family-member-info">
-            <div class="family-member-avatar <%= member.role === 'owner' ? '' : 'family-member-avatar-soft' %>">
-              <% if (member.role === 'owner') { %>
-                <i class="bi bi-crown-fill"></i>
-              <% } else { %>
-                <%= member.name ? member.name.charAt(0).toUpperCase() : '?' %>
-              <% } %>
-            </div>
+            <% if (member.avatar_url) { %>
+              <img class="family-member-avatar" src="<%= member.avatar_url %>" alt="<%= member.name || member.email %> avatar" />
+            <% } else { %>
+              <div class="family-member-avatar family-member-avatar-soft" aria-hidden="true">
+                <i class="bi bi-person"></i>
+              </div>
+            <% } %>
 
             <div>
-              <h3><%= member.name %></h3>
-              <p><%= member.email %></p>
+              <h3 class="family-member-name"><%= member.name || 'User' %><% if (isCurrentMember) { %> <span>(You)</span><% } %></h3>
+              <p class="family-member-email"><%= member.email %></p>
+              <div class="family-status-row">
+                <span class="family-role-badge family-role-<%= member.role %>">
+                  <%= member.role.charAt(0).toUpperCase() + member.role.slice(1) %>
+                </span>
+              </div>
             </div>
           </div>
 
-          <div class="family-member-meta">
-            <span class="role-badge <%= member.role === 'owner' ? 'role-badge-owner' : '' %>">
-              <%= member.role.charAt(0).toUpperCase() + member.role.slice(1) %>
-            </span>
+          <div class="family-member-meta family-member-meta-<%= member.role %>">
+            <button
+              class="btn btn-primary btn-small family-member-activity-link"
+              type="button"
+              data-member-activity-button
+              data-member-id="<%= member.id %>"
+              data-member-name="<%= member.name || member.email %>"
+            >
+              Activity
+            </button>
 
             <% if (familyPermissions.canManageMembers) { %>
-              <form action="/family/members/<%= member.id %>/role" method="POST" class="d-flex gap-2 align-items-center">
-                <select class="form-select form-select-sm rounded-pill" name="role">
+              <form action="/family/members/<%= member.id %>/role" method="POST" class="family-role-form family-preserve-scroll-form" aria-label="Change role for <%= member.name || member.email %>">
+                <select class="form-select rounded-pill family-role-select" name="role" onchange="this.form.submit()">
                   <option value="owner" <%= member.role === 'owner' ? 'selected' : '' %>>Owner</option>
                   <option value="editor" <%= member.role === 'editor' ? 'selected' : '' %>>Editor</option>
                   <option value="viewer" <%= member.role === 'viewer' ? 'selected' : '' %>>Viewer</option>
                 </select>
-                <button class="btn btn-secondary btn-small" type="submit">Save</button>
               </form>
 
-              <% if (Number(member.id) !== currentUserId) { %>
-                <form action="/family/members/<%= member.id %>/remove" method="POST">
-                  <button class="btn btn-outline-danger btn-small" type="submit">Remove</button>
+              <% if (isCurrentMember) { %>
+                <form action="/family/leave" method="POST" class="family-remove-member-form family-preserve-scroll-form" onsubmit="return confirm('Leave this family workspace?');">
+                  <button class="btn btn-secondary btn-small family-remove-member-btn" type="submit">
+                    <i class="bi bi-person-dash me-2"></i>Leave family
+                  </button>
+                </form>
+              <% } else { %>
+                <form action="/family/members/<%= member.id %>/remove" method="POST" class="family-remove-member-form family-preserve-scroll-form" onsubmit="return confirm('Remove this user from the family?');">
+                  <button class="btn btn-secondary btn-small family-remove-member-btn" type="submit">
+                    <i class="bi bi-trash me-2"></i>Remove
+                  </button>
                 </form>
               <% } %>
             <% } %>
           </div>
         </article>
       <% }) %>
+    </div>
+
+    <% if (familyPermissions.canDeleteFamily) { %>
+      <div class="family-delete-row">
+        <button class="btn btn-danger rounded-pill px-4" type="button" data-bs-toggle="modal" data-bs-target="#deleteFamilyModal">
+          Delete family
+        </button>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteFamilyModal" tabindex="-1" aria-labelledby="deleteFamilyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content family-modal-content family-delete-modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <p class="section-label mb-1 text-danger">Danger zone</p>
+          <h2 class="modal-title family-modal-title" id="deleteFamilyModalLabel">Delete family workspace</h2>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/family/delete" method="POST" class="family-preserve-scroll-form">
+        <div class="modal-body pt-3">
+          <p class="family-modal-note">
+            This action will delete the family workspace for all members and remove the family connection from shared data. This cannot be undone.
+          </p>
+          <p class="family-modal-note mb-3">
+            Type <strong>Delete</strong> to confirm.
+          </p>
+          <input class="form-control rounded-pill" name="confirmation" type="text" placeholder="Delete" required />
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4">Delete</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

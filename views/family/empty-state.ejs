@@ -1,22 +1,57 @@
-<div class="row justify-content-center">
+<div class="row g-4 align-items-stretch">
   <div class="col-lg-8">
-    <div class="card border-0 shadow-sm rounded-4 section-card family-create-card">
-      <div class="card-body p-4 p-lg-5">
-        <p class="eyebrow">Shared budget workspace</p>
-        <h1 class="page-title">Create your family workspace</h1>
-        <p class="page-text mb-4">
-          Start with one shared family space. After that, the owner can invite registered users and assign Owner, Editor or Viewer roles.
+    <div class="card family-card family-empty-card h-100">
+      <div class="card-body">
+        <div class="family-section-header">
+          <div>
+            <p class="section-label">Setup</p>
+            <h2>Create your family workspace</h2>
+          </div>
+        </div>
+
+        <p class="family-description mb-4">
+          Create one shared budget space for your household. After that, you can add registered users and choose whether they can edit or only view budget data.
         </p>
 
-        <form action="/family/create" method="POST">
+        <form action="/family/create" method="POST" class="family-create-form">
           <div class="mb-3">
             <label class="form-label" for="familyName">Family name</label>
             <input class="form-control rounded-3" id="familyName" name="familyName" type="text" placeholder="Enter family name" required />
           </div>
 
-          <button class="btn btn-primary rounded-pill px-4" type="submit">Create family</button>
+          <button class="btn btn-primary rounded-pill px-4" type="submit">
+            Create family
+          </button>
         </form>
       </div>
     </div>
   </div>
+
+  <aside class="col-lg-4">
+    <div class="card family-card family-access-card">
+      <div class="card-body">
+        <div class="family-section-header">
+          <div>
+            <p class="section-label">Access model</p>
+            <h2>Planned roles</h2>
+          </div>
+        </div>
+
+        <div class="family-rules-list">
+          <div class="family-rule-item">
+            <strong>Owner</strong>
+            <p>Full access, family settings, members, roles and deletion.</p>
+          </div>
+          <div class="family-rule-item">
+            <strong>Editor</strong>
+            <p>Can work with shared budget data, but cannot manage family settings.</p>
+          </div>
+          <div class="family-rule-item">
+            <strong>Viewer</strong>
+            <p>Can only view shared household information.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>

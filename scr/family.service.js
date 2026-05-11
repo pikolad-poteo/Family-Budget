@@ -1,5 +1,6 @@
 const db = require('./db');
 const { FAMILY_ROLES, normalizeRole } = require('./family.permissions');
+const { logFamilyActivity } = require('./family.activity');
 
 async function getUserFamily(userId) {
   const [rows] = await db.query(
@@ -69,6 +70,24 @@ async function getFamilyMembers(familyId) {
   return rows;
 }
 
+
+async function ensureFamilyAvatarColumn() {
+  const [columns] = await db.query(
+    `
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'families'
+      AND COLUMN_NAME = 'avatar_url'
+    LIMIT 1
+    `
+  );
+
+  if (columns.length === 0) {
+    await db.query('ALTER TABLE families ADD COLUMN avatar_url VARCHAR(255) NULL AFTER name');
+  }
+}
+
 async function countFamilyOwners(familyId) {
   const [rows] = await db.query(
     'SELECT COUNT(*) AS total FROM family_members WHERE family_id = ? AND role = ?',
@@ -78,7 +97,9 @@ async function countFamilyOwners(familyId) {
   return Number(rows[0] ? rows[0].total : 0);
 }
 
-async function createFamily({ userId, name }) {
+async function createFamily({ userId, name, avatarUrl = null }) {
+  await ensureFamilyAvatarColumn();
+
   const existingFamily = await getUserFamily(userId);
   if (existingFamily) {
     throw new Error('You already belong to a family.');
@@ -95,8 +116,8 @@ async function createFamily({ userId, name }) {
     await connection.beginTransaction();
 
     const [result] = await connection.query(
-      'INSERT INTO families (name, owner_user_id) VALUES (?, ?)',
-      [cleanName, userId]
+      'INSERT INTO families (name, avatar_url, owner_user_id) VALUES (?, ?, ?)',
+      [cleanName, avatarUrl, userId]
     );
 
     await connection.query(
@@ -105,6 +126,16 @@ async function createFamily({ userId, name }) {
     );
 
     await connection.commit();
+
+    await logFamilyActivity({
+      familyId: result.insertId,
+      actorUserId: userId,
+      action: 'family_created',
+      entityType: 'family',
+      entityId: result.insertId,
+      description: `Created family workspace "${cleanName}".`
+    });
+
     return result.insertId;
   } catch (error) {
     await connection.rollback();
@@ -114,16 +145,86 @@ async function createFamily({ userId, name }) {
   }
 }
 
-async function updateFamilyName({ familyId, name }) {
+async function updateFamilyName({ familyId, actorUserId, name }) {
   const cleanName = String(name || '').trim();
   if (!cleanName) {
     throw new Error('Family name is required.');
   }
 
+  const family = await getFamilyById(familyId);
+  if (!family) {
+    throw new Error('Family not found.');
+  }
+
   await db.query('UPDATE families SET name = ? WHERE id = ? LIMIT 1', [cleanName, familyId]);
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    action: 'family_name_updated',
+    entityType: 'family',
+    entityId: familyId,
+    description: `Changed family name from "${family.name}" to "${cleanName}".`
+  });
 }
 
-async function addFamilyMember({ familyId, email, role = FAMILY_ROLES.VIEWER }) {
+
+async function ensureFamilyMottoColumn() {
+  const [columns] = await db.query(
+    `
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'families'
+      AND COLUMN_NAME = 'motto'
+    LIMIT 1
+    `
+  );
+
+  if (columns.length === 0) {
+    await db.query('ALTER TABLE families ADD COLUMN motto VARCHAR(140) NULL AFTER name');
+  }
+}
+
+async function updateFamilyMotto({ familyId, actorUserId, motto }) {
+  const cleanMotto = String(motto || '').trim().slice(0, 140) || null;
+  const family = await getFamilyById(familyId);
+
+  if (!family) {
+    throw new Error('Family not found.');
+  }
+
+  await ensureFamilyMottoColumn();
+  await db.query('UPDATE families SET motto = ? WHERE id = ? LIMIT 1', [cleanMotto, familyId]);
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    action: 'family_motto_updated',
+    entityType: 'family',
+    entityId: familyId,
+    description: cleanMotto ? 'Updated family motto.' : 'Removed family motto.'
+  });
+}
+
+async function updateFamilyAvatar({ familyId, actorUserId, avatarUrl }) {
+  await ensureFamilyAvatarColumn();
+
+  const cleanAvatarUrl = avatarUrl ? String(avatarUrl).trim() : null;
+
+  await db.query('UPDATE families SET avatar_url = ? WHERE id = ? LIMIT 1', [cleanAvatarUrl, familyId]);
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    action: 'family_avatar_updated',
+    entityType: 'family',
+    entityId: familyId,
+    description: cleanAvatarUrl ? 'Updated family avatar.' : 'Removed family avatar.'
+  });
+}
+
+async function addFamilyMember({ familyId, actorUserId, email, role = FAMILY_ROLES.VIEWER }) {
   const normalizedEmail = String(email || '').trim().toLowerCase();
   const cleanRole = normalizeRole(role);
 
@@ -141,8 +242,8 @@ async function addFamilyMember({ familyId, email, role = FAMILY_ROLES.VIEWER }) 
   }
 
   const user = usersFound[0];
-  const existingFamily = await getUserFamily(user.id);
 
+  const existingFamily = await getUserFamily(user.id);
   if (existingFamily) {
     if (existingFamily.id === familyId) {
       throw new Error('This user is already a member of your family.');
@@ -156,10 +257,20 @@ async function addFamilyMember({ familyId, email, role = FAMILY_ROLES.VIEWER }) 
     [familyId, user.id, cleanRole]
   );
 
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    targetUserId: user.id,
+    action: 'member_added',
+    entityType: 'member',
+    entityId: user.id,
+    description: `Added ${user.name || user.email} as ${cleanRole}.`
+  });
+
   return user;
 }
 
-async function changeMemberRole({ familyId, targetUserId, role }) {
+async function changeMemberRole({ familyId, actorUserId, targetUserId, role }) {
   const cleanRole = normalizeRole(role);
   const targetMember = await getFamilyMember(familyId, targetUserId);
 
@@ -179,14 +290,25 @@ async function changeMemberRole({ familyId, targetUserId, role }) {
     [cleanRole, familyId, targetUserId]
   );
 
-  const members = await getFamilyMembers(familyId);
-  const firstOwner = members.find((member) => member.role === FAMILY_ROLES.OWNER);
+  const owners = await getFamilyMembers(familyId);
+  const firstOwner = owners.find((member) => member.role === FAMILY_ROLES.OWNER);
+
   if (firstOwner) {
     await db.query('UPDATE families SET owner_user_id = ? WHERE id = ? LIMIT 1', [firstOwner.id, familyId]);
   }
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    targetUserId,
+    action: 'member_role_updated',
+    entityType: 'member',
+    entityId: targetUserId,
+    description: `Changed ${targetMember.name || targetMember.email} role from ${targetMember.role} to ${cleanRole}.`
+  });
 }
 
-async function removeFamilyMember({ familyId, targetUserId }) {
+async function removeFamilyMember({ familyId, actorUserId, targetUserId }) {
   const targetMember = await getFamilyMember(familyId, targetUserId);
 
   if (!targetMember) {
@@ -204,6 +326,16 @@ async function removeFamilyMember({ familyId, targetUserId }) {
     'DELETE FROM family_members WHERE family_id = ? AND user_id = ? LIMIT 1',
     [familyId, targetUserId]
   );
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    targetUserId,
+    action: 'member_removed',
+    entityType: 'member',
+    entityId: targetUserId,
+    description: `Removed ${targetMember.name || targetMember.email} from the family.`
+  });
 }
 
 async function leaveFamily({ familyId, actorUserId }) {
@@ -224,9 +356,34 @@ async function leaveFamily({ familyId, actorUserId }) {
     'DELETE FROM family_members WHERE family_id = ? AND user_id = ? LIMIT 1',
     [familyId, actorUserId]
   );
+
+  const owners = await getFamilyMembers(familyId);
+  const firstOwner = owners.find((familyMember) => familyMember.role === FAMILY_ROLES.OWNER);
+  if (firstOwner) {
+    await db.query('UPDATE families SET owner_user_id = ? WHERE id = ? LIMIT 1', [firstOwner.id, familyId]);
+  }
+
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    targetUserId: actorUserId,
+    action: 'member_left',
+    entityType: 'member',
+    entityId: actorUserId,
+    description: `${member.name || member.email} left the family.`
+  });
 }
 
-async function deleteFamily({ familyId }) {
+async function deleteFamily({ familyId, actorUserId }) {
+  await logFamilyActivity({
+    familyId,
+    actorUserId,
+    action: 'family_deleted',
+    entityType: 'family',
+    entityId: familyId,
+    description: 'Family workspace was deleted.'
+  });
+
   const connection = await db.getConnection();
 
   try {
@@ -252,6 +409,8 @@ module.exports = {
   countFamilyOwners,
   createFamily,
   updateFamilyName,
+  updateFamilyMotto,
+  updateFamilyAvatar,
   addFamilyMember,
   changeMemberRole,
   removeFamilyMember,
