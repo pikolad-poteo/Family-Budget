@@ -29,27 +29,7 @@
         </div>
       </div>
 
-      <div class="col-md-6 col-xl-3">
-        <div class="form-group">
-          <label class="form-label">Scope</label>
-
-          <div class="form-toggle-group <%= family ? '' : 'is-single' %>">
-            <button type="button" class="form-toggle-btn is-active" data-toggle-target="scope" data-toggle-value="personal">
-              Personal
-            </button>
-
-            <% if (family) { %>
-              <button type="button" class="form-toggle-btn" data-toggle-target="scope" data-toggle-value="family">
-                Family
-              </button>
-            <% } %>
-          </div>
-
-          <input type="hidden" id="categoryScope" name="scope" value="personal" />
-        </div>
-      </div>
-
-      <div class="col-xl-6">
+      <div class="col-md-6 col-xl-9">
         <div class="form-group category-name-group">
           <label class="form-label" for="categoryName">Category name</label>
 
@@ -81,7 +61,7 @@
 
             <div class="category-preview-meta">
               <span class="category-meta-pill" id="categoryModeBadge">Expense</span>
-              <span class="category-meta-pill category-meta-pill--soft" id="categoryScopeBadge">Personal</span>
+              <span class="category-meta-pill category-meta-pill--soft" id="categoryScopeBadge"><%= family ? 'Family workspace' : 'Personal workspace' %></span>
             </div>
           </div>
         </div>

@@ -6,7 +6,6 @@
     if (filters.from) params.set('from', filters.from);
     if (filters.to) params.set('to', filters.to);
     if (filters.category && filters.category !== 'all') params.set('category', filters.category);
-    if (filters.scope && filters.scope !== 'all') params.set('scope', filters.scope);
     if (filters.member && filters.member !== 'all') params.set('member', filters.member);
     if (filters.showAll) params.set('showAll', '1');
   }
@@ -140,15 +139,6 @@
               <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>>All</option>
               <option value="expense" <%= filters.type === 'expense' ? 'selected' : '' %>>Expense</option>
               <option value="income" <%= filters.type === 'income' ? 'selected' : '' %>>Income</option>
-            </select>
-          </div>
-
-          <div class="col-md-6 col-xl-3">
-            <label class="form-label" for="filterScope">Scope</label>
-            <select class="form-select" id="filterScope" name="scope">
-              <option value="all" <%= filters.scope === 'all' ? 'selected' : '' %>>All</option>
-              <option value="personal" <%= filters.scope === 'personal' ? 'selected' : '' %>>Personal</option>
-              <option value="family" <%= filters.scope === 'family' ? 'selected' : '' %>>Family</option>
             </select>
           </div>
 

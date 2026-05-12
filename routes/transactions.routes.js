@@ -113,7 +113,6 @@ router.get('/transactions', requireAuth, async (req, res) => {
 
     const hasAdvancedFilters =
       normalizedFilters.category !== 'all' ||
-      normalizedFilters.scope !== 'all' ||
       normalizedFilters.member !== 'all' ||
       (normalizedFilters.view === 'date' && normalizedFilters.type !== 'all');
 

@@ -105,18 +105,13 @@ router.post('/categories/create', requireAuth, requireBudgetEditor('categories')
     const type = sanitizeCategoryType(req.body.type);
     const color = sanitizeCategoryColor(req.body.color);
     const icon = sanitizeCategoryIcon(req.body.icon);
-    const scope = sanitizeCategoryScope(req.body.scope, family);
+    const familyId = family ? family.id : null;
 
     const redirectUrl = buildCategoriesRedirect(req, type);
 
     if (!name) {
       setCategoryFlash(req, 'error', 'Category name is required.');
       return res.redirect(redirectUrl);
-    }
-
-    let familyId = null;
-    if (scope === 'family' && family) {
-      familyId = family.id;
     }
 
     const duplicate = await findDuplicateCategory({
@@ -127,7 +122,7 @@ router.post('/categories/create', requireAuth, requireBudgetEditor('categories')
     });
 
     if (duplicate) {
-      setCategoryFlash(req, 'error', 'A category with this name already exists in the selected scope.');
+      setCategoryFlash(req, 'error', 'A category with this name already exists in this workspace.');
       return res.redirect(redirectUrl);
     }
 
