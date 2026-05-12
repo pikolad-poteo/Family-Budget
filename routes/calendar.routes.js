@@ -165,12 +165,12 @@ async function getCalendarMembers(familyId, currentUser) {
 }
 
 function getEventScopeClause(familyId) {
-  if (familyId) return '((family_id = ?) OR (family_id IS NULL AND user_id = ?))';
-  return '(family_id IS NULL AND user_id = ?)';
+  if (familyId) return 'family_id = ?';
+  return 'family_id IS NULL AND user_id = ?';
 }
 
 function getScopeParams(familyId, userId) {
-  return familyId ? [familyId, userId] : [userId];
+  return familyId ? [familyId] : [userId];
 }
 
 router.get('/calendar', requireAuth, async (req, res) => {
@@ -287,7 +287,7 @@ router.post('/calendar/create', requireAuth, requireBudgetEditor('calendar'), as
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyId = req.body.scope === 'personal' ? null : (family ? family.id : null);
+    const familyId = family ? family.id : null;
 
     const title = sanitizeText(req.body.title, 255);
     const eventDate = sanitizeText(req.body.event_date, 20);

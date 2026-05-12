@@ -2050,3 +2050,173 @@
   flex: 0 0 22px !important;
   color: currentColor !important;
 }
+
+.family-empty-header {
+  align-items: flex-start;
+}
+
+.family-personal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.family-personal-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.family-personal-summary-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 16px;
+  background: #fff;
+}
+
+.family-personal-summary-item span {
+  display: block;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.family-personal-summary-item strong {
+  display: block;
+  color: #111827;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.family-info-box,
+.family-warning-box,
+.family-danger-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-radius: 22px;
+  padding: 16px;
+}
+
+.family-info-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.family-warning-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.family-danger-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.family-info-box i,
+.family-warning-box i,
+.family-danger-box i {
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.family-info-box i { color: #2563eb; }
+.family-warning-box i { color: #b45309; }
+.family-danger-box i { color: #dc2626; }
+
+.family-info-box strong,
+.family-warning-box strong,
+.family-danger-box strong {
+  display: block;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.family-info-box p,
+.family-warning-box p,
+.family-danger-box p {
+  color: #475569;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.family-checkbox-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.family-checkbox-confirm input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #111827;
+}
+
+@media (max-width: 767px) {
+  .family-personal-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Family delete modal restore option */
+.family-transfer-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 22px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  cursor: pointer;
+}
+
+.family-transfer-option input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  flex: 0 0 auto;
+  accent-color: #111827;
+}
+
+.family-transfer-option span {
+  min-width: 0;
+}
+
+.family-transfer-option strong,
+.family-transfer-option small {
+  display: block;
+}
+
+.family-transfer-option strong {
+  margin-bottom: 4px;
+  color: #111827;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.family-transfer-option small {
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Keep fallback icons visually centered and readable in all family avatars. */
+.family-avatar-fallback-icon {
+  font-size: 68px !important;
+  line-height: 1 !important;
+}

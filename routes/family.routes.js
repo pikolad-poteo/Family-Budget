@@ -9,6 +9,8 @@ const { requireAuth } = require('../scr/middleware');
 const {
   getUserFamily,
   getFamilyMembers,
+  countPersonalWorkspaceData,
+  getPersonalWorkspaceActivity,
   createFamily,
   updateFamilyName,
   updateFamilyMotto,
@@ -90,6 +92,8 @@ async function renderFamilyPage(req, res, overrides = {}) {
   const family = await getUserFamily(currentUserId);
   const members = family ? await getFamilyMembers(family.id) : [];
   const activity = family ? await getFamilyActivity(family.id, 100) : [];
+  const personalWorkspaceStats = family ? null : await countPersonalWorkspaceData(currentUserId);
+  const personalWorkspaceActivity = family ? [] : await getPersonalWorkspaceActivity(currentUserId, 100);
   const currentRole = family ? family.role : null;
   const flash = getFamilyFlash(req);
 
@@ -101,6 +105,8 @@ async function renderFamilyPage(req, res, overrides = {}) {
     activity,
     selectedMemberActivity: [],
     selectedMember: null,
+    personalWorkspaceStats,
+    personalWorkspaceActivity,
     currentRole,
     roles: FAMILY_ROLES,
     permissions: {
@@ -128,6 +134,8 @@ router.get('/family', requireAuth, async (req, res) => {
       activity: [],
       selectedMemberActivity: [],
       selectedMember: null,
+      personalWorkspaceStats: null,
+      personalWorkspaceActivity: [],
       currentRole: null,
       roles: FAMILY_ROLES,
       permissions: { canManageFamily: false, canManageMembers: false, canDeleteFamily: false },
@@ -177,7 +185,7 @@ router.post('/family/create', requireAuth, async (req, res) => {
       name: req.body.familyName
     });
 
-    setFamilyFlash(req, 'success', 'Family workspace was created.');
+    setFamilyFlash(req, 'success', 'Family workspace was created. Your personal budget data was moved into the new shared workspace.');
     return res.redirect('/family');
   } catch (error) {
     console.error('Family creation error:', error.message);
@@ -306,7 +314,7 @@ router.post('/family/members/add', requireAuth, async (req, res) => {
       role: req.body.role || FAMILY_ROLES.VIEWER
     });
 
-    setFamilyFlash(req, 'success', 'Family member was added.');
+    setFamilyFlash(req, 'success', 'Family member was added. Their existing personal data was not moved or deleted.');
     return res.redirect('/family');
   } catch (error) {
     console.error('Add family member error:', error.message);
@@ -405,9 +413,21 @@ router.post('/family/delete', requireAuth, async (req, res) => {
       return res.redirect('/family');
     }
 
-    await deleteFamily({ familyId: family.id, actorUserId: currentUserId });
+    const keepSharedDataAsPersonal = req.body.keepSharedDataAsPersonal === 'on';
 
-    setFamilyFlash(req, 'success', 'Family workspace was deleted. Shared data was detached from the deleted family.');
+    await deleteFamily({
+      familyId: family.id,
+      actorUserId: currentUserId,
+      keepSharedDataAsPersonal
+    });
+
+    setFamilyFlash(
+      req,
+      'success',
+      keepSharedDataAsPersonal
+        ? 'Family workspace was deleted. Shared family data was moved back into your personal workspace.'
+        : 'Family workspace was deleted together with all shared family data.'
+    );
     return res.redirect('/family');
   } catch (error) {
     console.error('Delete family error:', error.message);

@@ -1,0 +1,62 @@
+<%
+  const visibleActivity = Array.isArray(personalActivityItems) ? personalActivityItems : [];
+%>
+
+<div class="card family-card family-activity-card family-personal-activity-card" id="memberActivityPanel">
+  <div class="card-body">
+    <div class="family-section-header family-activity-header">
+      <div>
+        <p class="section-label">Personal history</p>
+        <h2 id="familyActivityTitle">Latest personal workspace updates</h2>
+      </div>
+
+      <div class="family-activity-actions">
+        <% if (visibleActivity.length > 0) { %>
+          <div class="family-sort-actions d-none" id="familySortActions" aria-label="Sort personal activity">
+            <button class="btn btn-primary btn-small family-sort-button is-active" type="button" data-activity-sort-button="desc">
+              New
+            </button>
+            <button class="btn btn-secondary btn-small family-sort-button" type="button" data-activity-sort-button="asc">
+              Old
+            </button>
+          </div>
+        <% } %>
+        <button class="btn btn-secondary btn-small family-show-all-button" type="button" id="toggleFamilyActivityButton" aria-expanded="false">
+          Show all
+        </button>
+      </div>
+    </div>
+
+    <div class="family-activity-list" id="familyActivityList" data-expanded="false" data-collapsed="true" data-view-mode="hidden" data-sort="desc">
+      <% if (visibleActivity.length === 0) { %>
+        <article class="family-activity-item">
+          <div class="family-activity-dot"></div>
+          <div>
+            <h3 class="family-activity-title">No personal activity yet</h3>
+            <p class="family-activity-description">Your personal categories, transactions, wishlist items and calendar events will appear here.</p>
+          </div>
+          <span class="family-activity-time">Empty</span>
+        </article>
+      <% } else { %>
+        <% visibleActivity.forEach((item) => { %>
+          <article
+            class="family-activity-item"
+            data-actor-id="personal"
+            data-target-id=""
+            data-date="<%= item.created_at ? new Date(item.created_at).getTime() : 0 %>"
+          >
+            <div class="family-activity-dot"></div>
+            <div>
+              <h3 class="family-activity-title"><%= item.title || 'Personal update' %></h3>
+              <p class="family-activity-description"><%= item.description || item.action %></p>
+              <span class="family-activity-type"><%= item.entity_type %> · <%= item.action %></span>
+            </div>
+            <span class="family-activity-time">
+              <%= item.created_at ? new Date(item.created_at).toLocaleDateString('en-GB') : '' %>
+            </span>
+          </article>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</div>

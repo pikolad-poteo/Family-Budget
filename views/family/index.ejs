@@ -10,6 +10,8 @@
   const activeRole = typeof currentRole !== 'undefined' ? currentRole : null;
   const memberActivity = Array.isArray(selectedMemberActivity) ? selectedMemberActivity : [];
   const activeMember = typeof selectedMember !== 'undefined' ? selectedMember : null;
+  const personalStats = typeof personalWorkspaceStats !== 'undefined' ? personalWorkspaceStats : null;
+  const personalActivityItems = Array.isArray(personalWorkspaceActivity) ? personalWorkspaceActivity : [];
 %>
 
 <section class="container family-shell">
@@ -23,7 +25,10 @@
     <% } %>
 
     <% if (!currentFamily) { %>
-      <%- include('./empty-state', { currentFamily, familyMembers }) %>
+      <div class="d-flex flex-column gap-4">
+        <%- include('./empty-state', { currentFamily, familyMembers, personalWorkspaceStats: personalStats }) %>
+        <%- include('./personal-activity', { personalActivityItems }) %>
+      </div>
     <% } else { %>
       <div class="d-flex flex-column gap-4">
         <%- include('./header', { currentFamily, familyMembers, activeRole, familyPermissions }) %>

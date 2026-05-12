@@ -11,6 +11,7 @@ const db = require('../scr/db');
 const { requireAuth } = require('../scr/middleware');
 const { getUserFamily } = require('../scr/family.service');
 const { getCanEditBudget, requireBudgetEditor } = require('../scr/budget.permissions');
+const { getWorkspaceCondition } = require('../scr/category.utils');
 const {
   sanitizeWishlistText,
   normalizeWishlistFolderName,
@@ -186,14 +187,11 @@ router.post('/wishlist/folders/add-items', requireAuth, requireBudgetEditor('wis
     await ensureWishlistFolder(currentUserId, family ? family.id : null, targetFolder);
 
     const placeholders = itemIds.map(() => '?').join(', ');
-    const params = [targetFolder, ...itemIds, currentUserId];
-    let query = `UPDATE wishlist_items SET folder = ? WHERE id IN (${placeholders}) AND (user_id = ?`;
-    if (family) {
-      query += ' OR family_id = ?';
-      params.push(family.id);
-    }
-    query += ')';
-    await db.query(query, params);
+    const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
+    await db.query(
+      `UPDATE wishlist_items SET folder = ? WHERE id IN (${placeholders}) AND ${workspace.clause}`,
+      [targetFolder, ...itemIds, ...workspace.params]
+    );
 
     setWishlistFlash(req, 'success', 'Selected cards were added to the folder.');
     return res.redirect(`/wishlist?folder=${encodeURIComponent(targetFolder)}`);
@@ -256,11 +254,12 @@ router.post('/wishlist/:id/update', requireAuth, requireBudgetEditor('wishlist')
       return res.redirect(redirectUrl);
     }
     await ensureWishlistFolder(currentUserId, family ? family.id : null, folder);
+    const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
     await db.query(
       `UPDATE wishlist_items
        SET title = ?, amount = ?, folder = ?, status = ?, description = ?, product_url = ?, image_url = ?, desired_date = ?
-       WHERE id = ? AND (user_id = ? OR family_id = ?) LIMIT 1`,
-      [title, amount, folder, status, description, productUrl, imageUrl, desiredDate, itemId, currentUserId, family ? family.id : null]
+       WHERE id = ? AND ${workspace.clause} LIMIT 1`,
+      [title, amount, folder, status, description, productUrl, imageUrl, desiredDate, itemId, ...workspace.params]
     );
     setWishlistFlash(req, 'success', 'Wishlist item updated successfully.');
     return res.redirect(redirectUrl);
@@ -283,7 +282,11 @@ router.post('/wishlist/:id/status', requireAuth, requireBudgetEditor('wishlist')
       setWishlistFlash(req, 'error', 'Wishlist item not found.');
       return res.redirect(redirectUrl);
     }
-    await db.query('UPDATE wishlist_items SET status = ? WHERE id = ? AND (user_id = ? OR family_id = ?) LIMIT 1', [status, itemId, currentUserId, family ? family.id : null]);
+    const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
+    await db.query(
+      `UPDATE wishlist_items SET status = ? WHERE id = ? AND ${workspace.clause} LIMIT 1`,
+      [status, itemId, ...workspace.params]
+    );
     setWishlistFlash(req, 'success', 'Wishlist status updated successfully.');
     return res.redirect(redirectUrl);
   } catch (error) {
@@ -304,7 +307,11 @@ router.post('/wishlist/:id/delete', requireAuth, requireBudgetEditor('wishlist')
       setWishlistFlash(req, 'error', 'Wishlist item not found.');
       return res.redirect(redirectUrl);
     }
-    await db.query('DELETE FROM wishlist_items WHERE id = ? AND (user_id = ? OR family_id = ?) LIMIT 1', [itemId, currentUserId, family ? family.id : null]);
+    const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
+    await db.query(
+      `DELETE FROM wishlist_items WHERE id = ? AND ${workspace.clause} LIMIT 1`,
+      [itemId, ...workspace.params]
+    );
     setWishlistFlash(req, 'success', 'Wishlist item deleted successfully.');
     return res.redirect(redirectUrl);
   } catch (error) {

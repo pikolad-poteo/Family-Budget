@@ -29,7 +29,7 @@ async function getFamilyById(familyId) {
 async function getFamilyMember(familyId, userId) {
   const [rows] = await db.query(
     `
-    SELECT fm.id, fm.family_id, fm.user_id, fm.role, fm.joined_at, u.name, u.email
+    SELECT fm.id, fm.family_id, fm.user_id, fm.role, fm.joined_at, u.name, u.email, u.avatar_url
     FROM family_members fm
     INNER JOIN users u ON u.id = fm.user_id
     WHERE fm.family_id = ? AND fm.user_id = ?
@@ -52,7 +52,8 @@ async function getFamilyMembers(familyId) {
       fm.joined_at,
       fm.updated_at,
       u.name,
-      u.email
+      u.email,
+      u.avatar_url
     FROM family_members fm
     INNER JOIN users u ON u.id = fm.user_id
     WHERE fm.family_id = ?
@@ -97,6 +98,135 @@ async function countFamilyOwners(familyId) {
   return Number(rows[0] ? rows[0].total : 0);
 }
 
+
+async function countPersonalWorkspaceData(userId) {
+  const tables = [
+    ['categories', 'categories'],
+    ['transactions', 'transactions'],
+    ['wishlist_items', 'wishlist items'],
+    ['wishlist_folders', 'wishlist folders'],
+    ['calendar_events', 'calendar events']
+  ];
+
+  const result = {};
+
+  for (const [table, key] of tables) {
+    const [rows] = await db.query(
+      `SELECT COUNT(*) AS total FROM ${table} WHERE user_id = ? AND family_id IS NULL`,
+      [userId]
+    );
+    result[key] = Number(rows[0] ? rows[0].total : 0);
+  }
+
+  result.total = Object.values(result).reduce((sum, value) => sum + Number(value || 0), 0);
+  return result;
+}
+
+async function migratePersonalWorkspaceToFamily(connection, userId, familyId) {
+  await connection.query('UPDATE categories SET family_id = ? WHERE user_id = ? AND family_id IS NULL', [familyId, userId]);
+  await connection.query('UPDATE transactions SET family_id = ? WHERE user_id = ? AND family_id IS NULL', [familyId, userId]);
+  await connection.query('UPDATE wishlist_items SET family_id = ? WHERE user_id = ? AND family_id IS NULL', [familyId, userId]);
+  await connection.query('UPDATE wishlist_folders SET family_id = ? WHERE user_id = ? AND family_id IS NULL', [familyId, userId]);
+  await connection.query('UPDATE calendar_events SET family_id = ? WHERE user_id = ? AND family_id IS NULL', [familyId, userId]);
+}
+
+async function deletePersonalWorkspaceData(userId) {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    await connection.query('DELETE FROM calendar_events WHERE user_id = ? AND family_id IS NULL', [userId]);
+    await connection.query('DELETE FROM wishlist_items WHERE user_id = ? AND family_id IS NULL', [userId]);
+    await connection.query('DELETE FROM wishlist_folders WHERE user_id = ? AND family_id IS NULL', [userId]);
+    await connection.query('DELETE FROM transactions WHERE user_id = ? AND family_id IS NULL', [userId]);
+    await connection.query('DELETE FROM categories WHERE user_id = ? AND family_id IS NULL', [userId]);
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+async function getPersonalWorkspaceActivity(userId, limit = 100) {
+  const safeLimit = Number.isInteger(Number(limit)) ? Math.min(Math.max(Number(limit), 1), 100) : 100;
+
+  const [rows] = await db.query(
+    `
+    SELECT * FROM (
+      SELECT
+        CONCAT('category-', c.id) AS id,
+        c.id AS entity_id,
+        'category' AS entity_type,
+        'category_created' AS action,
+        CONCAT('Created ', c.type, ' category') AS title,
+        CONCAT('Category "', c.name, '" is available in your personal workspace.') AS description,
+        c.created_at AS created_at
+      FROM categories c
+      WHERE c.user_id = ? AND c.family_id IS NULL
+
+      UNION ALL
+
+      SELECT
+        CONCAT('transaction-', t.id) AS id,
+        t.id AS entity_id,
+        'transaction' AS entity_type,
+        'transaction_created' AS action,
+        CONCAT(UPPER(LEFT(t.type, 1)), SUBSTRING(t.type, 2), ' transaction') AS title,
+        CONCAT(COALESCE(NULLIF(t.description, ''), 'Transaction'), ' · ', FORMAT(ABS(t.amount), 2), ' €') AS description,
+        t.created_at AS created_at
+      FROM transactions t
+      WHERE t.user_id = ? AND t.family_id IS NULL
+
+      UNION ALL
+
+      SELECT
+        CONCAT('wishlist-folder-', wf.id) AS id,
+        wf.id AS entity_id,
+        'wishlist folder' AS entity_type,
+        'wishlist_folder_created' AS action,
+        'Wishlist folder created' AS title,
+        CONCAT('Folder "', wf.name, '" is available in your personal wishlist.') AS description,
+        wf.created_at AS created_at
+      FROM wishlist_folders wf
+      WHERE wf.user_id = ? AND wf.family_id IS NULL
+
+      UNION ALL
+
+      SELECT
+        CONCAT('wishlist-item-', wi.id) AS id,
+        wi.id AS entity_id,
+        'wishlist item' AS entity_type,
+        'wishlist_item_created' AS action,
+        'Wishlist item created' AS title,
+        CONCAT(wi.title, ' · ', FORMAT(COALESCE(wi.amount, 0), 2), ' €') AS description,
+        wi.created_at AS created_at
+      FROM wishlist_items wi
+      WHERE wi.user_id = ? AND wi.family_id IS NULL
+
+      UNION ALL
+
+      SELECT
+        CONCAT('calendar-event-', ce.id) AS id,
+        ce.id AS entity_id,
+        'calendar event' AS entity_type,
+        'calendar_event_created' AS action,
+        'Calendar event created' AS title,
+        CONCAT(ce.title, ' · ', DATE_FORMAT(ce.event_date, '%d.%m.%Y')) AS description,
+        ce.created_at AS created_at
+      FROM calendar_events ce
+      WHERE ce.user_id = ? AND ce.family_id IS NULL
+    ) personal_activity
+    ORDER BY created_at DESC
+    LIMIT ${safeLimit}
+    `,
+    [userId, userId, userId, userId, userId]
+  );
+
+  return rows;
+}
+
 async function createFamily({ userId, name, avatarUrl = null }) {
   await ensureFamilyAvatarColumn();
 
@@ -124,6 +254,8 @@ async function createFamily({ userId, name, avatarUrl = null }) {
       'INSERT INTO family_members (family_id, user_id, role) VALUES (?, ?, ?)',
       [result.insertId, userId, FAMILY_ROLES.OWNER]
     );
+
+    await migratePersonalWorkspaceToFamily(connection, userId, result.insertId);
 
     await connection.commit();
 
@@ -348,7 +480,7 @@ async function leaveFamily({ familyId, actorUserId }) {
   if (member.role === FAMILY_ROLES.OWNER) {
     const ownersCount = await countFamilyOwners(familyId);
     if (ownersCount <= 1) {
-      throw new Error('You are the last owner. Transfer owner rights before leaving the family.');
+      throw new Error('You are the last owner. Add another owner or delete the family before leaving.');
     }
   }
 
@@ -374,14 +506,24 @@ async function leaveFamily({ familyId, actorUserId }) {
   });
 }
 
-async function deleteFamily({ familyId, actorUserId }) {
+async function moveFamilyWorkspaceToPersonal(connection, familyId, userId) {
+  await connection.query('UPDATE categories SET user_id = ?, family_id = NULL WHERE family_id = ?', [userId, familyId]);
+  await connection.query('UPDATE transactions SET user_id = ?, family_id = NULL, paid_by_user_id = ? WHERE family_id = ?', [userId, userId, familyId]);
+  await connection.query('UPDATE wishlist_folders SET user_id = ?, family_id = NULL WHERE family_id = ?', [userId, familyId]);
+  await connection.query('UPDATE wishlist_items SET user_id = ?, family_id = NULL WHERE family_id = ?', [userId, familyId]);
+  await connection.query('UPDATE calendar_events SET user_id = ?, family_id = NULL WHERE family_id = ?', [userId, familyId]);
+}
+
+async function deleteFamily({ familyId, actorUserId, keepSharedDataAsPersonal = false }) {
   await logFamilyActivity({
     familyId,
     actorUserId,
     action: 'family_deleted',
     entityType: 'family',
     entityId: familyId,
-    description: 'Family workspace was deleted.'
+    description: keepSharedDataAsPersonal
+      ? 'Family workspace was deleted and shared budget data was moved back to the owner personal workspace.'
+      : 'Family workspace was deleted.'
   });
 
   const connection = await db.getConnection();
@@ -389,7 +531,16 @@ async function deleteFamily({ familyId, actorUserId }) {
   try {
     await connection.beginTransaction();
 
-    await connection.query('UPDATE calendar_events SET family_id = NULL WHERE family_id = ?', [familyId]);
+    if (keepSharedDataAsPersonal) {
+      await moveFamilyWorkspaceToPersonal(connection, familyId, actorUserId);
+    } else {
+      await connection.query('DELETE FROM calendar_events WHERE family_id = ?', [familyId]);
+      await connection.query('DELETE FROM wishlist_items WHERE family_id = ?', [familyId]);
+      await connection.query('DELETE FROM wishlist_folders WHERE family_id = ?', [familyId]);
+      await connection.query('DELETE FROM transactions WHERE family_id = ?', [familyId]);
+      await connection.query('DELETE FROM categories WHERE family_id = ?', [familyId]);
+    }
+
     await connection.query('DELETE FROM families WHERE id = ? LIMIT 1', [familyId]);
 
     await connection.commit();
@@ -407,6 +558,9 @@ module.exports = {
   getFamilyMember,
   getFamilyMembers,
   countFamilyOwners,
+  countPersonalWorkspaceData,
+  getPersonalWorkspaceActivity,
+  deletePersonalWorkspaceData,
   createFamily,
   updateFamilyName,
   updateFamilyMotto,
