@@ -33,7 +33,14 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || 'my-budget-secret-key',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    }
   })
 );
 
