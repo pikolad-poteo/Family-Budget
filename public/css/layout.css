@@ -213,3 +213,44 @@
     width: 100%;
   }
 }
+
+.app-user-menu-language {
+  padding: 10px 12px;
+}
+
+.app-user-menu-language-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.app-user-menu-language-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.app-language-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.app-language-option:hover,
+.app-language-option.active {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}

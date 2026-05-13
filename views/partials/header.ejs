@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= language || 'en' %>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title><%= title ? `${title} | My Budget` : 'My Budget' %></title>
+  <title><%= title ? `${title} | ${t('app.name')}` : t('app.name') %></title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -43,7 +43,7 @@
     <nav class="navbar navbar-expand-lg bg-white border-bottom">
       <div class="container">
         <a class="navbar-brand app-logo" href="<%= currentUser ? '/dashboard' : '/login' %>">
-          My Budget
+          <%= t('app.name') %>
         </a>
 
         <button
@@ -53,7 +53,7 @@
           data-bs-target="#mainNavbar"
           aria-controls="mainNavbar"
           aria-expanded="false"
-          aria-label="Toggle navigation"
+          aria-label="<%= t('accessibility.toggleNavigation') %>"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -63,37 +63,37 @@
             <ul class="navbar-nav mx-lg-auto mt-3 mt-lg-0 gap-lg-1">
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
-                  Dashboard
+                  <%= t('nav.dashboard') %>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'categories' ? 'active' : '' %>" href="/categories">
-                  Categories
+                  <%= t('nav.categories') %>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'transactions' ? 'active' : '' %>" href="/transactions">
-                  Transactions
+                  <%= t('nav.transactions') %>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'wishlist' ? 'active' : '' %>" href="/wishlist">
-                  Wishlist
+                  <%= t('nav.wishlist') %>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'calendar' ? 'active' : '' %>" href="/calendar">
-                  Calendar
+                  <%= t('nav.calendar') %>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a class="nav-link app-nav-link <%= activePage === 'family' ? 'active' : '' %>" href="/family">
-                  Family
+                  <%= t('nav.family') %>
                 </a>
               </li>
             </ul>
@@ -107,10 +107,10 @@
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
-                  aria-label="Open account menu"
+                  aria-label="<%= t('accessibility.openAccountMenu') %>"
                 >
                   <% if (currentUser.avatar_url) { %>
-                    <img class="app-header-avatar" src="<%= currentUser.avatar_url %>" alt="<%= currentUser.name %> avatar" />
+                    <img class="app-header-avatar" src="<%= currentUser.avatar_url %>" alt="<%= t('accessibility.userAvatar') %>" />
                   <% } else { %>
                     <span class="app-header-avatar app-header-avatar-fallback" aria-hidden="true">
                       <i class="bi bi-person app-header-avatar-icon"></i>
@@ -129,24 +129,55 @@
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <a class="dropdown-item app-user-menu-item <%= activePage === 'account' ? 'active' : '' %>" href="/account">
-                      <i class="bi bi-person-gear me-2"></i>Account settings
+                      <i class="bi bi-person-gear me-2"></i><%= t('nav.account') %>
                     </a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
+                    <div class="app-user-menu-language">
+                      <div class="app-user-menu-language-title">
+                        <i class="bi bi-translate me-2"></i><%= t('language.label') %>
+                      </div>
+
+                      <div class="app-user-menu-language-options" aria-label="<%= t('language.label') %>">
+                        <a
+                          class="app-language-option <%= language === 'en' ? 'active' : '' %>"
+                          href="/language/en"
+                        >
+                          <%= t('language.shortEnglish') %>
+                        </a>
+
+                        <a
+                          class="app-language-option <%= language === 'ru' ? 'active' : '' %>"
+                          href="/language/ru"
+                        >
+                          <%= t('language.shortRussian') %>
+                        </a>
+
+                        <a
+                          class="app-language-option <%= language === 'et' ? 'active' : '' %>"
+                          href="/language/et"
+                        >
+                          <%= t('language.shortEstonian') %>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
                     <a class="dropdown-item app-user-menu-item app-user-menu-logout" href="/logout">
-                      <i class="bi bi-box-arrow-right me-2"></i>Logout
+                      <i class="bi bi-box-arrow-right me-2"></i><%= t('nav.logout') %>
                     </a>
                   </li>
                 </ul>
               </div>
             <% } else { %>
               <a href="/login" class="btn btn-link text-dark text-decoration-none px-2">
-                Login
+                <%= t('nav.login') %>
               </a>
 
               <a href="/register" class="btn btn-dark btn-sm rounded-pill px-3">
-                Register
+                <%= t('nav.register') %>
               </a>
             <% } %>
           </div>

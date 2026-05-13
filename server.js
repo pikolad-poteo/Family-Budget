@@ -5,6 +5,7 @@ const path = require('path');
 const session = require('express-session');
 
 const checkDatabase = require('./scr/checkDatabase');
+const { attachI18n } = require('./scr/i18n');
 const { attachUser } = require('./scr/middleware');
 
 const authRoutes = require('./routes/auth.routes');
@@ -15,6 +16,7 @@ const wishlistRoutes = require('./routes/wishlist.routes');
 const calendarRoutes = require('./routes/calendar.routes');
 const accountRoutes = require('./routes/account.routes');
 const pagesRoutes = require('./routes/pages.routes');
+const languageRoutes = require('./routes/language.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +37,7 @@ app.use(
   })
 );
 
+app.use(attachI18n);
 app.use(attachUser);
 app.use(checkDatabase);
 
@@ -42,6 +45,7 @@ app.use(checkDatabase);
   Main application routes.
   Specific CRUD routes should be registered before general page routes.
 */
+app.use(languageRoutes);
 app.use(authRoutes);
 app.use(familyRoutes);
 app.use(categoriesRoutes);
