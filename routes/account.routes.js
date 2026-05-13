@@ -31,7 +31,7 @@ const upload = multer({
     const extension = path.extname(file.originalname || '').toLowerCase();
 
     if (!ALLOWED_AVATAR_MIME_TYPES.has(mimetype) && !ALLOWED_AVATAR_EXTENSIONS.has(extension)) {
-      return cb(new Error('Upload JPG or PNG image only.'));
+      return cb(new Error(req.t('account.messages.uploadJpgPngOnly')));
     }
 
     return cb(null, true);
@@ -97,10 +97,10 @@ function runAccountAvatarUpload(req, res, next) {
       return next();
     }
 
-    let message = 'Failed to upload avatar.';
+    let message = req.t('account.messages.failedToUploadAvatar');
 
     if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-      message = 'Avatar image must be 15 MB or smaller.';
+      message = req.t('account.messages.avatarTooLarge');
     } else if (error.message) {
       message = error.message;
     }
@@ -171,7 +171,7 @@ async function renderAccountPage(req, res, overrides = {}) {
   const flash = getAccountFlash(req);
 
   return res.render('account/index', {
-    title: 'Account',
+    title: req.t('account.pageTitle'),
     activePage: 'account',
     accountUser,
     accountFamilyRole,
@@ -187,10 +187,10 @@ router.get('/account', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Account page error:', error.message);
     return res.status(500).render('account/index', {
-      title: 'Account',
+      title: req.t('account.pageTitle'),
       activePage: 'account',
       accountUser: req.session.user,
-      errorMessage: 'Failed to load account data.',
+      errorMessage: req.t('account.messages.failedToLoadAccount'),
       successMessage: '',
       accountFamilyRole: null
     });
@@ -203,12 +203,12 @@ router.post('/account/profile', requireAuth, async (req, res) => {
 
   try {
     if (!name || !email) {
-      setAccountFlash(req, 'error', 'Name and email are required.');
+      setAccountFlash(req, 'error', req.t('account.messages.nameEmailRequired'));
       return res.redirect('/account');
     }
 
     if (!isValidEmail(email)) {
-      setAccountFlash(req, 'error', 'Please enter a valid email address.');
+      setAccountFlash(req, 'error', req.t('account.messages.invalidEmail'));
       return res.redirect('/account');
     }
 
@@ -221,7 +221,7 @@ router.post('/account/profile', requireAuth, async (req, res) => {
     );
 
     if (existingUsers.length > 0) {
-      setAccountFlash(req, 'error', 'This email is already used by another account.');
+      setAccountFlash(req, 'error', req.t('account.messages.emailAlreadyUsed'));
       return res.redirect('/account');
     }
 
@@ -234,7 +234,7 @@ router.post('/account/profile', requireAuth, async (req, res) => {
       const updatedUser = await getCurrentUser(req.session.user.id);
       syncSessionUser(req, updatedUser);
 
-      setAccountFlash(req, 'success', 'Account details were updated.');
+      setAccountFlash(req, 'success', req.t('account.messages.accountUpdated'));
       return res.redirect('/account');
     }
 
@@ -260,18 +260,18 @@ router.post('/account/profile', requireAuth, async (req, res) => {
 
     req.session.destroy(() => {
       return res.render('login', {
-        title: 'Login',
+        title: req.t('auth.loginTitle'),
         activePage: 'login',
         errorMessage: '',
-        successMessage: 'Email was changed. Please verify your new email before signing in.'
+        successMessage: req.t('account.messages.emailChangedVerify')
       });
     });
     return null;
   } catch (error) {
     console.error('Account profile update error:', error.message);
     setAccountFlash(req, 'error', error.message.includes('Email sending is not configured')
-      ? 'Email sending is not configured. Email was not changed.'
-      : 'Failed to update account details.');
+      ? req.t('account.messages.emailNotConfiguredNotChanged')
+      : req.t('account.messages.failedToUpdateAccount'));
     return res.redirect('/account');
   }
 });
@@ -279,7 +279,7 @@ router.post('/account/profile', requireAuth, async (req, res) => {
 router.post('/account/avatar', requireAuth, runAccountAvatarUpload, async (req, res) => {
   try {
     if (!req.file) {
-      setAccountFlash(req, 'error', 'Choose an image file first.');
+      setAccountFlash(req, 'error', req.t('account.messages.chooseImageFirst'));
       return res.redirect('/account');
     }
 
@@ -293,11 +293,11 @@ router.post('/account/avatar', requireAuth, runAccountAvatarUpload, async (req, 
     const updatedUser = await getCurrentUser(req.session.user.id);
     syncSessionUser(req, updatedUser);
 
-    setAccountFlash(req, 'success', 'Avatar was updated.');
+    setAccountFlash(req, 'success', req.t('account.messages.avatarUpdated'));
     return res.redirect('/account');
   } catch (error) {
     console.error('Account avatar update error:', error.message);
-    setAccountFlash(req, 'error', 'Failed to process avatar. Please upload a valid JPG or PNG image.');
+    setAccountFlash(req, 'error', req.t('account.messages.failedToProcessAvatar'));
     return res.redirect('/account');
   }
 });
@@ -312,11 +312,11 @@ router.post('/account/avatar/delete', requireAuth, async (req, res) => {
     const updatedUser = await getCurrentUser(req.session.user.id);
     syncSessionUser(req, updatedUser);
 
-    setAccountFlash(req, 'success', 'Avatar was deleted.');
+    setAccountFlash(req, 'success', req.t('account.messages.avatarDeleted'));
     return res.redirect('/account');
   } catch (error) {
     console.error('Account avatar delete error:', error.message);
-    setAccountFlash(req, 'error', 'Failed to delete avatar.');
+    setAccountFlash(req, 'error', req.t('account.messages.failedToDeleteAvatar'));
     return res.redirect('/account');
   }
 });
@@ -328,18 +328,18 @@ router.post('/account/password', requireAuth, async (req, res) => {
     const confirmPassword = String(req.body.confirmPassword || '');
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setAccountFlash(req, 'error', 'Fill in all password fields.');
+      setAccountFlash(req, 'error', req.t('account.messages.fillPasswordFields'));
       return res.redirect('/account');
     }
 
-    const passwordValidation = validatePassword(newPassword);
+    const passwordValidation = validatePassword(newPassword, req.t);
     if (!passwordValidation.isValid) {
       setAccountFlash(req, 'error', passwordValidation.message);
       return res.redirect('/account');
     }
 
     if (newPassword !== confirmPassword) {
-      setAccountFlash(req, 'error', 'New passwords do not match.');
+      setAccountFlash(req, 'error', req.t('account.messages.newPasswordsDoNotMatch'));
       return res.redirect('/account');
     }
 
@@ -355,18 +355,18 @@ router.post('/account/password', requireAuth, async (req, res) => {
 
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, rows[0].password_hash);
     if (!isCurrentPasswordValid) {
-      setAccountFlash(req, 'error', 'Current password is incorrect.');
+      setAccountFlash(req, 'error', req.t('account.messages.currentPasswordIncorrect'));
       return res.redirect('/account');
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
     await db.query('UPDATE users SET password_hash = ? WHERE id = ? LIMIT 1', [passwordHash, req.session.user.id]);
 
-    setAccountFlash(req, 'success', 'Password was changed.');
+    setAccountFlash(req, 'success', req.t('account.messages.passwordChanged'));
     return res.redirect('/account');
   } catch (error) {
     console.error('Account password update error:', error.message);
-    setAccountFlash(req, 'error', 'Failed to change password.');
+    setAccountFlash(req, 'error', req.t('account.messages.failedToChangePassword'));
     return res.redirect('/account');
   }
 });
@@ -380,7 +380,7 @@ router.post('/account/delete', requireAuth, async (req, res) => {
     const confirmation = String(req.body.confirmation || '').trim();
 
     if (confirmation !== 'DELETE') {
-      setAccountFlash(req, 'error', 'Type DELETE to confirm account deletion.');
+      setAccountFlash(req, 'error', req.t('account.messages.typeDeleteToConfirm'));
       return res.redirect('/account');
     }
 
@@ -392,7 +392,7 @@ router.post('/account/delete', requireAuth, async (req, res) => {
     return null;
   } catch (error) {
     console.error('Account deletion error:', error.message);
-    setAccountFlash(req, 'error', 'Failed to delete account. Please try again.');
+    setAccountFlash(req, 'error', req.t('account.messages.failedToDeleteAccount'));
     return res.redirect('/account');
   }
 });

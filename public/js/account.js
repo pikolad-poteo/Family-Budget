@@ -23,13 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const maxSize = 15 * 1024 * 1024;
 
       if (!isAllowed) {
-        alert('Please upload a JPG or PNG image.');
+        alert(avatarInput.dataset.invalidType || 'Please upload a JPG or PNG image.');
         avatarInput.value = '';
         return;
       }
 
       if (file.size > maxSize) {
-        alert('Avatar image must be 15 MB or smaller.');
+        alert(avatarInput.dataset.tooLarge || 'Avatar image must be 15 MB or smaller.');
         avatarInput.value = '';
         return;
       }

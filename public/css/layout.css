@@ -254,3 +254,69 @@
   background: #111827;
   color: #ffffff;
 }
+
+.app-guest-language-dropdown {
+  display: flex;
+  justify-content: center;
+}
+
+.app-guest-language-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  transition: 0.2s ease;
+}
+
+.app-guest-language-button:hover,
+.app-guest-language-button:focus {
+  border-color: #111827;
+  background: #f9fafb;
+  color: #111827;
+  outline: none;
+}
+
+.app-guest-language-button::after {
+  margin-left: 0;
+  color: #6b7280;
+}
+
+.app-guest-language-menu {
+  min-width: 180px;
+  padding: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+}
+
+.app-guest-language-menu.show {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.app-guest-language-menu .app-user-menu-item {
+  border-radius: 12px;
+}
+
+@media (max-width: 991px) {
+  .app-guest-language-dropdown,
+  .app-guest-language-button {
+    width: 100%;
+  }
+
+  .app-guest-language-button {
+    justify-content: center;
+  }
+
+  .app-guest-language-menu {
+    width: 100%;
+  }
+}

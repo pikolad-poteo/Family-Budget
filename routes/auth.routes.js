@@ -26,7 +26,7 @@ function renderLogin(req, res, overrides = {}) {
   const flash = getAuthFlash(req);
 
   return res.render('login', {
-    title: 'Login',
+    title: req.t('auth.loginTitle'),
     activePage: 'login',
     errorMessage: flash && flash.type === 'error' ? flash.message : '',
     successMessage: flash && flash.type === 'success' ? flash.message : '',
@@ -36,7 +36,7 @@ function renderLogin(req, res, overrides = {}) {
 
 function renderRegister(req, res, overrides = {}) {
   return res.render('register', {
-    title: 'Register',
+    title: req.t('auth.registerTitle'),
     activePage: 'register',
     errorMessage: '',
     successMessage: '',
@@ -48,9 +48,9 @@ function renderRegister(req, res, overrides = {}) {
   });
 }
 
-function renderForgotPassword(res, overrides = {}) {
+function renderForgotPassword(req, res, overrides = {}) {
   return res.render('forgot-password', {
-    title: 'Forgot password',
+    title: req.t('auth.forgotPasswordTitle'),
     activePage: 'login',
     errorMessage: '',
     successMessage: '',
@@ -59,9 +59,9 @@ function renderForgotPassword(res, overrides = {}) {
   });
 }
 
-function renderResetPassword(res, token, overrides = {}) {
+function renderResetPassword(req, res, token, overrides = {}) {
   return res.render('reset-password', {
-    title: 'Reset password',
+    title: req.t('auth.resetPasswordTitle'),
     activePage: 'login',
     errorMessage: '',
     successMessage: '',
@@ -71,9 +71,9 @@ function renderResetPassword(res, token, overrides = {}) {
   });
 }
 
-function renderResendVerification(res, overrides = {}) {
+function renderResendVerification(req, res, overrides = {}) {
   return res.render('resend-verification', {
-    title: 'Resend verification email',
+    title: req.t('auth.resendVerificationTitle'),
     activePage: 'login',
     errorMessage: '',
     successMessage: '',
@@ -104,7 +104,7 @@ router.post('/login', async (req, res) => {
 
   if (!email || !password) {
     return renderLogin(req, res, {
-      errorMessage: 'Please enter both email and password.',
+      errorMessage: req.t('auth.messages.enterEmailAndPassword'),
       successMessage: ''
     });
   }
@@ -117,7 +117,7 @@ router.post('/login', async (req, res) => {
 
     if (rows.length === 0) {
       return renderLogin(req, res, {
-        errorMessage: 'Invalid email or password.',
+        errorMessage: req.t('auth.messages.invalidEmailOrPassword'),
         successMessage: ''
       });
     }
@@ -127,14 +127,14 @@ router.post('/login', async (req, res) => {
 
     if (!isPasswordValid) {
       return renderLogin(req, res, {
-        errorMessage: 'Invalid email or password.',
+        errorMessage: req.t('auth.messages.invalidEmailOrPassword'),
         successMessage: ''
       });
     }
 
     if (!user.email_verified_at) {
       return renderLogin(req, res, {
-        errorMessage: 'Please verify your email before signing in. You can request a new verification email below.',
+        errorMessage: req.t('auth.messages.verifyEmailBeforeLogin'),
         successMessage: ''
       });
     }
@@ -151,7 +151,7 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', error.message);
 
     return renderLogin(req, res, {
-      errorMessage: 'Failed to sign in. Please try again.',
+      errorMessage: req.t('auth.messages.failedToSignIn'),
       successMessage: ''
     });
   }
@@ -165,19 +165,19 @@ router.post('/register', async (req, res) => {
 
   if (!name || !email || !password || !confirmPassword) {
     return renderRegister(req, res, {
-      errorMessage: 'Please fill in all fields.',
+      errorMessage: req.t('auth.messages.fillAllFields'),
       formData: { name, email }
     });
   }
 
   if (!isValidEmail(email)) {
     return renderRegister(req, res, {
-      errorMessage: 'Please enter a valid email address.',
+      errorMessage: req.t('auth.messages.invalidEmail'),
       formData: { name, email }
     });
   }
 
-  const passwordValidation = validatePassword(password);
+  const passwordValidation = validatePassword(password, req.t);
   if (!passwordValidation.isValid) {
     return renderRegister(req, res, {
       errorMessage: passwordValidation.message,
@@ -187,7 +187,7 @@ router.post('/register', async (req, res) => {
 
   if (password !== confirmPassword) {
     return renderRegister(req, res, {
-      errorMessage: 'Passwords do not match.',
+      errorMessage: req.t('auth.messages.passwordsDoNotMatch'),
       formData: { name, email }
     });
   }
@@ -202,7 +202,7 @@ router.post('/register', async (req, res) => {
 
     if (existingUsers.length > 0) {
       return renderRegister(req, res, {
-        errorMessage: 'A user with this email already exists.',
+        errorMessage: req.t('auth.messages.userAlreadyExists'),
         formData: { name, email }
       });
     }
@@ -220,7 +220,7 @@ router.post('/register', async (req, res) => {
 
     await connection.commit();
 
-    setAuthFlash(req, 'success', 'Account created. Please check your email and verify your account before signing in.');
+    setAuthFlash(req, 'success', req.t('auth.messages.accountCreated'));
     return res.redirect('/login');
   } catch (error) {
     await connection.rollback();
@@ -228,8 +228,8 @@ router.post('/register', async (req, res) => {
 
     return renderRegister(req, res, {
       errorMessage: error.message.includes('Email sending is not configured')
-        ? 'Email sending is not configured. Please check SMTP settings in .env.'
-        : 'Failed to register user. Please try again.',
+        ? req.t('auth.messages.emailNotConfigured')
+        : req.t('auth.messages.failedToRegister'),
       formData: { name, email }
     });
   } finally {
@@ -242,29 +242,29 @@ router.get('/verify-email/:token', async (req, res) => {
     const isVerified = await verifyEmailToken(req.params.token);
 
     if (!isVerified) {
-      setAuthFlash(req, 'error', 'Verification link is invalid or expired. Request a new verification email.');
+      setAuthFlash(req, 'error', req.t('auth.messages.verificationInvalid'));
       return res.redirect('/resend-verification');
     }
 
-    setAuthFlash(req, 'success', 'Email verified successfully. You can now sign in.');
+    setAuthFlash(req, 'success', req.t('auth.messages.emailVerified'));
     return res.redirect('/login');
   } catch (error) {
     console.error('Email verification error:', error.message);
-    setAuthFlash(req, 'error', 'Failed to verify email. Please try again.');
+    setAuthFlash(req, 'error', req.t('auth.messages.failedToVerifyEmail'));
     return res.redirect('/login');
   }
 });
 
 router.get('/resend-verification', (req, res) => {
-  return renderResendVerification(res);
+  return renderResendVerification(req, res);
 });
 
 router.post('/resend-verification', async (req, res) => {
   const email = normalizeEmail(req.body.email);
 
   if (!isValidEmail(email)) {
-    return renderResendVerification(res, {
-      errorMessage: 'Please enter a valid email address.',
+    return renderResendVerification(req, res, {
+      errorMessage: req.t('auth.messages.invalidEmail'),
       email
     });
   }
@@ -276,8 +276,8 @@ router.post('/resend-verification', async (req, res) => {
     );
 
     if (users.length === 0) {
-      return renderResendVerification(res, {
-        successMessage: 'If this email exists and is not verified, a new verification link has been sent.',
+      return renderResendVerification(req, res, {
+        successMessage: req.t('auth.messages.verificationSentIfNeeded'),
         email: ''
       });
     }
@@ -285,25 +285,25 @@ router.post('/resend-verification', async (req, res) => {
     const user = users[0];
 
     if (user.email_verified_at) {
-      return renderResendVerification(res, {
-        successMessage: 'This email is already verified. You can sign in.',
+      return renderResendVerification(req, res, {
+        successMessage: req.t('auth.messages.emailAlreadyVerified'),
         email: ''
       });
     }
 
     await sendVerificationToken(user);
 
-    return renderResendVerification(res, {
-      successMessage: 'If this email exists and is not verified, a new verification link has been sent.',
+    return renderResendVerification(req, res, {
+      successMessage: req.t('auth.messages.verificationSentIfNeeded'),
       email: ''
     });
   } catch (error) {
     console.error('Resend verification error:', error.message);
 
-    return renderResendVerification(res, {
+    return renderResendVerification(req, res, {
       errorMessage: error.message.includes('Email sending is not configured')
-        ? 'Email sending is not configured. Please check SMTP settings in .env.'
-        : 'Failed to send verification email. Please try again.',
+        ? req.t('auth.messages.emailNotConfigured')
+        : req.t('auth.messages.failedToSendVerification'),
       email
     });
   }
@@ -314,15 +314,15 @@ router.get('/forgot-password', (req, res) => {
     return res.redirect('/dashboard');
   }
 
-  return renderForgotPassword(res);
+  return renderForgotPassword(req, res);
 });
 
 router.post('/forgot-password', async (req, res) => {
   const email = normalizeEmail(req.body.email);
 
   if (!isValidEmail(email)) {
-    return renderForgotPassword(res, {
-      errorMessage: 'Please enter a valid email address.',
+    return renderForgotPassword(req, res, {
+      errorMessage: req.t('auth.messages.invalidEmail'),
       email
     });
   }
@@ -339,17 +339,17 @@ router.post('/forgot-password', async (req, res) => {
       await sendVerificationToken(users[0]);
     }
 
-    return renderForgotPassword(res, {
-      successMessage: 'If this email exists in our system, instructions have been sent to it.',
+    return renderForgotPassword(req, res, {
+      successMessage: req.t('auth.messages.passwordInstructionsSent'),
       email: ''
     });
   } catch (error) {
     console.error('Forgot password error:', error.message);
 
-    return renderForgotPassword(res, {
+    return renderForgotPassword(req, res, {
       errorMessage: error.message.includes('Email sending is not configured')
-        ? 'Email sending is not configured. Please check SMTP settings in .env.'
-        : 'Failed to send email. Please try again.',
+        ? req.t('auth.messages.emailNotConfigured')
+        : req.t('auth.messages.failedToSendEmail'),
       email
     });
   }
@@ -360,18 +360,18 @@ router.get('/reset-password/:token', async (req, res) => {
     const resetToken = await getValidPasswordResetToken(req.params.token);
 
     if (!resetToken) {
-      return renderResetPassword(res, req.params.token, {
+      return renderResetPassword(req, res, req.params.token, {
         isTokenValid: false,
-        errorMessage: 'Reset link is invalid or expired. Request a new password reset link.'
+        errorMessage: req.t('auth.messages.resetLinkInvalid')
       });
     }
 
-    return renderResetPassword(res, req.params.token);
+    return renderResetPassword(req, res, req.params.token);
   } catch (error) {
     console.error('Reset password page error:', error.message);
-    return renderResetPassword(res, req.params.token, {
+    return renderResetPassword(req, res, req.params.token, {
       isTokenValid: false,
-      errorMessage: 'Failed to open reset page. Please try again.'
+      errorMessage: req.t('auth.messages.failedToOpenResetPage')
     });
   }
 });
@@ -381,16 +381,16 @@ router.post('/reset-password/:token', async (req, res) => {
   const password = String(req.body.password || '');
   const confirmPassword = String(req.body.confirmPassword || '');
 
-  const passwordValidation = validatePassword(password);
+  const passwordValidation = validatePassword(password, req.t);
   if (!passwordValidation.isValid) {
-    return renderResetPassword(res, token, {
+    return renderResetPassword(req, res, token, {
       errorMessage: passwordValidation.message
     });
   }
 
   if (password !== confirmPassword) {
-    return renderResetPassword(res, token, {
-      errorMessage: 'Passwords do not match.'
+    return renderResetPassword(req, res, token, {
+      errorMessage: req.t('auth.messages.passwordsDoNotMatch')
     });
   }
 
@@ -399,18 +399,18 @@ router.post('/reset-password/:token', async (req, res) => {
     const wasUpdated = await usePasswordResetToken(token, passwordHash);
 
     if (!wasUpdated) {
-      return renderResetPassword(res, token, {
+      return renderResetPassword(req, res, token, {
         isTokenValid: false,
-        errorMessage: 'Reset link is invalid or expired. Request a new password reset link.'
+        errorMessage: req.t('auth.messages.resetLinkInvalid')
       });
     }
 
-    setAuthFlash(req, 'success', 'Password was changed. You can now sign in with your new password.');
+    setAuthFlash(req, 'success', req.t('auth.messages.passwordChanged'));
     return res.redirect('/login');
   } catch (error) {
     console.error('Reset password error:', error.message);
-    return renderResetPassword(res, token, {
-      errorMessage: 'Failed to change password. Please try again.'
+    return renderResetPassword(req, res, token, {
+      errorMessage: req.t('auth.messages.failedToChangePassword')
     });
   }
 });

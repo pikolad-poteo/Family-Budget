@@ -144,21 +144,21 @@
                           class="app-language-option <%= language === 'en' ? 'active' : '' %>"
                           href="/language/en"
                         >
-                          <%= t('language.shortEnglish') %>
+                          <%= t('language.short.en') %>
                         </a>
 
                         <a
                           class="app-language-option <%= language === 'ru' ? 'active' : '' %>"
                           href="/language/ru"
                         >
-                          <%= t('language.shortRussian') %>
+                          <%= t('language.short.ru') %>
                         </a>
 
                         <a
                           class="app-language-option <%= language === 'et' ? 'active' : '' %>"
                           href="/language/et"
                         >
-                          <%= t('language.shortEstonian') %>
+                          <%= t('language.short.et') %>
                         </a>
                       </div>
                     </div>
@@ -172,6 +172,37 @@
                 </ul>
               </div>
             <% } else { %>
+              <div class="dropdown app-guest-language-dropdown">
+                <button
+                  class="app-guest-language-button dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="<%= t('language.label') %>"
+                >
+                  <i class="bi bi-translate" aria-hidden="true"></i>
+                  <span><%= t(`language.short.${language}`) %></span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end app-guest-language-menu shadow-sm">
+                  <li>
+                    <a class="dropdown-item app-user-menu-item <%= language === 'en' ? 'active' : '' %>" href="/language/en">
+                      <%= t('language.english') %>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item app-user-menu-item <%= language === 'ru' ? 'active' : '' %>" href="/language/ru">
+                      <%= t('language.russian') %>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item app-user-menu-item <%= language === 'et' ? 'active' : '' %>" href="/language/et">
+                      <%= t('language.estonian') %>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
               <a href="/login" class="btn btn-link text-dark text-decoration-none px-2">
                 <%= t('nav.login') %>
               </a>

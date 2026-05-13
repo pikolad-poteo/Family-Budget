@@ -2,9 +2,9 @@
 
 <section class="container auth-section">
   <div class="auth-card">
-    <p class="eyebrow">New account</p>
-    <h1 class="page-title">Register</h1>
-    <p class="page-text">Create an account to start managing your budget. You will need to verify your email before signing in.</p>
+    <p class="eyebrow"><%= t('auth.newAccount') %></p>
+    <h1 class="page-title"><%= t('auth.registerTitle') %></h1>
+    <p class="page-text"><%= t('auth.registerText') %></p>
 
     <% if (errorMessage) { %>
       <div class="auth-message auth-message-error"><%= errorMessage %></div>
@@ -16,59 +16,59 @@
 
     <form class="auth-form" action="/register" method="post">
       <div class="form-group">
-        <label class="form-label" for="name">Name</label>
+        <label class="form-label" for="name"><%= t('auth.name') %></label>
         <input
           class="form-input"
           type="text"
           id="name"
           name="name"
           value="<%= formData.name %>"
-          placeholder="Enter your name"
+          placeholder="<%= t('auth.namePlaceholder') %>"
         />
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
+        <label class="form-label" for="email"><%= t('auth.email') %></label>
         <input
           class="form-input"
           type="email"
           id="email"
           name="email"
           value="<%= formData.email %>"
-          placeholder="Enter your email"
+          placeholder="<%= t('auth.emailPlaceholder') %>"
         />
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
+        <label class="form-label" for="password"><%= t('auth.password') %></label>
         <input
           class="form-input"
           type="password"
           id="password"
           name="password"
-          placeholder="Create a password"
+          placeholder="<%= t('auth.createPasswordPlaceholder') %>"
         />
-        <p class="form-hint">Use at least 8 characters with uppercase, lowercase, number and special character.</p>
+        <p class="form-hint"><%= t('auth.passwordHint') %></p>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="confirmPassword">Confirm password</label>
+        <label class="form-label" for="confirmPassword"><%= t('auth.confirmPassword') %></label>
         <input
           class="form-input"
           type="password"
           id="confirmPassword"
           name="confirmPassword"
-          placeholder="Repeat your password"
+          placeholder="<%= t('auth.confirmPasswordPlaceholder') %>"
         />
       </div>
 
-      <button class="btn btn-primary" type="submit">Create account</button>
+      <button class="btn btn-primary" type="submit"><%= t('auth.createAccount') %></button>
     </form>
 
     <div class="auth-footer">
       <p class="auth-footer-text">
-        Already have an account?
-        <a href="/login" class="auth-link">Sign in here</a>
+        <%= t('auth.alreadyHaveAccount') %>
+        <a href="/login" class="auth-link"><%= t('auth.signInHere') %></a>
       </p>
     </div>
   </div>

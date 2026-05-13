@@ -2,9 +2,9 @@
 
 <section class="container auth-section">
   <div class="auth-card">
-    <p class="eyebrow">Account access</p>
-    <h1 class="page-title">Login</h1>
-    <p class="page-text">Sign in to continue working with your personal budget.</p>
+    <p class="eyebrow"><%= t('auth.accountAccess') %></p>
+    <h1 class="page-title"><%= t('auth.loginTitle') %></h1>
+    <p class="page-text"><%= t('auth.loginText') %></p>
 
     <% if (errorMessage) { %>
       <div class="auth-message auth-message-error"><%= errorMessage %></div>
@@ -16,40 +16,40 @@
 
     <form class="auth-form" action="/login" method="post">
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
+        <label class="form-label" for="email"><%= t('auth.email') %></label>
         <input
           class="form-input"
           type="email"
           id="email"
           name="email"
-          placeholder="Enter your email"
+          placeholder="<%= t('auth.emailPlaceholder') %>"
         />
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
+        <label class="form-label" for="password"><%= t('auth.password') %></label>
         <input
           class="form-input"
           type="password"
           id="password"
           name="password"
-          placeholder="Enter your password"
+          placeholder="<%= t('auth.passwordPlaceholder') %>"
         />
       </div>
 
-      <button class="btn btn-primary" type="submit">Sign in</button>
+      <button class="btn btn-primary" type="submit"><%= t('auth.signIn') %></button>
     </form>
 
     <div class="auth-footer">
       <p class="auth-footer-text">
-        <a href="/forgot-password" class="auth-link">Forgot password?</a>
+        <a href="/forgot-password" class="auth-link"><%= t('auth.forgotPassword') %></a>
       </p>
       <p class="auth-footer-text">
-        <a href="/resend-verification" class="auth-link">Resend verification email</a>
+        <a href="/resend-verification" class="auth-link"><%= t('auth.resendVerificationEmail') %></a>
       </p>
       <p class="auth-footer-text">
-        Don’t have an account?
-        <a href="/register" class="auth-link">Create one here</a>
+        <%= t('auth.noAccount') %>
+        <a href="/register" class="auth-link"><%= t('auth.createOneHere') %></a>
       </p>
     </div>
   </div>

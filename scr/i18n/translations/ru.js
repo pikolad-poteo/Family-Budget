@@ -21,14 +21,177 @@ module.exports = {
     english: 'English',
     russian: 'Русский',
     estonian: 'Eesti',
-    shortEnglish: 'EN',
-    shortRussian: 'RU',
-    shortEstonian: 'ET'
+    short: {
+      en: 'EN',
+      ru: 'RU',
+      et: 'ET'
+    }
   },
 
   accessibility: {
     openAccountMenu: 'Открыть меню аккаунта',
     toggleNavigation: 'Открыть навигацию',
     userAvatar: 'Аватар пользователя'
+  },
+
+  auth: {
+    accountAccess: 'Доступ к аккаунту',
+    accountRecovery: 'Восстановление аккаунта',
+    emailVerification: 'Подтверждение email',
+    newAccount: 'Новый аккаунт',
+
+    loginTitle: 'Вход',
+    loginText: 'Войдите, чтобы продолжить работу с личным бюджетом.',
+    registerTitle: 'Регистрация',
+    registerText: 'Создайте аккаунт, чтобы начать управлять бюджетом. Перед входом нужно подтвердить email.',
+    forgotPasswordTitle: 'Забыли пароль',
+    forgotPasswordText: 'Введите подтвержденный email, и мы отправим ссылку для сброса пароля.',
+    resetPasswordTitle: 'Сброс пароля',
+    resetPasswordText: 'Создайте новый надежный пароль для аккаунта.',
+    resendVerificationTitle: 'Повторная отправка подтверждения',
+    resendVerificationText: 'Введите email, и мы отправим новую ссылку подтверждения, если аккаунт еще не подтвержден.',
+
+    name: 'Имя',
+    email: 'Email',
+    password: 'Пароль',
+    newPassword: 'Новый пароль',
+    confirmPassword: 'Подтвердите пароль',
+
+    namePlaceholder: 'Введите имя',
+    emailPlaceholder: 'Введите email',
+    passwordPlaceholder: 'Введите пароль',
+    createPasswordPlaceholder: 'Создайте пароль',
+    confirmPasswordPlaceholder: 'Повторите пароль',
+    newPasswordPlaceholder: 'Создайте новый пароль',
+    repeatNewPasswordPlaceholder: 'Повторите новый пароль',
+
+    passwordHint: 'Используйте минимум 8 символов: заглавную и строчную букву, цифру и специальный символ.',
+
+    signIn: 'Войти',
+    createAccount: 'Создать аккаунт',
+    sendResetLink: 'Отправить ссылку',
+    changePassword: 'Изменить пароль',
+    sendVerificationEmail: 'Отправить подтверждение',
+
+    forgotPassword: 'Забыли пароль?',
+    resendVerificationEmail: 'Отправить подтверждение еще раз',
+    noAccount: 'Нет аккаунта?',
+    createOneHere: 'Создать здесь',
+    alreadyHaveAccount: 'Уже есть аккаунт?',
+    signInHere: 'Войти здесь',
+    rememberedPassword: 'Вспомнили пароль?',
+    backToLogin: 'Вернуться ко входу',
+    requestNewResetLink: 'Запросить новую ссылку',
+
+    messages: {
+      enterEmailAndPassword: 'Введите email и пароль.',
+      invalidEmailOrPassword: 'Неверный email или пароль.',
+      verifyEmailBeforeLogin: 'Подтвердите email перед входом. Ниже можно запросить новое письмо для подтверждения.',
+      failedToSignIn: 'Не удалось войти. Попробуйте еще раз.',
+      fillAllFields: 'Заполните все поля.',
+      invalidEmail: 'Введите корректный email.',
+      passwordsDoNotMatch: 'Пароли не совпадают.',
+      userAlreadyExists: 'Пользователь с таким email уже существует.',
+      accountCreated: 'Аккаунт создан. Проверьте почту и подтвердите email перед входом.',
+      emailNotConfigured: 'Отправка email не настроена. Проверьте SMTP-настройки в .env.',
+      failedToRegister: 'Не удалось зарегистрировать пользователя. Попробуйте еще раз.',
+      verificationInvalid: 'Ссылка подтверждения недействительна или истекла. Запросите новое письмо.',
+      emailVerified: 'Email успешно подтвержден. Теперь можно войти.',
+      failedToVerifyEmail: 'Не удалось подтвердить email. Попробуйте еще раз.',
+      verificationSentIfNeeded: 'Если такой email существует и еще не подтвержден, новая ссылка подтверждения отправлена.',
+      emailAlreadyVerified: 'Этот email уже подтвержден. Вы можете войти.',
+      failedToSendVerification: 'Не удалось отправить письмо подтверждения. Попробуйте еще раз.',
+      passwordInstructionsSent: 'Если такой email есть в системе, инструкции отправлены на него.',
+      failedToSendEmail: 'Не удалось отправить email. Попробуйте еще раз.',
+      resetLinkInvalid: 'Ссылка сброса недействительна или истекла. Запросите новую ссылку.',
+      failedToOpenResetPage: 'Не удалось открыть страницу сброса. Попробуйте еще раз.',
+      passwordChanged: 'Пароль изменен. Теперь можно войти с новым паролем.',
+      failedToChangePassword: 'Не удалось изменить пароль. Попробуйте еще раз.'
+    },
+
+    passwordRules: {
+      atLeastEightCharacters: 'минимум 8 символов',
+      lowercase: 'одну строчную букву',
+      uppercase: 'одну заглавную букву',
+      number: 'одну цифру',
+      specialCharacter: 'один специальный символ',
+      noSpaces: 'без пробелов',
+      messagePrefix: 'Пароль должен содержать'
+    }
   }
+,
+
+  account: {
+    pageTitle: 'Аккаунт',
+    personalWorkspace: 'Личное пространство',
+    title: 'Настройки аккаунта',
+    description: 'Управляйте профилем, аватаром, паролем и доступом к рабочему пространству в одном месте.',
+    avatar: 'Аватар',
+    changeAvatar: 'Изменить аватар',
+    familyAvatarAlt: 'Аватар семьи',
+    userAvatarAlt: 'Аватар пользователя',
+    memberSince: 'В аккаунте с',
+    avatarHelp: 'Нажмите на аватар, чтобы загрузить JPG, PNG · до 15 МБ',
+    deleteAvatar: 'Удалить аватар',
+    yourFamily: 'Ваша семья',
+    yourRole: 'Ваша роль',
+    ownerCrown: 'Корона владельца',
+    profileSettings: 'Настройки профиля',
+    name: 'Имя',
+    email: 'Email',
+    saveChanges: 'Сохранить изменения',
+    changePassword: 'Изменить пароль',
+    currentPassword: 'Текущий пароль',
+    currentPasswordPlaceholder: 'Введите текущий пароль',
+    newPassword: 'Новый пароль',
+    newPasswordPlaceholder: 'Введите новый пароль',
+    repeatNewPassword: 'Повторите новый пароль',
+    repeatNewPasswordPlaceholder: 'Повторите новый пароль',
+    updatePassword: 'Обновить пароль',
+    dangerZone: 'Опасная зона',
+    dangerDescription: 'Удаление аккаунта необратимо. Чтобы снова пользоваться приложением, нужно будет создать новый аккаунт.',
+    deleteAccount: 'Удалить аккаунт',
+    deleteAccountHint: 'Подтверждение будет в модальном окне.',
+    deleteAccountTitle: 'Удалить аккаунт навсегда',
+    close: 'Закрыть',
+    deleteAccountWarning: 'Это действие нельзя отменить. Аватар и запись аккаунта будут удалены навсегда.',
+    typeDeletePrefix: 'Введите',
+    typeDeleteSuffix: 'для подтверждения.',
+    cancel: 'Отмена',
+    deleteForever: 'Удалить навсегда',
+
+    roles: {
+      owner: 'Владелец',
+      editor: 'Редактор',
+      viewer: 'Просмотр',
+      personal: 'Личный'
+    },
+
+    messages: {
+      failedToLoadAccount: 'Не удалось загрузить данные аккаунта.',
+      nameEmailRequired: 'Имя и email обязательны.',
+      invalidEmail: 'Введите корректный email.',
+      emailAlreadyUsed: 'Этот email уже используется другим аккаунтом.',
+      accountUpdated: 'Данные аккаунта обновлены.',
+      emailChangedVerify: 'Email изменен. Подтвердите новый email перед входом.',
+      emailNotConfiguredNotChanged: 'Отправка email не настроена. Email не был изменен.',
+      failedToUpdateAccount: 'Не удалось обновить данные аккаунта.',
+      uploadJpgPngOnly: 'Загрузите изображение только JPG или PNG.',
+      failedToUploadAvatar: 'Не удалось загрузить аватар.',
+      avatarTooLarge: 'Размер аватара должен быть не больше 15 МБ.',
+      chooseImageFirst: 'Сначала выберите изображение.',
+      avatarUpdated: 'Аватар обновлен.',
+      failedToProcessAvatar: 'Не удалось обработать аватар. Загрузите корректное изображение JPG или PNG.',
+      avatarDeleted: 'Аватар удален.',
+      failedToDeleteAvatar: 'Не удалось удалить аватар.',
+      fillPasswordFields: 'Заполните все поля пароля.',
+      newPasswordsDoNotMatch: 'Новые пароли не совпадают.',
+      currentPasswordIncorrect: 'Текущий пароль неверный.',
+      passwordChanged: 'Пароль изменен.',
+      failedToChangePassword: 'Не удалось изменить пароль.',
+      typeDeleteToConfirm: 'Введите DELETE, чтобы подтвердить удаление аккаунта.',
+      failedToDeleteAccount: 'Не удалось удалить аккаунт. Попробуйте еще раз.'
+    }
+  }
+
 };

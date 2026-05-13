@@ -2,9 +2,9 @@
 
 <section class="container auth-section">
   <div class="auth-card">
-    <p class="eyebrow">Email verification</p>
-    <h1 class="page-title">Resend verification email</h1>
-    <p class="page-text">Enter your email and we will send a new verification link if the account is not verified yet.</p>
+    <p class="eyebrow"><%= t('auth.emailVerification') %></p>
+    <h1 class="page-title"><%= t('auth.resendVerificationTitle') %></h1>
+    <p class="page-text"><%= t('auth.resendVerificationText') %></p>
 
     <% if (errorMessage) { %>
       <div class="auth-message auth-message-error"><%= errorMessage %></div>
@@ -16,23 +16,23 @@
 
     <form class="auth-form" action="/resend-verification" method="post">
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
+        <label class="form-label" for="email"><%= t('auth.email') %></label>
         <input
           class="form-input"
           type="email"
           id="email"
           name="email"
           value="<%= email %>"
-          placeholder="Enter your email"
+          placeholder="<%= t('auth.emailPlaceholder') %>"
         />
       </div>
 
-      <button class="btn btn-primary" type="submit">Send verification email</button>
+      <button class="btn btn-primary" type="submit"><%= t('auth.sendVerificationEmail') %></button>
     </form>
 
     <div class="auth-footer">
       <p class="auth-footer-text">
-        <a href="/login" class="auth-link">Back to login</a>
+        <a href="/login" class="auth-link"><%= t('auth.backToLogin') %></a>
       </p>
     </div>
   </div>
