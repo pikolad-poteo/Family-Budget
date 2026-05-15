@@ -32,7 +32,7 @@ const upload = multer({
   limits: { fileSize: 6 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype || !file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files are allowed.'));
+      return cb(new Error(req.t ? req.t('family.messages.onlyImageFiles') : 'Only image files are allowed.'));
     }
 
     return cb(null, true);
@@ -51,6 +51,32 @@ function getFamilyFlash(req) {
 
 function getAvatarUrl(filename) {
   return filename ? `/uploads/family/${filename}` : null;
+}
+
+
+function getFamilyMessage(req, key) {
+  return req.t ? req.t(`family.messages.${key}`) : key;
+}
+
+function translateFamilyError(req, error, fallbackKey) {
+  const originalMessage = error && error.message ? error.message : '';
+  const errorMap = {
+    'Only image files are allowed.': 'onlyImageFiles',
+    'You already belong to a family.': 'alreadyBelongToFamily',
+    'Family name is required.': 'familyNameRequired',
+    'Family not found.': 'familyNotFound',
+    'Email is required.': 'emailRequired',
+    'User with this email was not found.': 'userEmailNotFound',
+    'This user is already a member of your family.': 'userAlreadyFamilyMember',
+    'This user already belongs to another family.': 'userAlreadyInAnotherFamily',
+    'Family member not found.': 'familyMemberNotFound',
+    'Family must have at least one owner. Add another owner before changing this role.': 'familyMustHaveOwner',
+    'You cannot remove the last family owner.': 'cannotRemoveLastOwner',
+    'You are the last owner. Add another owner or delete the family before leaving.': 'lastOwnerCannotLeave'
+  };
+
+  const translatedKey = errorMap[originalMessage] || fallbackKey;
+  return translatedKey ? getFamilyMessage(req, translatedKey) : originalMessage;
 }
 
 function removeLocalFamilyAvatar(avatarUrl) {
@@ -98,7 +124,7 @@ async function renderFamilyPage(req, res, overrides = {}) {
   const flash = getFamilyFlash(req);
 
   return res.render('family/index', {
-    title: 'Family',
+    title: req.t ? req.t('nav.family') : 'Family',
     activePage: 'family',
     family,
     members,
@@ -127,7 +153,7 @@ router.get('/family', requireAuth, async (req, res) => {
     console.error('Family page error:', error.message);
 
     return res.render('family/index', {
-      title: 'Family',
+      title: req.t ? req.t('nav.family') : 'Family',
       activePage: 'family',
       family: null,
       members: [],
@@ -139,7 +165,7 @@ router.get('/family', requireAuth, async (req, res) => {
       currentRole: null,
       roles: FAMILY_ROLES,
       permissions: { canManageFamily: false, canManageMembers: false, canDeleteFamily: false },
-      errorMessage: 'Failed to load family data.',
+      errorMessage: getFamilyMessage(req, 'failedToLoadFamilyData'),
       successMessage: ''
     });
   }
@@ -151,7 +177,7 @@ router.get('/family/activity/:userId', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family) {
-      setFamilyFlash(req, 'error', 'Create or join a family first.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'createOrJoinFamilyFirst'));
       return res.redirect('/family');
     }
 
@@ -159,7 +185,7 @@ router.get('/family/activity/:userId', requireAuth, async (req, res) => {
     const selectedMember = members.find((member) => Number(member.id) === Number(req.params.userId));
 
     if (!selectedMember) {
-      setFamilyFlash(req, 'error', 'Family member not found.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'familyMemberNotFound'));
       return res.redirect('/family');
     }
 
@@ -171,7 +197,7 @@ router.get('/family/activity/:userId', requireAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Family member activity error:', error.message);
-    setFamilyFlash(req, 'error', 'Failed to load member activity.');
+    setFamilyFlash(req, 'error', getFamilyMessage(req, 'failedToLoadMemberActivity'));
     return res.redirect('/family');
   }
 });
@@ -185,11 +211,11 @@ router.post('/family/create', requireAuth, async (req, res) => {
       name: req.body.familyName
     });
 
-    setFamilyFlash(req, 'success', 'Family workspace was created. Your personal budget data was moved into the new shared workspace.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyCreated'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Family creation error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to create family.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToCreateFamily'));
     return res.redirect('/family');
   }
 });
@@ -200,7 +226,7 @@ router.post('/family/update', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canManageFamily(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can update family settings.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersUpdateFamily'));
       return res.redirect('/family');
     }
 
@@ -210,11 +236,11 @@ router.post('/family/update', requireAuth, async (req, res) => {
       name: req.body.familyName
     });
 
-    setFamilyFlash(req, 'success', 'Family name was updated.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyNameUpdated'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Family update error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to update family.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToUpdateFamily'));
     return res.redirect('/family');
   }
 });
@@ -226,7 +252,7 @@ router.post('/family/motto', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canManageFamily(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can update family settings.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersUpdateFamily'));
       return res.redirect('/family');
     }
 
@@ -236,11 +262,11 @@ router.post('/family/motto', requireAuth, async (req, res) => {
       motto: req.body.motto
     });
 
-    setFamilyFlash(req, 'success', 'Family motto was updated.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyMottoUpdated'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Family motto update error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to update family motto.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToUpdateFamilyMotto'));
     return res.redirect('/family');
   }
 });
@@ -251,12 +277,12 @@ router.post('/family/avatar', requireAuth, upload.single('avatar'), async (req, 
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canEditBudget(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners and editors can update the avatar.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersEditorsUpdateAvatar'));
       return res.redirect('/family');
     }
 
     if (!req.file) {
-      setFamilyFlash(req, 'error', 'Choose an image file first.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'chooseImageFirst'));
       return res.redirect('/family');
     }
 
@@ -266,11 +292,11 @@ router.post('/family/avatar', requireAuth, upload.single('avatar'), async (req, 
     await updateFamilyAvatar({ familyId: family.id, actorUserId: currentUserId, avatarUrl });
     removeLocalFamilyAvatar(family.avatar_url);
 
-    setFamilyFlash(req, 'success', 'Family avatar was updated.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyAvatarUpdated'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Family avatar update error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to update family avatar.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToUpdateFamilyAvatar'));
     return res.redirect('/family');
   }
 });
@@ -281,18 +307,18 @@ router.post('/family/avatar/delete', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canEditBudget(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners and editors can delete the avatar.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersEditorsDeleteAvatar'));
       return res.redirect('/family');
     }
 
     await updateFamilyAvatar({ familyId: family.id, actorUserId: currentUserId, avatarUrl: null });
     removeLocalFamilyAvatar(family.avatar_url);
 
-    setFamilyFlash(req, 'success', 'Family avatar was deleted.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyAvatarDeleted'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Family avatar delete error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to delete family avatar.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToDeleteFamilyAvatar'));
     return res.redirect('/family');
   }
 });
@@ -303,7 +329,7 @@ router.post('/family/members/add', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canManageMembers(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can add members.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersAddMembers'));
       return res.redirect('/family');
     }
 
@@ -314,11 +340,11 @@ router.post('/family/members/add', requireAuth, async (req, res) => {
       role: req.body.role || FAMILY_ROLES.VIEWER
     });
 
-    setFamilyFlash(req, 'success', 'Family member was added. Their existing personal data was not moved or deleted.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyMemberAdded'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Add family member error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to add member.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToAddMember'));
     return res.redirect('/family');
   }
 });
@@ -329,7 +355,7 @@ router.post('/family/members/:userId/role', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family || !canManageMembers(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can change roles.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersChangeRoles'));
       return res.redirect('/family');
     }
 
@@ -340,11 +366,11 @@ router.post('/family/members/:userId/role', requireAuth, async (req, res) => {
       role: req.body.role
     });
 
-    setFamilyFlash(req, 'success', 'Member role was updated.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'memberRoleUpdated'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Change family member role error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to update member role.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToUpdateMemberRole'));
     return res.redirect('/family');
   }
 });
@@ -356,22 +382,22 @@ router.post('/family/members/:userId/remove', requireAuth, async (req, res) => {
     const targetUserId = Number(req.params.userId);
 
     if (!family || !canManageMembers(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can remove members.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersRemoveMembers'));
       return res.redirect('/family');
     }
 
     if (targetUserId === currentUserId) {
-      setFamilyFlash(req, 'error', 'Use the Leave family action to remove yourself.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'useLeaveFamilyToRemoveYourself'));
       return res.redirect('/family');
     }
 
     await removeFamilyMember({ familyId: family.id, actorUserId: currentUserId, targetUserId });
 
-    setFamilyFlash(req, 'success', 'Family member was removed.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'familyMemberRemoved'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Remove family member error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to remove member.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToRemoveMember'));
     return res.redirect('/family');
   }
 });
@@ -382,17 +408,17 @@ router.post('/family/leave', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
 
     if (!family) {
-      setFamilyFlash(req, 'error', 'You are not a member of any family.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'notFamilyMember'));
       return res.redirect('/family');
     }
 
     await leaveFamily({ familyId: family.id, actorUserId: currentUserId });
 
-    setFamilyFlash(req, 'success', 'You left the family.');
+    setFamilyFlash(req, 'success', getFamilyMessage(req, 'leftFamily'));
     return res.redirect('/family');
   } catch (error) {
     console.error('Leave family error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to leave family.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToLeaveFamily'));
     return res.redirect('/family');
   }
 });
@@ -404,12 +430,12 @@ router.post('/family/delete', requireAuth, async (req, res) => {
     const confirmation = String(req.body.confirmation || '').trim();
 
     if (!family || !canDeleteFamily(family.role)) {
-      setFamilyFlash(req, 'error', 'Only family owners can delete the family.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'onlyOwnersDeleteFamily'));
       return res.redirect('/family');
     }
 
     if (confirmation !== 'Delete') {
-      setFamilyFlash(req, 'error', 'Type Delete to confirm family deletion.');
+      setFamilyFlash(req, 'error', getFamilyMessage(req, 'typeDeleteToConfirmFamilyDeletion'));
       return res.redirect('/family');
     }
 
@@ -425,13 +451,13 @@ router.post('/family/delete', requireAuth, async (req, res) => {
       req,
       'success',
       keepSharedDataAsPersonal
-        ? 'Family workspace was deleted. Shared family data was moved back into your personal workspace.'
-        : 'Family workspace was deleted together with all shared family data.'
+        ? getFamilyMessage(req, 'familyDeletedDataMoved')
+        : getFamilyMessage(req, 'familyDeletedWithData')
     );
     return res.redirect('/family');
   } catch (error) {
     console.error('Delete family error:', error.message);
-    setFamilyFlash(req, 'error', error.message || 'Failed to delete family.');
+    setFamilyFlash(req, 'error', translateFamilyError(req, error, 'failedToDeleteFamily'));
     return res.redirect('/family');
   }
 });

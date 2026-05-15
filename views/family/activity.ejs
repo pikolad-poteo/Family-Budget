@@ -1,29 +1,60 @@
 <%
   const visibleActivity = activeMember ? memberActivity : activityItems;
-  const activityTitle = 'Latest household updates';
+  const activityTitle = t('family.latestUpdates');
+  const familyLocale = t('family.locale');
+
+  const getActivityDescription = (item) => {
+    if (!item || !item.action) return item && item.description ? item.description : '';
+
+    const targetName = item.target_name || item.target_email || t('family.member');
+    const actorName = item.actor_name || item.actor_email || t('family.system');
+
+    switch (item.action) {
+      case 'family_created':
+        return t('family.activityDescriptions.familyCreated');
+      case 'family_name_updated':
+        return t('family.activityDescriptions.familyNameUpdated');
+      case 'family_motto_updated':
+        return t('family.activityDescriptions.familyMottoUpdated');
+      case 'family_avatar_updated':
+        return t('family.activityDescriptions.familyAvatarUpdated');
+      case 'member_added':
+        return `${t('family.activityDescriptions.memberAdded')} ${targetName}.`;
+      case 'member_role_updated':
+        return `${t('family.activityDescriptions.memberRoleUpdated')} ${targetName}.`;
+      case 'member_removed':
+        return `${t('family.activityDescriptions.memberRemoved')} ${targetName}.`;
+      case 'member_left':
+        return `${actorName} ${t('family.activityDescriptions.memberLeft')}`;
+      case 'family_deleted':
+        return t('family.activityDescriptions.familyDeleted');
+      default:
+        return item.description || item.action;
+    }
+  };
 %>
 
 <div class="card family-card family-activity-card" id="memberActivityPanel">
   <div class="card-body">
     <div class="family-section-header family-activity-header">
       <div>
-        <p class="section-label">Recent activity</p>
+        <p class="section-label"><%= t('family.recentActivity') %></p>
         <h2 id="familyActivityTitle"><%= activityTitle %></h2>
       </div>
 
       <% if (visibleActivity && visibleActivity.length > 0) { %>
         <div class="family-activity-actions">
-          <div class="family-sort-actions d-none" id="familySortActions" aria-label="Sort family activity">
+          <div class="family-sort-actions d-none" id="familySortActions" aria-label="<%= t('family.sortFamilyActivity') %>">
             <button class="btn btn-primary btn-small family-sort-button is-active" type="button" data-activity-sort-button="desc">
-              New
+              <%= t('family.new') %>
             </button>
             <button class="btn btn-secondary btn-small family-sort-button" type="button" data-activity-sort-button="asc">
-              Old
+              <%= t('family.old') %>
             </button>
           </div>
           <% if (visibleActivity.length > 3) { %>
             <button class="btn btn-secondary btn-small family-show-all-button" type="button" id="toggleFamilyActivityButton" aria-expanded="false">
-              Show all
+              <%= t('family.showAll') %>
             </button>
           <% } %>
         </div>
@@ -34,9 +65,9 @@
       <div class="family-activity-tools d-none" id="familyActivityTools">
         <div class="family-activity-filters" id="familyActivityFilters">
           <div>
-            <label class="form-label" for="activityUserFilter">User</label>
+            <label class="form-label" for="activityUserFilter"><%= t('family.user') %></label>
             <select class="form-select rounded-pill" id="activityUserFilter">
-              <option value="all" <%= !activeMember ? 'selected' : '' %>>All users</option>
+              <option value="all" <%= !activeMember ? 'selected' : '' %>><%= t('family.allUsers') %></option>
               <% familyMembers.forEach((member) => { %>
                 <option value="<%= member.id %>" <%= activeMember && Number(activeMember.id) === Number(member.id) ? 'selected' : '' %>><%= member.name || member.email %></option>
               <% }) %>
@@ -51,10 +82,10 @@
         <article class="family-activity-item">
           <div class="family-activity-dot"></div>
           <div>
-            <h3 class="family-activity-title">No activity yet</h3>
-            <p class="family-activity-description">Family changes and budget actions will appear here after users start working with shared data.</p>
+            <h3 class="family-activity-title"><%= t('family.noActivityYet') %></h3>
+            <p class="family-activity-description"><%= t('family.noActivityDescription') %></p>
           </div>
-          <span class="family-activity-time">Empty</span>
+          <span class="family-activity-time"><%= t('family.empty') %></span>
         </article>
       <% } else { %>
         <% visibleActivity.forEach((item, index) => { %>
@@ -66,12 +97,12 @@
           >
             <div class="family-activity-dot"></div>
             <div>
-              <h3 class="family-activity-title"><%= item.actor_name || item.actor_email || 'System' %></h3>
-              <p class="family-activity-description"><%= item.description || item.action %></p>
-              <span class="family-activity-type"><%= item.entity_type %> · <%= item.action %></span>
+              <h3 class="family-activity-title"><%= item.actor_name || item.actor_email || t('family.system') %></h3>
+              <p class="family-activity-description"><%= getActivityDescription(item) %></p>
+              <span class="family-activity-type"><%= t(`family.entityTypes.${item.entity_type}`) %> · <%= t(`family.actions.${item.action}`) %></span>
             </div>
             <span class="family-activity-time">
-              <%= item.created_at ? new Date(item.created_at).toLocaleDateString('en-GB') : '' %>
+              <%= item.created_at ? new Date(item.created_at).toLocaleDateString(familyLocale) : '' %>
             </span>
           </article>
         <% }) %>

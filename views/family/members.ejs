@@ -2,8 +2,8 @@
   <div class="card-body">
     <div class="family-section-header family-members-header">
       <div>
-        <p class="section-label">Members</p>
-        <h2>Current family members</h2>
+        <p class="section-label"><%= t('family.members') %></p>
+        <h2><%= t('family.currentFamilyMembers') %></h2>
       </div>
 
       <button
@@ -14,15 +14,15 @@
         aria-expanded="false"
         aria-controls="familyPermissionsPanel"
       >
-        <i class="bi bi-gear me-2"></i>Permissions
+        <i class="bi bi-gear me-2"></i><%= t('family.permissions') %>
       </button>
     </div>
 
     <div class="collapse" id="familyPermissionsPanel">
       <div class="family-permissions-box">
-        <div><span class="family-role-badge family-role-owner">Owner</span><p>Full access to family settings, roles, members and delete action.</p></div>
-        <div><span class="family-role-badge family-role-editor">Editor</span><p>Can work with shared budget data, but cannot manage family settings.</p></div>
-        <div><span class="family-role-badge family-role-viewer">Viewer</span><p>Read-only access to family data and household activity.</p></div>
+        <div><span class="family-role-badge family-role-owner"><%= t('family.roles.owner') %></span><p><%= t('family.permissionsOwner') %></p></div>
+        <div><span class="family-role-badge family-role-editor"><%= t('family.roles.editor') %></span><p><%= t('family.permissionsEditor') %></p></div>
+        <div><span class="family-role-badge family-role-viewer"><%= t('family.roles.viewer') %></span><p><%= t('family.permissionsViewer') %></p></div>
       </div>
     </div>
 
@@ -32,7 +32,7 @@
         <article class="family-member-item family-member-role-row-<%= member.role %>">
           <div class="family-member-info">
             <% if (member.avatar_url) { %>
-              <img class="family-member-avatar" src="<%= member.avatar_url %>" alt="<%= member.name || member.email %> avatar" />
+              <img class="family-member-avatar" src="<%= member.avatar_url %>" alt="<%= member.name || member.email %> <%= t('family.avatar') %>" />
             <% } else { %>
               <div class="family-member-avatar family-member-avatar-soft" aria-hidden="true">
                 <i class="bi bi-person"></i>
@@ -40,11 +40,11 @@
             <% } %>
 
             <div>
-              <h3 class="family-member-name"><%= member.name || 'User' %><% if (isCurrentMember) { %> <span>(You)</span><% } %></h3>
+              <h3 class="family-member-name"><%= member.name || t('family.user') %><% if (isCurrentMember) { %> <span>(<%= t('family.you') %>)</span><% } %></h3>
               <p class="family-member-email"><%= member.email %></p>
               <div class="family-status-row">
                 <span class="family-role-badge family-role-<%= member.role %>">
-                  <%= member.role.charAt(0).toUpperCase() + member.role.slice(1) %>
+                  <%= t(`family.roles.${member.role}`) %>
                 </span>
               </div>
             </div>
@@ -58,27 +58,27 @@
               data-member-id="<%= member.id %>"
               data-member-name="<%= member.name || member.email %>"
             >
-              Activity
+              <%= t('family.activity') %>
             </button>
 
             <% if (familyPermissions.canManageMembers) { %>
-              <form action="/family/members/<%= member.id %>/role" method="POST" class="family-role-form family-preserve-scroll-form" aria-label="Change role for <%= member.name || member.email %>">
+              <form action="/family/members/<%= member.id %>/role" method="POST" class="family-role-form family-preserve-scroll-form" aria-label="<%= t('family.changeRoleFor') %> <%= member.name || member.email %>">
                 <select class="form-select rounded-pill family-role-select" name="role" onchange="this.form.submit()">
-                  <option value="owner" <%= member.role === 'owner' ? 'selected' : '' %>>Owner</option>
-                  <option value="editor" <%= member.role === 'editor' ? 'selected' : '' %>>Editor</option>
-                  <option value="viewer" <%= member.role === 'viewer' ? 'selected' : '' %>>Viewer</option>
+                  <option value="owner" <%= member.role === 'owner' ? 'selected' : '' %>><%= t('family.roles.owner') %></option>
+                  <option value="editor" <%= member.role === 'editor' ? 'selected' : '' %>><%= t('family.roles.editor') %></option>
+                  <option value="viewer" <%= member.role === 'viewer' ? 'selected' : '' %>><%= t('family.roles.viewer') %></option>
                 </select>
               </form>
             <% } %>
 
             <% if (isCurrentMember) { %>
               <button class="btn btn-secondary btn-small family-remove-member-btn" type="button" data-bs-toggle="modal" data-bs-target="#leaveFamilyModal">
-                <i class="bi bi-person-dash me-2"></i>Leave family
+                <i class="bi bi-person-dash me-2"></i><%= t('family.leaveFamily') %>
               </button>
             <% } else if (familyPermissions.canManageMembers) { %>
-              <form action="/family/members/<%= member.id %>/remove" method="POST" class="family-remove-member-form family-preserve-scroll-form" onsubmit="return confirm('Remove this user from the family? Their personal data will not be changed.');">
+              <form action="/family/members/<%= member.id %>/remove" method="POST" class="family-remove-member-form family-preserve-scroll-form" onsubmit="return confirm(<%- JSON.stringify(t('family.confirmRemoveMember')) %>);">
                 <button class="btn btn-secondary btn-small family-remove-member-btn" type="submit">
-                  <i class="bi bi-trash me-2"></i>Remove
+                  <i class="bi bi-trash me-2"></i><%= t('family.remove') %>
                 </button>
               </form>
             <% } %>
@@ -90,7 +90,7 @@
     <% if (familyPermissions.canDeleteFamily) { %>
       <div class="family-delete-row">
         <button class="btn btn-danger rounded-pill px-4" type="button" data-bs-toggle="modal" data-bs-target="#deleteFamilyModal">
-          Delete family
+          <%= t('family.deleteFamily') %>
         </button>
       </div>
     <% } %>
@@ -102,10 +102,10 @@
     <div class="modal-content family-modal-content">
       <div class="modal-header border-0 pb-0">
         <div>
-          <p class="section-label mb-1">Workspace change</p>
-          <h2 class="modal-title family-modal-title" id="leaveFamilyModalLabel">Leave family workspace</h2>
+          <p class="section-label mb-1"><%= t('family.workspaceChange') %></p>
+          <h2 class="modal-title family-modal-title" id="leaveFamilyModalLabel"><%= t('family.leaveFamilyWorkspace') %></h2>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('family.close') %>"></button>
       </div>
 
       <form action="/family/leave" method="POST" class="family-preserve-scroll-form">
@@ -113,18 +113,18 @@
           <div class="family-warning-box mb-3">
             <i class="bi bi-box-arrow-right"></i>
             <div>
-              <strong>You will lose access to shared family data.</strong>
-              <p>Categories, transactions, wishlist items and calendar events created inside the family will stay in the family workspace. If you had personal data before joining, it will become visible to you again after leaving.</p>
+              <strong><%= t('family.leaveWarningTitle') %></strong>
+              <p><%= t('family.leaveWarningText') %></p>
             </div>
           </div>
           <label class="family-checkbox-confirm">
             <input type="checkbox" required>
-            <span>I understand that family data stays with the family after I leave.</span>
+            <span><%= t('family.leaveConfirmText') %></span>
           </label>
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary rounded-pill px-4">Leave family</button>
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><%= t('family.cancel') %></button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4"><%= t('family.leaveFamily') %></button>
         </div>
       </form>
     </div>
@@ -136,10 +136,10 @@
     <div class="modal-content family-modal-content family-delete-modal-content">
       <div class="modal-header border-0 pb-0">
         <div>
-          <p class="section-label mb-1 text-danger">Danger zone</p>
-          <h2 class="modal-title family-modal-title" id="deleteFamilyModalLabel">Delete family workspace</h2>
+          <p class="section-label mb-1 text-danger"><%= t('family.dangerZone') %></p>
+          <h2 class="modal-title family-modal-title" id="deleteFamilyModalLabel"><%= t('family.deleteFamilyWorkspace') %></h2>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('family.close') %>"></button>
       </div>
 
       <form action="/family/delete" method="POST" class="family-preserve-scroll-form">
@@ -147,27 +147,27 @@
           <div class="family-danger-box mb-3">
             <i class="bi bi-exclamation-triangle"></i>
             <div>
-              <strong>This action deletes the family workspace.</strong>
-              <p>By default, all shared family categories, transactions, wishlist folders, wishlist items and calendar events will be permanently deleted for every member. This cannot be undone.</p>
+              <strong><%= t('family.deleteWarningTitle') %></strong>
+              <p><%= t('family.deleteWarningText') %></p>
             </div>
           </div>
 
           <label class="family-transfer-option mb-3">
             <input type="checkbox" name="keepSharedDataAsPersonal">
             <span>
-              <strong>Move shared family data back to my personal workspace</strong>
-              <small>Use this if you created a family from your personal data and want to keep the budget after deleting the family. The data will become visible only to your account.</small>
+              <strong><%= t('family.moveSharedDataBack') %></strong>
+              <small><%= t('family.moveSharedDataBackHelp') %></small>
             </span>
           </label>
 
           <p class="family-modal-note mb-3">
-            Type <strong>Delete</strong> to confirm.
+            <%= t('family.typeDeleteToConfirm') %>
           </p>
-          <input class="form-control rounded-pill" name="confirmation" type="text" placeholder="Delete" required />
+          <input class="form-control rounded-pill" name="confirmation" type="text" placeholder="<%= t('family.deleteConfirmationWord') %>" required />
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger rounded-pill px-4">Delete</button>
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><%= t('family.cancel') %></button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4"><%= t('family.delete') %></button>
         </div>
       </form>
     </div>

@@ -1,27 +1,27 @@
 <div class="category-create-panel-inline" id="categoryCreatePanel" hidden>
   <div class="section-header category-create-header">
     <div>
-      <p class="section-label">Create</p>
-      <h2>New category</h2>
+      <p class="section-label"><%= t('categories.create') %></p>
+      <h2><%= t('categories.newCategory') %></h2>
     </div>
   </div>
 
   <form class="category-form" method="POST" action="/categories/create" id="categoryCreateForm">
-    <input type="hidden" name="redirectTab" id="categoryRedirectTabInput" value="<%= typeof activeTab === 'string' ? activeTab : 'expense' %>" />
+    <input type="hidden" name="redirectTab" id="categoryRedirectTabInput" value="<%= typeof activeTab === 'string' ? activeTab : 'all' %>" />
     <input type="hidden" name="redirectQuery" value="<%= currentSearch %>" />
 
     <div class="row g-3 align-items-end category-create-top-row">
       <div class="col-md-6 col-xl-3">
         <div class="form-group">
-          <label class="form-label">Type</label>
+          <label class="form-label"><%= t('categories.type') %></label>
 
           <div class="form-toggle-group">
             <button type="button" class="form-toggle-btn is-active" data-toggle-target="type" data-toggle-value="expense">
-              Expense
+              <%= t('categories.expense') %>
             </button>
 
             <button type="button" class="form-toggle-btn" data-toggle-target="type" data-toggle-value="income">
-              Income
+              <%= t('categories.income') %>
             </button>
           </div>
 
@@ -31,14 +31,14 @@
 
       <div class="col-md-6 col-xl-9">
         <div class="form-group category-name-group">
-          <label class="form-label" for="categoryName">Category name</label>
+          <label class="form-label" for="categoryName"><%= t('categories.categoryName') %></label>
 
           <input
             class="form-control rounded-3 category-name-input"
             id="categoryName"
             name="name"
             type="text"
-            placeholder="For example: Groceries, Salary, Transport"
+            placeholder="<%= t('categories.namePlaceholder') %>"
             required
           />
         </div>
@@ -57,11 +57,11 @@
           </span>
 
           <div class="category-preview-text">
-            <strong id="selectedCategoryNamePreview">New category</strong>
+            <strong id="selectedCategoryNamePreview"><%= t('categories.newCategory') %></strong>
 
             <div class="category-preview-meta">
-              <span class="category-meta-pill" id="categoryModeBadge">Expense</span>
-              <span class="category-meta-pill category-meta-pill--soft" id="categoryScopeBadge"><%= family ? 'Family workspace' : 'Personal workspace' %></span>
+              <span class="category-meta-pill" id="categoryModeBadge"><%= t('categories.expense') %></span>
+              <span class="category-meta-pill category-meta-pill--soft" id="categoryScopeBadge"><%= family ? t('categories.familyWorkspace') : t('categories.personalWorkspace') %></span>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@
 
       <div class="col-lg-4 category-create-color-col">
         <div class="category-create-tool-card h-100">
-          <label class="form-label">Color</label>
+          <label class="form-label" for="customColor"><%= t('categories.chooseAnyColor') %></label>
 
           <div class="category-color-swatches">
             <% colorOptions.forEach((color, index) => { %>
@@ -99,7 +99,7 @@
 
       <div class="col-lg-4 category-create-icons-col">
         <div class="category-create-tool-card h-100">
-          <label class="form-label">Icon</label>
+          <label class="form-label"><%= t('categories.icon') %></label>
 
           <div class="category-edit-icons-grid category-create-icons-grid" data-create-icon-grid>
             <% iconOptions.forEach((iconName, index) => { %>
@@ -125,19 +125,19 @@
       <div class="form-check form-switch mb-0">
         <input class="form-check-input" type="checkbox" role="switch" id="categoryDashboardFeatured" name="dashboardFeatured" value="1" />
         <label class="form-check-label" for="categoryDashboardFeatured">
-          <strong>Add to dashboard</strong>
-          <span>Mark this category as special in the Dashboard expenses block.</span>
+          <strong><%= t('categories.addToDashboard') %></strong>
+          <span><%= t('categories.addToDashboardDescription') %></span>
         </label>
       </div>
     </div>
 
     <div class="category-editor-actions">
       <button class="btn btn-primary rounded-pill px-4" type="submit">
-        Save category
+        <%= t('categories.saveCategory') %>
       </button>
 
       <button class="btn btn-secondary rounded-pill px-4" type="reset" id="categoryFormResetButton">
-        Reset
+        <%= t('categories.reset') %>
       </button>
     </div>
   </form>

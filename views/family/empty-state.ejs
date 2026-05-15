@@ -9,31 +9,31 @@
       <div class="card-body">
         <div class="family-section-header family-empty-header">
           <div>
-            <p class="section-label">Personal workspace</p>
-            <h2>You are using My Budget alone</h2>
+            <p class="section-label"><%= t('family.personalWorkspace') %></p>
+            <h2><%= t('family.usingAlone') %></h2>
           </div>
-          <span class="family-personal-badge">Single user</span>
+          <span class="family-personal-badge"><%= t('family.singleUser') %></span>
         </div>
 
         <p class="family-description mb-4">
-          Your categories, transactions, wishlist and calendar are private while you are not part of a family. Create a family when you are ready to share one common budget workspace with other registered users.
+          <%= t('family.personalWorkspaceDescription') %>
         </p>
 
         <div class="family-personal-summary-grid mb-4">
           <div class="family-personal-summary-item">
-            <span>Categories</span>
+            <span><%= t('family.categories') %></span>
             <strong><%= personalStats.categories || 0 %></strong>
           </div>
           <div class="family-personal-summary-item">
-            <span>Transactions</span>
+            <span><%= t('family.transactions') %></span>
             <strong><%= personalStats.transactions || 0 %></strong>
           </div>
           <div class="family-personal-summary-item">
-            <span>Wishlist</span>
+            <span><%= t('family.wishlist') %></span>
             <strong><%= personalStats['wishlist items'] || 0 %></strong>
           </div>
           <div class="family-personal-summary-item">
-            <span>Calendar</span>
+            <span><%= t('family.calendar') %></span>
             <strong><%= personalStats['calendar events'] || 0 %></strong>
           </div>
         </div>
@@ -41,15 +41,13 @@
         <div class="family-info-box mb-4">
           <i class="bi bi-info-circle"></i>
           <div>
-            <strong>What happens when you create a family?</strong>
-            <p>
-              Your current personal data will be moved into the new shared family workspace. After that, all family members will use the same categories, transactions, wishlist and calendar.
-            </p>
+            <strong><%= t('family.createFamilyInfoTitle') %></strong>
+            <p><%= t('family.createFamilyInfoText') %></p>
           </div>
         </div>
 
         <button class="btn btn-primary rounded-pill px-4" type="button" data-bs-toggle="modal" data-bs-target="#createFamilyModal">
-          Create family
+          <%= t('family.createFamily') %>
         </button>
       </div>
     </div>
@@ -60,23 +58,23 @@
       <div class="card-body">
         <div class="family-section-header">
           <div>
-            <p class="section-label">How it works</p>
-            <h2>Workspace rules</h2>
+            <p class="section-label"><%= t('family.howItWorks') %></p>
+            <h2><%= t('family.workspaceRules') %></h2>
           </div>
         </div>
 
         <div class="family-rules-list">
           <div class="family-rule-item">
-            <strong>Personal mode</strong>
-            <p>Only you can see and edit your own budget data.</p>
+            <strong><%= t('family.personalMode') %></strong>
+            <p><%= t('family.personalModeText') %></p>
           </div>
           <div class="family-rule-item">
-            <strong>Create family</strong>
-            <p>Your existing personal data becomes the first shared family budget.</p>
+            <strong><%= t('family.createFamily') %></strong>
+            <p><%= t('family.createFamilyRuleText') %></p>
           </div>
           <div class="family-rule-item">
-            <strong>Family mode</strong>
-            <p>All new budget data belongs to the family workspace, not to one user.</p>
+            <strong><%= t('family.familyMode') %></strong>
+            <p><%= t('family.familyModeText') %></p>
           </div>
         </div>
       </div>
@@ -89,10 +87,10 @@
     <div class="modal-content family-modal-content">
       <div class="modal-header border-0 pb-0">
         <div>
-          <p class="section-label mb-1">Create workspace</p>
-          <h2 class="modal-title family-modal-title" id="createFamilyModalLabel">Create family workspace</h2>
+          <p class="section-label mb-1"><%= t('family.createWorkspace') %></p>
+          <h2 class="modal-title family-modal-title" id="createFamilyModalLabel"><%= t('family.createFamilyWorkspace') %></h2>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('family.close') %>"></button>
       </div>
 
       <form action="/family/create" method="POST" class="family-preserve-scroll-form">
@@ -100,30 +98,30 @@
           <div class="family-warning-box mb-3">
             <i class="bi bi-arrow-left-right"></i>
             <div>
-              <strong>Your personal data will be moved</strong>
+              <strong><%= t('family.personalDataMovedTitle') %></strong>
               <p>
                 <% if (hasPersonalData) { %>
-                  You currently have <%= personalStats.total %> personal records. They will become shared family records after the family is created.
+                  <%= t('family.personalRecordsPrefix') %> <%= personalStats.total %> <%= t('family.personalRecordsSuffix') %>
                 <% } else { %>
-                  You do not have personal records yet. The new family workspace will start empty.
+                  <%= t('family.noPersonalRecordsYet') %>
                 <% } %>
               </p>
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="familyName">Family name</label>
-            <input class="form-control rounded-pill" id="familyName" name="familyName" type="text" placeholder="Enter family name" required />
+            <label class="form-label" for="familyName"><%= t('family.familyName') %></label>
+            <input class="form-control rounded-pill" id="familyName" name="familyName" type="text" placeholder="<%= t('family.enterFamilyName') %>" required />
           </div>
 
           <label class="family-checkbox-confirm">
             <input type="checkbox" required>
-            <span>I understand that my personal budget data will become shared family data.</span>
+            <span><%= t('family.createFamilyConfirmText') %></span>
           </label>
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary rounded-pill px-4" type="submit">Create family</button>
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><%= t('family.cancel') %></button>
+          <button class="btn btn-primary rounded-pill px-4" type="submit"><%= t('family.createFamily') %></button>
         </div>
       </form>
     </div>

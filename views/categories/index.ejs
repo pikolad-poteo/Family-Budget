@@ -21,18 +21,8 @@
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
-  function getScopeLabel(category) {
-    return category.family_id ? 'Family' : 'Personal';
-  }
-
-  function getCategoryHint(category) {
-    return category.family_id
-      ? 'Shared category for family members'
-      : 'Visible only in your personal budget';
-  }
-
   function getTypeLabel(type) {
-    return type === 'income' ? 'Income' : 'Expense';
+    return type === 'income' ? t('categories.income') : t('categories.expense');
   }
 
   const normalizedActiveTab = typeof activeTab === 'string' ? activeTab : 'expense';
@@ -52,18 +42,18 @@
   <% } %>
 
   <%- include('../partials/page-overview', {
-    eyebrow: 'Management',
-    heading: 'Category overview',
-    description: `Create and edit expense or income categories for yourself${family ? ' and your family' : ''}.`,
+    eyebrow: t('categories.management'),
+    heading: t('categories.overviewTitle'),
+    description: family ? t('categories.overviewDescriptionFamily') : t('categories.overviewDescriptionPersonal'),
     buttonId: 'toggleCategoryCreateButton',
     buttonTextId: 'toggleCategoryCreateButtonText',
     controlsId: 'categoryCreatePanel',
-    buttonLabel: 'Add category',
+    buttonLabel: t('categories.addCategory'),
     stats: [
-      { value: totalCount, label: 'Total' },
-      { value: expenseCount, label: 'Expense' },
-      { value: incomeCount, label: 'Income' },
-      { value: family ? 'On' : 'Off', label: 'Family mode' }
+      { value: totalCount, label: t('categories.total') },
+      { value: expenseCount, label: t('categories.expense') },
+      { value: incomeCount, label: t('categories.income') },
+      { value: family ? t('categories.on') : t('categories.off'), label: t('categories.familyMode') }
     ],
     createContent: include('./_create_form', {
       activeTab,
@@ -76,8 +66,24 @@
 
   <section class="card border-0 shadow-sm rounded-4 section-card categories-section">
     <div class="card-body p-4">
-      <div class="row align-items-center g-3 mb-4">
-        <div class="col-lg-5">
+      <div class="category-section-header">
+        <p class="section-label mb-1"><%= t('categories.management') %></p>
+        <h2><%= t('categories.title') %></h2>
+      </div>
+
+      <div class="categories-toolbar">
+        <div class="categories-toolbar-left">
+          <div class="categories-view-switcher" aria-label="<%= t('categories.viewMode') %>">
+            <button type="button" class="categories-view-btn is-active" data-category-view="cards">
+              <i class="bi bi-grid"></i>
+              <span><%= t('categories.cards') %></span>
+            </button>
+            <button type="button" class="categories-view-btn" data-category-view="list">
+              <i class="bi bi-list-ul"></i>
+              <span><%= t('categories.list') %></span>
+            </button>
+          </div>
+
           <div class="categories-switcher">
             <button
               type="button"
@@ -85,7 +91,7 @@
               data-category-tab="expense"
               data-is-default-tab="true"
             >
-              Expenses
+              <%= t('categories.expenses') %>
               <span><%= expenseCount %></span>
             </button>
 
@@ -94,44 +100,41 @@
               class="categories-switcher-btn <%= normalizedActiveTab === 'income' ? 'is-active' : '' %>"
               data-category-tab="income"
             >
-              Income
+              <%= t('categories.income') %>
               <span><%= incomeCount %></span>
             </button>
           </div>
         </div>
 
-        <div class="col-lg-7">
-          <form class="categories-search" id="categoriesLiveSearchForm" autocomplete="off">
-            <input type="hidden" name="tab" id="categoriesSearchTabInput" value="<%= normalizedActiveTab %>" />
+        <form class="categories-search" id="categoriesLiveSearchForm" autocomplete="off">
+          <input type="hidden" name="tab" id="categoriesSearchTabInput" value="<%= normalizedActiveTab %>" />
 
-            <div class="input-group categories-bootstrap-search">
-              <span class="input-group-text bg-white border-end-0">
-                <i class="bi bi-search"></i>
-              </span>
+          <div class="input-group categories-bootstrap-search">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
 
-              <input
-                class="form-control border-start-0"
-                type="search"
-                name="q"
-                id="categoriesLiveSearchInput"
-                value="<%= currentSearch %>"
-                placeholder="Search category by name"
-                aria-label="Search category by name"
-                data-live-category-search
-              />
+            <input
+              class="form-control border-start-0"
+              type="search"
+              name="q"
+              id="categoriesLiveSearchInput"
+              value="<%= currentSearch %>"
+              placeholder="<%= t('categories.searchPlaceholder') %>"
+              aria-label="<%= t('categories.searchPlaceholder') %>"
+              data-live-category-search
+            />
 
-              <button
-                class="btn btn-outline-secondary px-4 categories-search-clear"
-                type="button"
-                id="categoriesLiveSearchClear"
-                <%= currentSearch ? '' : 'hidden' %>
-              >
-                Clear
-              </button>
-
-            </div>
-          </form>
-        </div>
+            <button
+              class="btn btn-outline-secondary px-4 categories-search-clear"
+              type="button"
+              id="categoriesLiveSearchClear"
+              <%= currentSearch ? '' : 'hidden' %>
+            >
+              <%= t('categories.clear') %>
+            </button>
+          </div>
+        </form>
       </div>
 
       <div class="categories-tab-panel <%= normalizedActiveTab === 'expense' ? 'is-active' : '' %>" data-category-panel="expense">
@@ -140,14 +143,13 @@
           activeTab,
           currentSearch,
           iconOptions,
+          colorOptions,
           typeKey: 'expense',
-          emptyTitle: 'No expense categories yet',
-          emptyText: 'Create your first expense category using the button above.',
-          addButtonTitle: 'Add expense category',
-          addButtonText: 'Create one more expense card',
+          emptyTitle: t('categories.noExpenseCategoriesYet'),
+          emptyText: t('categories.createFirstExpenseCategory'),
+          addButtonTitle: t('categories.addCategory'),
+          addButtonText: t('categories.clickToCreate'),
           hexToRgba,
-          getCategoryHint,
-          getScopeLabel,
           getTypeLabel
         }) %>
       </div>
@@ -158,14 +160,13 @@
           activeTab,
           currentSearch,
           iconOptions,
+          colorOptions,
           typeKey: 'income',
-          emptyTitle: 'No income categories yet',
-          emptyText: 'Create your first income category using the button above.',
-          addButtonTitle: 'Add income category',
-          addButtonText: 'Create one more income card',
+          emptyTitle: t('categories.noIncomeCategoriesYet'),
+          emptyText: t('categories.createFirstIncomeCategory'),
+          addButtonTitle: t('categories.addCategory'),
+          addButtonText: t('categories.clickToCreate'),
           hexToRgba,
-          getCategoryHint,
-          getScopeLabel,
           getTypeLabel
         }) %>
       </div>
@@ -173,6 +174,17 @@
   </section>
 </section>
 
+<script>
+  window.categoryI18n = <%- JSON.stringify({
+    addCategory: t('categories.addCategory'),
+    hideCategoryForm: t('categories.hideCategoryForm'),
+    newCategory: t('categories.newCategory'),
+    income: t('categories.income'),
+    expense: t('categories.expense'),
+    family: t('categories.family'),
+    personal: t('categories.personal')
+  }).replace(/</g, '\\u003c') %>;
+</script>
 <script src="/js/categories.js"></script>
 
 <%- include('../partials/footer') %>

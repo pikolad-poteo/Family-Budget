@@ -1,7 +1,7 @@
 /**
  * Categories page client-side logic.
- * Handles tab switching, create panel toggle, color and icon pickers,
- * live preview updates, form reset, and edit icon selection.
+ * Handles filters, view switching, create form preview, modals,
+ * color/icon/type pickers, and live search without scroll jumps.
  */
 
 (function () {
@@ -17,7 +17,7 @@
 
   const colorInput = document.getElementById('customColor');
   const colorValue = document.getElementById('categoryColorValue');
-  const swatches = document.querySelectorAll('.category-color-swatch');
+  const swatches = document.querySelectorAll('.category-create-tool-card .category-color-swatch');
 
   const iconButtons = document.querySelectorAll('[data-create-icon-grid] [data-icon-value]');
   const iconInput = document.getElementById('selectedCategoryIconInput');
@@ -33,6 +33,17 @@
   const createRedirectTabInput = document.getElementById('categoryRedirectTabInput');
   const addCardButtons = document.querySelectorAll('[data-add-card-type]');
   const editIconGrids = document.querySelectorAll('[data-edit-icon-grid]');
+  const editTypeGroups = document.querySelectorAll('[data-edit-type-group]');
+  const editColorRows = document.querySelectorAll('[data-edit-color-row]');
+
+  const categoryI18n = window.categoryI18n || {};
+
+  function tr(key, fallback) {
+    return categoryI18n[key] || fallback;
+  }
+
+  const viewButtons = document.querySelectorAll('[data-category-view]');
+  const viewPanels = document.querySelectorAll('[data-category-view-panel]');
 
   const liveSearchForm = document.getElementById('categoriesLiveSearchForm');
   const liveSearchInput = document.getElementById('categoriesLiveSearchInput');
@@ -40,10 +51,6 @@
   const liveSearchGroup = liveSearchInput ? liveSearchInput.closest('.categories-bootstrap-search') : null;
   const categoryItems = document.querySelectorAll('[data-category-item]');
   const categoryAddCards = document.querySelectorAll('[data-category-add-card]');
-
-  if (!toggleCreateButton || !createPanel) {
-    return;
-  }
 
   function hexToRgba(hex, alpha) {
     if (!hex) return 'rgba(108, 117, 125, ' + alpha + ')';
@@ -76,6 +83,26 @@
     if (createRedirectTabInput) {
       createRedirectTabInput.value = targetTab;
     }
+  }
+
+  function setCategoryView(view) {
+    const safeView = view === 'list' ? 'list' : 'cards';
+
+    viewButtons.forEach(function (button) {
+      button.classList.toggle('is-active', button.dataset.categoryView === safeView);
+    });
+
+    viewPanels.forEach(function (panel) {
+      panel.hidden = panel.dataset.categoryViewPanel !== safeView;
+    });
+
+    try {
+      window.localStorage.setItem('myBudgetCategoryView', safeView);
+    } catch (error) {
+      // Local storage is optional.
+    }
+
+    applyLiveCategorySearch();
   }
 
   function normalizeSearchValue(value) {
@@ -132,20 +159,35 @@
   }
 
   function openCreatePanel() {
+    if (!createPanel || !toggleCreateButton) return;
+
     createPanel.hidden = false;
     toggleCreateButton.setAttribute('aria-expanded', 'true');
 
     if (toggleCreateButtonText) {
-      toggleCreateButtonText.textContent = 'Hide category form';
+      toggleCreateButtonText.textContent = tr('hideCategoryForm', 'Hide category form');
     }
   }
 
+  function scrollToCreatePanel() {
+    if (!createPanel) return;
+
+    window.requestAnimationFrame(function () {
+      createPanel.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+  }
+
   function closeCreatePanel() {
+    if (!createPanel || !toggleCreateButton) return;
+
     createPanel.hidden = true;
     toggleCreateButton.setAttribute('aria-expanded', 'false');
 
     if (toggleCreateButtonText) {
-      toggleCreateButtonText.textContent = 'Add category';
+      toggleCreateButtonText.textContent = tr('addCategory', 'Add category');
     }
   }
 
@@ -157,20 +199,20 @@
 
   function updateModeBadge() {
     if (modeBadge && typeInput) {
-      modeBadge.textContent = typeInput.value === 'income' ? 'Income' : 'Expense';
+      modeBadge.textContent = typeInput.value === 'income' ? tr('income', 'Income') : tr('expense', 'Expense');
     }
   }
 
   function updateScopeBadge() {
     if (scopeBadge && scopeInput) {
-      scopeBadge.textContent = scopeInput.value === 'family' ? 'Family' : 'Personal';
+      scopeBadge.textContent = scopeInput.value === 'family' ? tr('family', 'Family') : tr('personal', 'Personal');
     }
   }
 
   function updateNamePreview() {
     if (!namePreview || !nameInput) return;
     const trimmed = nameInput.value.trim();
-    namePreview.textContent = trimmed || 'New category';
+    namePreview.textContent = trimmed || tr('newCategory', 'New category');
   }
 
   function updateColorPreview(color) {
@@ -205,13 +247,41 @@
     });
   }
 
-  toggleCreateButton.addEventListener('click', function () {
-    if (createPanel.hidden) {
-      openCreatePanel();
-    } else {
-      closeCreatePanel();
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.hidden = false;
+    document.body.classList.add('category-modal-open');
+
+    const firstInput = modal.querySelector('input[name="name"]');
+    if (firstInput) {
+      window.setTimeout(function () {
+        firstInput.focus({ preventScroll: true });
+      }, 0);
     }
-  });
+  }
+
+  function closeModal(modal) {
+    if (!modal) return;
+
+    modal.hidden = true;
+
+    const hasOpenModal = Boolean(document.querySelector('.category-modal:not([hidden])'));
+    if (!hasOpenModal) {
+      document.body.classList.remove('category-modal-open');
+    }
+  }
+
+  if (toggleCreateButton && createPanel) {
+    toggleCreateButton.addEventListener('click', function () {
+      if (createPanel.hidden) {
+        openCreatePanel();
+      } else {
+        closeCreatePanel();
+      }
+    });
+  }
 
   toggleButtons.forEach(function (button) {
     button.addEventListener('click', function () {
@@ -264,6 +334,12 @@
     });
   });
 
+  viewButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      setCategoryView(button.dataset.categoryView);
+    });
+  });
+
   if (liveSearchForm) {
     liveSearchForm.addEventListener('submit', function (event) {
       event.preventDefault();
@@ -287,6 +363,7 @@
     button.addEventListener('click', function () {
       const type = button.dataset.addCardType;
       openCreatePanel();
+      scrollToCreatePanel();
 
       if (typeInput) {
         typeInput.value = type;
@@ -296,13 +373,52 @@
       updateModeBadge();
 
       if (nameInput) {
-        nameInput.focus();
+        window.setTimeout(function () {
+          nameInput.focus({ preventScroll: true });
+        }, 350);
       }
     });
   });
 
+  document.querySelectorAll('[data-open-category-modal]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      openModal(button.dataset.openCategoryModal);
+    });
+  });
+
+  document.querySelectorAll('[data-close-category-modal]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      closeModal(button.closest('.category-modal'));
+    });
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    const openModalElement = document.querySelector('.category-modal:not([hidden])');
+    closeModal(openModalElement);
+  });
+
+  editTypeGroups.forEach(function (group) {
+    const form = group.closest('form');
+    const hiddenInput = form ? form.querySelector('[data-edit-type-input]') : null;
+    const buttons = group.querySelectorAll('[data-edit-type-value]');
+
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (hiddenInput) {
+          hiddenInput.value = button.dataset.editTypeValue;
+        }
+
+        buttons.forEach(function (item) {
+          item.classList.toggle('is-active', item === button);
+        });
+      });
+    });
+  });
+
   editIconGrids.forEach(function (grid) {
-    const hiddenInput = grid.parentElement.querySelector('[data-edit-icon-input]');
+    const form = grid.closest('form');
+    const hiddenInput = form ? form.querySelector('[data-edit-icon-input]') : null;
     const buttons = grid.querySelectorAll('[data-edit-icon-value]');
 
     buttons.forEach(function (button) {
@@ -316,6 +432,35 @@
         });
       });
     });
+  });
+
+  editColorRows.forEach(function (row) {
+    const colorInput = row.querySelector('[data-edit-color-input]');
+    const swatchButtons = row.querySelectorAll('[data-color-value]');
+
+    function setActiveColor(color) {
+      swatchButtons.forEach(function (button) {
+        button.classList.toggle(
+          'is-active',
+          button.dataset.colorValue.toLowerCase() === String(color).toLowerCase()
+        );
+      });
+    }
+
+    swatchButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (colorInput) {
+          colorInput.value = button.dataset.colorValue;
+        }
+        setActiveColor(button.dataset.colorValue);
+      });
+    });
+
+    if (colorInput) {
+      colorInput.addEventListener('input', function () {
+        setActiveColor(colorInput.value);
+      });
+    }
   });
 
   if (resetButton) {
@@ -369,6 +514,18 @@
     if (safeTab) {
       setActiveTab(safeTab);
     }
+  })();
+
+  (function initCategoryView() {
+    let savedView = 'cards';
+
+    try {
+      savedView = window.localStorage.getItem('myBudgetCategoryView') || 'cards';
+    } catch (error) {
+      savedView = 'cards';
+    }
+
+    setCategoryView(savedView === 'list' ? 'list' : 'cards');
   })();
 
   applyLiveCategorySearch();

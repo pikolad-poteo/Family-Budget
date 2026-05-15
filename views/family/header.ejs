@@ -1,7 +1,7 @@
 <%
-  const familyName = currentFamily.name || 'Family workspace';
+  const familyName = currentFamily.name || t('family.defaultFamilyName');
   const normalizedRole = activeRole ? String(activeRole).toLowerCase() : 'member';
-  const readableRole = normalizedRole ? normalizedRole.charAt(0).toUpperCase() + normalizedRole.slice(1) : 'Member';
+  const readableRole = t(`family.roles.${normalizedRole}`);
   const canManageFamilyAvatar = normalizedRole === 'owner' || normalizedRole === 'editor';
 %>
 
@@ -9,13 +9,13 @@
   <div class="card-body">
     <div class="family-overview-top-row">
       <div class="family-overview-heading-block">
-        <p class="section-label family-overview-kicker">Shared budget workspace</p>
-        <h2 class="family-overview-main-title">Overview</h2>
+        <p class="section-label family-overview-kicker"><%= t('family.sharedWorkspace') %></p>
+        <h2 class="family-overview-main-title"><%= t('family.overview') %></h2>
       </div>
 
       <% if (familyPermissions.canManageMembers) { %>
         <button class="btn btn-primary rounded-pill px-4 family-add-member-btn" type="button" data-bs-toggle="modal" data-bs-target="#addFamilyMemberModal">
-          <i class="bi bi-plus-lg me-2"></i>Add member
+          <i class="bi bi-plus-lg me-2"></i><%= t('family.addMember') %>
         </button>
       <% } %>
     </div>
@@ -27,10 +27,10 @@
             class="family-avatar-button"
             type="button"
             id="familyAvatarTrigger"
-            aria-label="Change family avatar"
+            aria-label="<%= t('family.changeFamilyAvatar') %>"
           >
             <% if (currentFamily.avatar_url) { %>
-              <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> avatar" />
+              <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> <%= t('family.avatar') %>" />
             <% } else { %>
               <span class="family-avatar family-avatar-lg family-avatar-fallback" aria-hidden="true">
                 <i class="bi bi-person family-avatar-fallback-icon"></i>
@@ -45,18 +45,18 @@
 
           <% if (currentFamily.avatar_url) { %>
             <form action="/family/avatar/delete" method="POST" class="family-avatar-delete-form family-preserve-scroll-form">
-              <button class="family-avatar-delete-btn" type="submit" aria-label="Delete family avatar" title="Delete avatar">
+              <button class="family-avatar-delete-btn" type="submit" aria-label="<%= t('family.deleteFamilyAvatar') %>" title="<%= t('family.deleteAvatar') %>">
                 <i class="bi bi-trash3"></i>
               </button>
             </form>
           <% } %>
         <% } else { %>
           <% if (currentFamily.avatar_url) { %>
-            <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> avatar" />
+            <img class="family-avatar family-avatar-lg" src="<%= currentFamily.avatar_url %>" alt="<%= familyName %> <%= t('family.avatar') %>" />
           <% } else { %>
             <span class="family-avatar family-avatar-lg family-avatar-fallback" aria-hidden="true">
-                <i class="bi bi-person family-avatar-fallback-icon"></i>
-              </span>
+              <i class="bi bi-person family-avatar-fallback-icon"></i>
+            </span>
           <% } %>
         <% } %>
       </div>
@@ -64,21 +64,20 @@
       <div class="family-overview-content">
         <h2 class="family-hero-title"><%= familyName %></h2>
         <p class="family-description family-overview-description">
-          Family settings · Manage family profile, household members, permissions and recent shared activity.
+          <%= t('family.overviewDescription') %>
         </p>
-
 
         <% if (familyPermissions.canManageFamily) { %>
           <form action="/family/update" method="POST" class="family-name-form family-preserve-scroll-form">
-            <label class="form-label" for="familyName">Family name</label>
+            <label class="form-label" for="familyName"><%= t('family.familyName') %></label>
             <div class="family-inline-form">
               <input class="form-control rounded-pill" id="familyName" name="familyName" type="text" value="<%= familyName %>" required />
-              <button class="btn btn-secondary rounded-pill px-4" type="submit">Save</button>
+              <button class="btn btn-secondary rounded-pill px-4" type="submit"><%= t('family.save') %></button>
             </div>
           </form>
         <% } else { %>
           <div class="family-readonly-field family-name-readonly-field">
-            <span>Family name</span>
+            <span><%= t('family.familyName') %></span>
             <strong><%= familyName %></strong>
           </div>
         <% } %>
@@ -87,7 +86,7 @@
       <div class="family-role-summary-field family-readonly-field family-role-summary-card">
         <span class="family-role-icon family-role-icon-<%= normalizedRole || 'member' %>" aria-hidden="true">
           <% if (normalizedRole === 'owner') { %>
-            <svg class="family-role-svg" viewBox="0 0 16 16" role="img" aria-label="Owner crown" focusable="false">
+            <svg class="family-role-svg" viewBox="0 0 16 16" role="img" aria-label="<%= t('family.ownerCrown') %>" focusable="false">
               <path d="M3.1 12.4h9.8l.7-6.8a.5.5 0 0 0-.82-.43L10.3 7.3 8.45 3.45a.5.5 0 0 0-.9 0L5.7 7.3 3.22 5.17a.5.5 0 0 0-.82.43l.7 6.8Zm.2 1.1a.5.5 0 0 0 .5.5h8.4a.5.5 0 0 0 .5-.5v-.3H3.3v.3Z" fill="currentColor"/>
             </svg>
           <% } else if (normalizedRole === 'editor') { %>
@@ -97,7 +96,7 @@
           <% } %>
         </span>
         <div>
-          <span>Your role</span>
+          <span><%= t('family.yourRole') %></span>
           <strong><%= readableRole %></strong>
         </div>
       </div>
@@ -110,38 +109,38 @@
     <div class="modal-content family-modal-content">
       <div class="modal-header border-0 pb-0">
         <div>
-          <p class="section-label mb-1">Invitation</p>
-          <h2 class="modal-title family-modal-title" id="addFamilyMemberModalLabel">Add family member</h2>
+          <p class="section-label mb-1"><%= t('family.invitation') %></p>
+          <h2 class="modal-title family-modal-title" id="addFamilyMemberModalLabel"><%= t('family.addFamilyMember') %></h2>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('family.close') %>"></button>
       </div>
       <form action="/family/members/add" method="POST" class="family-preserve-scroll-form">
         <div class="modal-body pt-3">
           <div class="family-warning-box mb-3">
             <i class="bi bi-info-circle"></i>
             <div>
-              <strong>The invited user will join this shared workspace.</strong>
-              <p>Their old personal data will not be moved into your family. While they are a family member, they will work only with shared family categories, transactions, wishlist and calendar.</p>
+              <strong><%= t('family.inviteWarningTitle') %></strong>
+              <p><%= t('family.inviteWarningText') %></p>
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="familyMemberEmail">Email address</label>
-            <input class="form-control rounded-pill" id="familyMemberEmail" name="email" type="email" placeholder="Registered user email" required />
+            <label class="form-label" for="familyMemberEmail"><%= t('family.emailAddress') %></label>
+            <input class="form-control rounded-pill" id="familyMemberEmail" name="email" type="email" placeholder="<%= t('family.registeredUserEmail') %>" required />
           </div>
 
           <div>
-            <label class="form-label" for="familyMemberRole">Role</label>
+            <label class="form-label" for="familyMemberRole"><%= t('family.role') %></label>
             <select class="form-select rounded-pill" id="familyMemberRole" name="role">
-              <option value="viewer">Viewer - read only</option>
-              <option value="editor">Editor - can change budget</option>
-              <option value="owner">Owner - full access</option>
+              <option value="viewer"><%= t('family.roleOptions.viewer') %></option>
+              <option value="editor"><%= t('family.roleOptions.editor') %></option>
+              <option value="owner"><%= t('family.roleOptions.owner') %></option>
             </select>
           </div>
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary rounded-pill px-4">Add member</button>
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal"><%= t('family.cancel') %></button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4"><%= t('family.addMember') %></button>
         </div>
       </form>
     </div>

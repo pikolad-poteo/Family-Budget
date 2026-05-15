@@ -39,6 +39,14 @@
   </section>
 </section>
 
+<script>
+  window.familyI18n = {
+    showAll: <%- JSON.stringify(t('family.showAll')) %>,
+    hideAll: <%- JSON.stringify(t('family.hideAll')) %>,
+    latestUpdates: <%- JSON.stringify(t('family.latestUpdates')) %>,
+    member: <%- JSON.stringify(t('family.member')) %>
+  };
+</script>
 <script src="/js/family.js"></script>
 
 <%- include('../partials/footer') %>

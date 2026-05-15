@@ -3,34 +3,34 @@
     <div class="card-body">
       <div class="family-section-header">
         <div>
-          <p class="section-label">Invitation</p>
-          <h2>Add user</h2>
+          <p class="section-label"><%= t('family.invitation') %></p>
+          <h2><%= t('family.addUser') %></h2>
         </div>
       </div>
 
       <% if (familyPermissions.canManageMembers) { %>
         <form action="/family/members/add" method="POST">
           <div class="mb-3">
-            <label class="form-label" for="email">Email address</label>
-            <input class="form-control rounded-3" id="email" name="email" type="email" placeholder="Registered user email" required />
+            <label class="form-label" for="email"><%= t('family.emailAddress') %></label>
+            <input class="form-control rounded-3" id="email" name="email" type="email" placeholder="<%= t('family.registeredUserEmail') %>" required />
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="role">Role</label>
+            <label class="form-label" for="role"><%= t('family.role') %></label>
             <select class="form-select rounded-3" id="role" name="role">
-              <option value="viewer">Viewer - read only</option>
-              <option value="editor">Editor - can change budget</option>
-              <option value="owner">Owner - full access</option>
+              <option value="viewer"><%= t('family.roleOptions.viewer') %></option>
+              <option value="editor"><%= t('family.roleOptions.editor') %></option>
+              <option value="owner"><%= t('family.roleOptions.owner') %></option>
             </select>
           </div>
 
           <button class="btn btn-primary rounded-pill px-4 w-100" type="submit">
-            Add member
+            <%= t('family.addMember') %>
           </button>
         </form>
       <% } else { %>
         <p class="family-sidebar-note mt-0">
-          Only family owners can add users and change access rights. Your current role does not allow member management.
+          <%= t('family.ownerOnlyMemberManagement') %>
         </p>
       <% } %>
     </div>
@@ -40,30 +40,30 @@
     <div class="card-body">
       <div class="family-section-header">
         <div>
-          <p class="section-label">Settings</p>
-          <h2>Family profile</h2>
+          <p class="section-label"><%= t('family.settings') %></p>
+          <h2><%= t('family.familyProfile') %></h2>
         </div>
       </div>
 
       <% if (familyPermissions.canManageFamily) { %>
         <form action="/family/update" method="POST" class="mb-4">
-          <label class="form-label" for="familyName">Family name</label>
+          <label class="form-label" for="familyName"><%= t('family.familyName') %></label>
           <div class="family-inline-form">
             <input class="form-control rounded-3" id="familyName" name="familyName" type="text" value="<%= currentFamily.name %>" required />
-            <button class="btn btn-primary rounded-pill px-4" type="submit">Save</button>
+            <button class="btn btn-primary rounded-pill px-4" type="submit"><%= t('family.save') %></button>
           </div>
         </form>
 
         <form action="/family/avatar" method="POST" enctype="multipart/form-data">
-          <label class="form-label" for="avatar">Family avatar</label>
+          <label class="form-label" for="avatar"><%= t('family.familyAvatar') %></label>
           <input class="form-control rounded-3 mb-3" id="avatar" name="avatar" type="file" accept="image/*" />
           <button class="btn btn-secondary rounded-pill px-4 w-100" type="submit">
-            Update avatar
+            <%= t('family.updateAvatar') %>
           </button>
         </form>
       <% } else { %>
         <p class="family-sidebar-note mt-0">
-          Family profile settings are available only for owners.
+          <%= t('family.ownerOnlyFamilyProfile') %>
         </p>
       <% } %>
     </div>
@@ -73,15 +73,15 @@
     <div class="card-body">
       <div class="family-section-header">
         <div>
-          <p class="section-label">Permissions</p>
-          <h2>Access summary</h2>
+          <p class="section-label"><%= t('family.permissions') %></p>
+          <h2><%= t('family.accessSummary') %></h2>
         </div>
       </div>
 
       <ul class="family-permissions-list">
-        <li><strong>Owner</strong> — full family management, roles, avatar, name and delete access.</li>
-        <li><strong>Editor</strong> — can change shared budget data after permissions are connected to CRUD pages.</li>
-        <li><strong>Viewer</strong> — can only view shared household information.</li>
+        <li><strong><%= t('family.roles.owner') %></strong> — <%= t('family.permissionsOwnerShort') %></li>
+        <li><strong><%= t('family.roles.editor') %></strong> — <%= t('family.permissionsEditorShort') %></li>
+        <li><strong><%= t('family.roles.viewer') %></strong> — <%= t('family.permissionsViewerShort') %></li>
       </ul>
     </div>
   </div>
@@ -90,33 +90,33 @@
     <div class="card-body">
       <div class="family-section-header">
         <div>
-          <p class="section-label">Danger zone</p>
-          <h2>Leave or delete</h2>
+          <p class="section-label"><%= t('family.dangerZone') %></p>
+          <h2><%= t('family.leaveOrDelete') %></h2>
         </div>
       </div>
 
-      <form action="/family/leave" method="POST" class="mb-4" onsubmit="return confirm('Leave this family?');">
+      <form action="/family/leave" method="POST" class="mb-4" onsubmit="return confirm(<%- JSON.stringify(t('family.confirmLeaveFamily')) %>);">
         <p class="family-sidebar-note mt-0">
-          If you are the last owner, transfer owner rights before leaving.
+          <%= t('family.lastOwnerTransferHint') %>
         </p>
         <button class="btn btn-secondary rounded-pill w-100" type="submit">
-          Leave family
+          <%= t('family.leaveFamily') %>
         </button>
       </form>
 
       <% if (familyPermissions.canDeleteFamily) { %>
-        <form action="/family/delete" method="POST" onsubmit="return confirm('This will delete the family workspace for all members. Continue?');">
+        <form action="/family/delete" method="POST" onsubmit="return confirm(<%- JSON.stringify(t('family.confirmDeleteFamily')) %>);">
           <p class="family-sidebar-note mt-0">
-            This removes the family workspace for all members. Shared data will be detached from the family. Type <strong>DELETE</strong> to confirm.
+            <%= t('family.deleteSidebarNote') %>
           </p>
-          <input class="form-control rounded-3 mb-3" name="confirmation" type="text" placeholder="Type DELETE" required />
+          <input class="form-control rounded-3 mb-3" name="confirmation" type="text" placeholder="<%= t('family.typeDelete') %>" required />
           <button class="btn btn-danger rounded-pill w-100" type="submit">
-            Delete family
+            <%= t('family.deleteFamily') %>
           </button>
         </form>
       <% } else { %>
         <p class="family-sidebar-note mt-0">
-          Only owners can delete the family workspace.
+          <%= t('family.onlyOwnersDeleteFamily') %>
         </p>
       <% } %>
     </div>

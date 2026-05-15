@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!list) return;
 
-  const defaultTitle = activityTitle ? activityTitle.textContent : 'Latest household updates';
+  const familyI18n = window.familyI18n || {};
+  const defaultTitle = activityTitle ? activityTitle.textContent : (familyI18n.latestUpdates || 'Latest household updates');
   const getItems = () => Array.from(list.querySelectorAll('.family-activity-item'));
 
   function applyActivityView() {
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleButton.classList.toggle('is-active', expanded);
       toggleButton.classList.toggle('btn-primary', expanded);
       toggleButton.classList.toggle('btn-secondary', !expanded);
-      toggleButton.textContent = expanded ? 'Hide all' : 'Show all';
+      toggleButton.textContent = expanded ? (familyI18n.hideAll || 'Hide all') : (familyI18n.showAll || 'Show all');
       toggleButton.setAttribute('aria-expanded', String(expanded));
     }
 
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (userFilter) {
     userFilter.addEventListener('change', () => {
-      if (activityTitle) activityTitle.textContent = defaultTitle || 'Latest household updates';
+      if (activityTitle) activityTitle.textContent = defaultTitle || familyI18n.latestUpdates || 'Latest household updates';
       applyActivityView();
     });
   }
@@ -136,10 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault();
       button.blur();
       const memberId = button.dataset.memberId || 'all';
-      const memberName = button.dataset.memberName || 'Member';
+      const memberName = button.dataset.memberName || familyI18n.member || 'Member';
 
       if (userFilter) userFilter.value = memberId;
-      if (activityTitle) activityTitle.textContent = defaultTitle || 'Latest household updates';
+      if (activityTitle) activityTitle.textContent = defaultTitle || familyI18n.latestUpdates || 'Latest household updates';
 
       setExpandedState(true);
 

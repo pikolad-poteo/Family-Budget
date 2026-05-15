@@ -5,60 +5,44 @@
     <p><%= emptyText %></p>
   </div>
 <% } else { %>
-  <div class="row g-3" data-category-list="<%= typeKey %>">
+  <div class="categories-card-grid" data-category-list="<%= typeKey %>" data-category-view-panel="cards">
     <% categories.forEach((category) => { %>
+      <% const isDashboardFeatured = Boolean(category.dashboard_featured || category.dashboardFeatured || category.show_on_dashboard || category.showOnDashboard || category.is_dashboard_highlight || category.isDashboardHighlight); %>
       <div
-        class="col-md-6 col-xl-4"
+        class="category-card-cell"
         data-category-item
         data-category-name="<%= category.name %>"
       >
-        <article class="card border-0 rounded-4 h-100 category-card">
-          <div class="card-body p-3 d-flex flex-column">
-            <div
-              class="category-card-preview-shell"
-              style="border-color: <%= hexToRgba(category.color, 0.18) %>; background: linear-gradient(180deg, #ffffff 0%, <%= hexToRgba(category.color, 0.08) %> 100%);"
-            >
-              <div class="category-card-preview-main">
-                <span
-                  class="category-card-icon"
-                  style="background-color: <%= hexToRgba(category.color, 0.16) %>; color: <%= category.color || '#6c757d' %>;"
-                >
-                  <i class="bi bi-<%= category.icon || 'tag' %>"></i>
-                </span>
+        <button
+          type="button"
+          class="category-card"
+          data-open-category-modal="category-modal-<%= category.id %>"
+          style="--category-color: <%= category.color || '#6c757d' %>; --category-soft: <%= hexToRgba(category.color, 0.12) %>; --category-border: <%= hexToRgba(category.color, 0.22) %>;"
+        >
+          <span class="category-card-inner">
+            <span class="category-card-icon">
+              <i class="bi bi-<%= category.icon || 'tag' %>"></i>
+            </span>
 
-                <div class="category-card-body">
-                  <h3><%= category.name %></h3>
-                  <p><%= getCategoryHint(category) %></p>
-                </div>
-              </div>
-
-              <div class="category-card-badges">
+            <span class="category-card-info">
+              <strong class="category-card-title"><%= category.name %></strong>
+              <span class="category-card-meta">
                 <span class="category-badge"><%= getTypeLabel(category.type) %></span>
-                <span class="category-badge category-badge--soft"><%= getScopeLabel(category) %></span>
-              </div>
-            </div>
-
-            <details class="category-editor">
-              <summary class="category-editor-summary">
-                <span>Edit category</span>
-                <i class="bi bi-chevron-down"></i>
-              </summary>
-
-              <%- include('./_edit_form', {
-                category,
-                activeTab,
-                currentSearch,
-                iconOptions,
-                typeKey
-              }) %>
-            </details>
-          </div>
-        </article>
+                <% if (isDashboardFeatured) { %>
+                  <span class="category-dashboard-marker" title="<%= t('categories.shownOnDashboard') %>" aria-label="<%= t('categories.shownOnDashboard') %>">
+                    <i class="bi bi-star-fill"></i>
+                  </span>
+                <% } %>
+              </span>
+              <span class="category-card-hint"><%= t('categories.clickToChange') %></span>
+            </span>
+          </span>
+        </button>
       </div>
     <% }) %>
 
-    <div class="col-md-6 col-xl-4" data-category-add-card>
-      <button class="card border-0 rounded-4 h-100 category-card category-card-add w-100" type="button" data-add-card-type="<%= typeKey %>">
+    <div class="category-card-cell" data-category-add-card>
+      <button class="category-card category-card-add" type="button" data-add-card-type="<%= typeKey %>">
         <span class="category-add-icon"><i class="bi bi-plus-lg"></i></span>
         <strong><%= addButtonTitle %></strong>
         <span><%= addButtonText %></span>
@@ -66,9 +50,58 @@
     </div>
   </div>
 
+  <div class="categories-list-view" data-category-view-panel="list" hidden>
+    <% categories.forEach((category) => { %>
+      <% const isDashboardFeatured = Boolean(category.dashboard_featured || category.dashboardFeatured || category.show_on_dashboard || category.showOnDashboard || category.is_dashboard_highlight || category.isDashboardHighlight); %>
+      <div
+        class="category-list-row"
+        data-category-item
+        data-category-name="<%= category.name %>"
+        style="--category-color: <%= category.color || '#6c757d' %>; --category-soft: <%= hexToRgba(category.color, 0.12) %>;"
+      >
+        <span class="category-list-icon">
+          <i class="bi bi-<%= category.icon || 'tag' %>"></i>
+        </span>
+
+        <div class="category-list-name">
+          <strong><%= category.name %></strong>
+        </div>
+
+        <span class="category-list-type">
+          <span class="category-badge category-list-badge"><%= getTypeLabel(category.type) %></span>
+          <% if (isDashboardFeatured) { %>
+            <span class="category-dashboard-marker" title="<%= t('categories.shownOnDashboard') %>" aria-label="<%= t('categories.shownOnDashboard') %>">
+              <i class="bi bi-star-fill"></i>
+            </span>
+          <% } %>
+        </span>
+
+        <button type="button" class="category-list-edit-btn" data-open-category-modal="category-modal-<%= category.id %>">
+          <%= t('categories.editCategory') %>
+        </button>
+      </div>
+    <% }) %>
+  </div>
+
+  <% categories.forEach((category) => { %>
+    <div class="category-modal" id="category-modal-<%= category.id %>" hidden>
+      <div class="category-modal-backdrop" data-close-category-modal></div>
+      <div class="category-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="category-modal-title-<%= category.id %>">
+        <%- include('./_edit_form', {
+          category,
+          activeTab,
+          currentSearch,
+          iconOptions,
+          colorOptions,
+          typeKey
+        }) %>
+      </div>
+    </div>
+  <% }) %>
+
   <div class="categories-empty-state categories-empty-state--filtered" data-category-filter-empty="<%= typeKey %>" hidden>
     <span class="categories-empty-icon"><i class="bi bi-search"></i></span>
-    <h3>No matching categories</h3>
-    <p>Try another name or clear the search field.</p>
+    <h3><%= t('categories.noMatchingCategories') %></h3>
+    <p><%= t('categories.tryAnotherSearch') %></p>
   </div>
 <% } %>

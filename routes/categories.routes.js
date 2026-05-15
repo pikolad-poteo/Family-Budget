@@ -36,7 +36,7 @@ router.get('/categories', requireAuth, async (req, res) => {
     const family = await getUserFamily(currentUserId);
     const canEditBudget = getCanEditBudget(family);
     const searchTerm = (req.query.q || '').trim();
-    const activeTab = req.query.tab === 'income' ? 'income' : 'expense';
+    const activeTab = ['all', 'expense', 'income'].includes(req.query.tab) ? req.query.tab : 'all';
 
     const categories = await getUserCategories(
       currentUserId,
@@ -63,7 +63,7 @@ router.get('/categories', requireAuth, async (req, res) => {
     delete req.session.categoryFlash;
 
     res.render('categories/index', {
-      title: 'Categories',
+      title: req.t('nav.categories'),
       activePage: 'categories',
       family,
       canEditBudget,
@@ -81,7 +81,7 @@ router.get('/categories', requireAuth, async (req, res) => {
     console.error('Categories page error:', error.message);
 
     res.render('categories/index', {
-      title: 'Categories',
+      title: req.t('nav.categories'),
       activePage: 'categories',
       family: null,
       canEditBudget: true,
@@ -89,10 +89,10 @@ router.get('/categories', requireAuth, async (req, res) => {
       incomeCategories: [],
       expenseCategories: [],
       searchTerm: '',
-      activeTab: 'expense',
+      activeTab: 'all',
       iconOptions: CATEGORY_ICON_OPTIONS,
       colorOptions: CATEGORY_COLOR_OPTIONS,
-      errorMessage: 'Failed to load categories.',
+      errorMessage: req.t('categories.messages.failedToLoadCategories'),
       successMessage: ''
     });
   }
@@ -113,7 +113,7 @@ router.post('/categories/create', requireAuth, requireBudgetEditor('categories')
     const redirectUrl = buildCategoriesRedirect(req, type);
 
     if (!name) {
-      setCategoryFlash(req, 'error', 'Category name is required.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.categoryNameRequired'));
       return res.redirect(redirectUrl);
     }
 
@@ -125,7 +125,7 @@ router.post('/categories/create', requireAuth, requireBudgetEditor('categories')
     });
 
     if (duplicate) {
-      setCategoryFlash(req, 'error', 'A category with this name already exists in this workspace.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.duplicateInWorkspace'));
       return res.redirect(redirectUrl);
     }
 
@@ -137,11 +137,11 @@ router.post('/categories/create', requireAuth, requireBudgetEditor('categories')
       [currentUserId, familyId, name, type, color, icon, dashboardFeatured]
     );
 
-    setCategoryFlash(req, 'success', 'Category created successfully.');
+    setCategoryFlash(req, 'success', req.t('categories.messages.categoryCreated'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Category creation error:', error.message);
-    setCategoryFlash(req, 'error', 'Failed to create category.');
+    setCategoryFlash(req, 'error', req.t('categories.messages.failedToCreateCategory'));
     return res.redirect(buildCategoriesRedirect(req));
   }
 });
@@ -162,7 +162,7 @@ router.post('/categories/:id/update', requireAuth, requireBudgetEditor('categori
     const redirectUrl = buildCategoriesRedirect(req, type);
 
     if (!categoryId || !name) {
-      setCategoryFlash(req, 'error', 'Invalid category data.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.invalidCategoryData'));
       return res.redirect(redirectUrl);
     }
 
@@ -173,7 +173,7 @@ router.post('/categories/:id/update', requireAuth, requireBudgetEditor('categori
     );
 
     if (!category) {
-      setCategoryFlash(req, 'error', 'Category not found.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.categoryNotFound'));
       return res.redirect(redirectUrl);
     }
 
@@ -186,7 +186,7 @@ router.post('/categories/:id/update', requireAuth, requireBudgetEditor('categori
     });
 
     if (duplicate) {
-      setCategoryFlash(req, 'error', 'A category with this name already exists in this scope.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.duplicateInScope'));
       return res.redirect(redirectUrl);
     }
 
@@ -200,11 +200,11 @@ router.post('/categories/:id/update', requireAuth, requireBudgetEditor('categori
       [name, type, color, icon, dashboardFeatured, categoryId]
     );
 
-    setCategoryFlash(req, 'success', 'Category updated successfully.');
+    setCategoryFlash(req, 'success', req.t('categories.messages.categoryUpdated'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Category update error:', error.message);
-    setCategoryFlash(req, 'error', 'Failed to update category.');
+    setCategoryFlash(req, 'error', req.t('categories.messages.failedToUpdateCategory'));
     return res.redirect(buildCategoriesRedirect(req));
   }
 });
@@ -219,7 +219,7 @@ router.post('/categories/:id/delete', requireAuth, requireBudgetEditor('categori
     const redirectUrl = buildCategoriesRedirect(req);
 
     if (!categoryId) {
-      setCategoryFlash(req, 'error', 'Invalid category id.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.invalidCategoryId'));
       return res.redirect(redirectUrl);
     }
 
@@ -230,7 +230,7 @@ router.post('/categories/:id/delete', requireAuth, requireBudgetEditor('categori
     );
 
     if (!category) {
-      setCategoryFlash(req, 'error', 'Category not found.');
+      setCategoryFlash(req, 'error', req.t('categories.messages.categoryNotFound'));
       return res.redirect(redirectUrl);
     }
 
@@ -239,11 +239,11 @@ router.post('/categories/:id/delete', requireAuth, requireBudgetEditor('categori
       [categoryId]
     );
 
-    setCategoryFlash(req, 'success', 'Category deleted successfully.');
+    setCategoryFlash(req, 'success', req.t('categories.messages.categoryDeleted'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Category deletion error:', error.message);
-    setCategoryFlash(req, 'error', 'Failed to delete category.');
+    setCategoryFlash(req, 'error', req.t('categories.messages.failedToDeleteCategory'));
     return res.redirect(buildCategoriesRedirect(req));
   }
 });

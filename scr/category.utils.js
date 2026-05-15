@@ -68,7 +68,7 @@ function buildCategoriesRedirect(req, fallbackTab = 'expense') {
     req.query.tab ||
     fallbackTab;
 
-  const safeTab = rawTab === 'income' ? 'income' : 'expense';
+  const safeTab = ['all', 'expense', 'income'].includes(rawTab) ? rawTab : 'all';
   params.set('tab', safeTab);
 
   const rawQuery = String(req.body.redirectQuery || req.query.q || '').trim();

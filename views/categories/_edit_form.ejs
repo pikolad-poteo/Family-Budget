@@ -1,100 +1,132 @@
 <form class="category-editor-body" method="POST" action="/categories/<%= category.id %>/update">
   <input type="hidden" name="redirectTab" value="<%= typeof activeTab === 'string' ? activeTab : 'expense' %>" />
   <input type="hidden" name="redirectQuery" value="<%= currentSearch %>" />
+  <input type="hidden" name="type" value="<%= category.type %>" data-edit-type-input />
+  <input type="hidden" name="icon" value="<%= category.icon || 'tag' %>" data-edit-icon-input />
 
-  <div class="row g-3">
-    <div class="col-md-6">
-      <label class="form-label" for="<%= typeKey %>-name-<%= category.id %>">Name</label>
-      <input
-        class="form-control rounded-3"
-        id="<%= typeKey %>-name-<%= category.id %>"
-        name="name"
-        type="text"
-        value="<%= category.name %>"
-        required
-      />
-    </div>
+  <div class="category-modal-header">
+    <h3 id="category-modal-title-<%= category.id %>"><%= t('categories.editCategory') %></h3>
+    <button type="button" class="category-modal-close" data-close-category-modal aria-label="<%= t('categories.closeEditCategory') %>">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
 
-    <div class="col-md-6">
-      <label class="form-label" for="<%= typeKey %>-type-<%= category.id %>">Type</label>
-      <select
-        class="form-select rounded-3"
-        id="<%= typeKey %>-type-<%= category.id %>"
-        name="type"
-        required
+  <div class="category-editor-field">
+    <label class="form-label"><%= t('categories.categoryType') %></label>
+    <div class="category-type-toggle" data-edit-type-group>
+      <button
+        type="button"
+        class="category-type-btn <%= category.type === 'income' ? 'is-active' : '' %>"
+        data-edit-type-value="income"
       >
-        <option value="expense" <%= category.type === 'expense' ? 'selected' : '' %>>Expense</option>
-        <option value="income" <%= category.type === 'income' ? 'selected' : '' %>>Income</option>
-      </select>
-    </div>
+        <span><i class="bi bi-arrow-up"></i></span>
+        <%= t('categories.income') %>
+      </button>
 
-    <div class="col-12">
-      <label class="form-label" for="<%= typeKey %>-color-<%= category.id %>">Color</label>
-      <input
-        class="form-control form-control-color category-edit-color-input rounded-3"
-        id="<%= typeKey %>-color-<%= category.id %>"
-        name="color"
-        type="color"
-        value="<%= category.color || '#6c757d' %>"
-        title="Choose category color"
-      />
-    </div>
-
-    <div class="col-12">
-      <label class="form-label">Icon</label>
-
-      <div class="category-edit-icons-grid" data-edit-icon-grid>
-        <% iconOptions.forEach((iconName) => { %>
-          <div class="category-edit-icon-cell">
-            <button
-              type="button"
-              class="category-edit-icon-btn <%= (category.icon || 'tag') === iconName ? 'is-active' : '' %>"
-              data-edit-icon-value="<%= iconName %>"
-              title="<%= iconName %>"
-            >
-              <i class="bi bi-<%= iconName %>"></i>
-            </button>
-          </div>
-        <% }) %>
-      </div>
-
-      <input type="hidden" name="icon" value="<%= category.icon || 'tag' %>" data-edit-icon-input />
-    </div>
-
-    <div class="col-12">
-      <div class="category-dashboard-feature-card category-dashboard-feature-card--compact">
-        <div class="form-check form-switch mb-0">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-            id="<%= typeKey %>-dashboard-featured-<%= category.id %>"
-            name="dashboardFeatured"
-            value="1"
-            <%= category.dashboard_featured ? 'checked' : '' %>
-          />
-          <label class="form-check-label" for="<%= typeKey %>-dashboard-featured-<%= category.id %>">
-            <strong>Add to dashboard</strong>
-            <span>Show this category in the special Dashboard list.</span>
-          </label>
-        </div>
-      </div>
+      <button
+        type="button"
+        class="category-type-btn <%= category.type === 'expense' ? 'is-active' : '' %>"
+        data-edit-type-value="expense"
+      >
+        <span><i class="bi bi-arrow-down"></i></span>
+        <%= t('categories.expense') %>
+      </button>
     </div>
   </div>
 
-  <div class="d-flex flex-wrap gap-2 mt-3">
-    <button type="submit" class="btn btn-primary rounded-pill px-4">
-      Save
-    </button>
+  <div class="category-editor-field">
+    <label class="form-label" for="<%= typeKey %>-name-<%= category.id %>"><%= t('categories.categoryName') %></label>
+    <input
+      class="form-control rounded-3"
+      id="<%= typeKey %>-name-<%= category.id %>"
+      name="name"
+      type="text"
+      value="<%= category.name %>"
+      required
+    />
+  </div>
 
+  <div class="category-editor-field">
+    <label class="form-label" for="<%= typeKey %>-color-<%= category.id %>"><%= t('categories.chooseAnyColor') %></label>
+    <div class="category-edit-color-row" data-edit-color-row>
+      <% colorOptions.forEach((color) => { %>
+        <button
+          type="button"
+          class="category-color-swatch <%= (category.color || '').toLowerCase() === color.toLowerCase() ? 'is-active' : '' %>"
+          style="background-color: <%= color %>;"
+          aria-label="<%= color %>"
+          data-color-value="<%= color %>"
+        ></button>
+      <% }) %>
+
+      <label class="category-custom-color-trigger" title="<%= t('categories.chooseCustomColor') %>">
+        <span><i class="bi bi-plus-lg"></i></span>
+        <input
+          id="<%= typeKey %>-color-<%= category.id %>"
+          name="color"
+          type="color"
+          value="<%= category.color || '#6c757d' %>"
+          data-edit-color-input
+        />
+      </label>
+    </div>
+  </div>
+
+  <div class="category-editor-field">
+    <label class="form-label"><%= t('categories.chooseIcon') %></label>
+
+    <div class="category-edit-icons-grid" data-edit-icon-grid>
+      <% iconOptions.forEach((iconName) => { %>
+        <button
+          type="button"
+          class="category-edit-icon-btn <%= (category.icon || 'tag') === iconName ? 'is-active' : '' %>"
+          data-edit-icon-value="<%= iconName %>"
+          title="<%= iconName %>"
+        >
+          <i class="bi bi-<%= iconName %>"></i>
+        </button>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="category-dashboard-feature-card category-dashboard-feature-card--compact">
+    <div>
+      <strong><%= t('categories.addToDashboard') %></strong>
+      <span><%= t('categories.showInDashboardHighlights') %></span>
+    </div>
+
+    <label class="category-dashboard-toggle">
+      <input
+        type="checkbox"
+        role="switch"
+        name="dashboardFeatured"
+        value="1"
+        <%= category.dashboard_featured ? 'checked' : '' %>
+      />
+      <span></span>
+    </label>
+  </div>
+
+  <div class="category-modal-actions">
     <button
       type="submit"
-      class="btn btn-outline-danger rounded-pill px-4"
+      class="btn category-delete-btn"
       formaction="/categories/<%= category.id %>/delete"
       formmethod="POST"
-      onclick="return confirm('Delete this category?')"
+      onclick="return confirm('<%= t('categories.confirmDelete') %>')"
     >
-      Delete
+      <i class="bi bi-trash"></i>
+      <%= t('categories.delete') %>
     </button>
+
+    <div class="category-modal-actions-right">
+      <button type="button" class="btn category-close-btn" data-close-category-modal>
+        <%= t('categories.close') %>
+      </button>
+
+      <button type="submit" class="btn category-save-btn">
+        <%= t('categories.saveChanges') %>
+      </button>
+    </div>
   </div>
 </form>
