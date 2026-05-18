@@ -1,35 +1,55 @@
 <div class="wishlist-create-panel-inline border-top pt-4" id="wishlistCreatePanel" hidden>
-      <form class="wishlist-form wishlist-create-form" action="/wishlist/create?<%= keepQuery %>" method="POST" enctype="multipart/form-data">
-        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-          <div>
-            <p class="section-label">Create</p>
-            <h2 class="h4 mb-0">New wishlist item</h2>
+  <form class="wishlist-form wishlist-create-form" data-wishlist-create-form action="/wishlist/create?<%= keepQuery %>" method="POST" enctype="multipart/form-data">
+    <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+      <div>
+        <p class="section-label">Create</p>
+        <h2 class="h4 mb-0">New wishlist item</h2>
       </div>
-        </div>
-        <div class="wishlist-form-grid wishlist-create-layout">
-          <div class="form-group wishlist-form-preview-field wishlist-create-preview-slot">
-            <label class="form-label">Photo preview</label>
-            <div class="wishlist-photo-preview" id="wishlistCreateImagePreview" data-empty-label="Preview">
-              <i class="bi bi-image"></i>
-              <span>Preview</span>
-            </div>
-          </div>
+    </div>
 
-          <div class="wishlist-create-main-fields">
-            <div class="form-group">
-              <label class="form-label" for="wishlistTitle">Item name</label>
-              <input class="form-control" id="wishlistTitle" name="title" type="text" placeholder="New headphones" required />
-            </div>
+    <div class="wishlist-form-grid wishlist-edit-layout-compact">
+      <div class="form-group wishlist-form-preview-field wishlist-edit-preview-slot">
+        <label class="form-label">Photo preview</label>
 
-            <div class="form-group">
-              <label class="form-label" for="wishlistFolder">Folder</label>
-              <select class="form-select" id="wishlistFolder" name="folder">
-                <option value="">No folder</option>
-                <% folders.forEach((folder) => { %>
-                  <option value="<%= folder %>"><%= folder %></option>
-                <% }) %>
-              </select>
-            </div>
+        <button
+          class="wishlist-photo-preview-wide wishlist-edit-photo-button"
+          id="wishlistCreateImagePreview"
+          type="button"
+          data-empty-label="Preview"
+          data-wishlist-upload-trigger="wishlistLocalImage"
+          aria-label="Upload local photo"
+        >
+          <i class="bi bi-image"></i>
+          <span>Preview</span>
+        </button>
+
+        <span class="wishlist-edit-preview-hint">Click to upload local photo</span>
+
+        <button
+          class="btn rounded-pill wishlist-edit-preview-reset"
+          type="button"
+          data-wishlist-reset-preview="wishlistCreateImagePreview"
+          data-wishlist-reset-file="wishlistLocalImage"
+          data-wishlist-reset-url="wishlistImageUrl"
+        >
+          Reset Preview
+        </button>
+
+        <input
+          class="d-none"
+          id="wishlistLocalImage"
+          name="local_image"
+          type="file"
+          accept="image/*"
+          data-wishlist-image-file-preview="wishlistCreateImagePreview"
+        />
+      </div>
+
+      <div class="wishlist-edit-fields-panel">
+        <div class="wishlist-edit-main-row">
+          <div class="form-group">
+            <label class="form-label" for="wishlistTitle">Item name</label>
+            <input class="form-control" id="wishlistTitle" name="title" type="text" placeholder="New headphones" required />
           </div>
 
           <div class="form-group">
@@ -41,6 +61,48 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label" for="wishlistFolder">Folder</label>
+            <select class="form-select" id="wishlistFolder" name="folder">
+              <option value="">No folder</option>
+              <% folders.forEach((folder) => { %>
+                <option value="<%= folder %>"><%= folder %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="wishlistDescription">Description</label>
+          <textarea class="form-control wishlist-edit-description" id="wishlistDescription" name="description" rows="4" placeholder="Short note about the item"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="wishlistImageUrl">Image link</label>
+          <input
+            class="form-control"
+            id="wishlistImageUrl"
+            name="image_url"
+            type="url"
+            placeholder="https://images.example/item.jpg"
+            data-wishlist-image-url-preview="wishlistCreateImagePreview"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="wishlistProductUrl">Product link</label>
+          <input class="form-control" id="wishlistProductUrl" name="product_url" type="url" placeholder="https://store.example/item" />
+        </div>
+
+      </div>
+
+      <details class="wishlist-create-advanced wishlist-edit-advanced-details">
+        <summary>
+          <span>Additional settings</span>
+          <i class="bi bi-chevron-down"></i>
+        </summary>
+
+        <div class="wishlist-create-advanced-grid wishlist-edit-advanced-grid-open">
+          <div class="form-group">
             <label class="form-label" for="wishlistStatus">Status</label>
             <select class="form-select" id="wishlistStatus" name="status">
               <option value="planned" selected>Planned</option>
@@ -50,37 +112,31 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="wishlistBuyer">Who wants to buy it</label>
+            <select class="form-select" id="wishlistBuyer" name="user_id">
+              <% const wishlistCreateFamilyMembers = typeof familyMembers !== 'undefined' && Array.isArray(familyMembers) ? familyMembers : []; %>
+              <% if (wishlistCreateFamilyMembers.length > 0) { %>
+                <% wishlistCreateFamilyMembers.forEach((member) => { %>
+                  <option value="<%= member.id %>" <%= currentUser && Number(member.id) === Number(currentUser.id) ? 'selected' : '' %>><%= member.name || member.email || 'Family member' %></option>
+                <% }) %>
+              <% } else { %>
+                <option value="<%= currentUser && currentUser.id ? currentUser.id : '' %>"><%= currentUser && currentUser.name ? currentUser.name : 'Me' %></option>
+              <% } %>
+            </select>
+          </div>
 
           <div class="form-group">
             <label class="form-label" for="wishlistDeadline">Desired by</label>
             <input class="form-control" id="wishlistDeadline" name="desired_date" type="date" />
           </div>
-
-          <div class="form-group wishlist-form-grid-wide">
-            <label class="form-label" for="wishlistDescription">Description</label>
-            <textarea class="form-control" id="wishlistDescription" name="description" rows="3" placeholder="Short note about the item"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="wishlistProductUrl">Product link</label>
-            <input class="form-control" id="wishlistProductUrl" name="product_url" type="url" placeholder="https://store.example/item" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="wishlistImageUrl">Image link</label>
-            <input class="form-control" id="wishlistImageUrl" name="image_url" type="text" placeholder="https://images.example/item.jpg" data-wishlist-image-url-preview="wishlistCreateImagePreview" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="wishlistLocalImage">Local photo</label>
-            <input class="form-control wishlist-file-input" id="wishlistLocalImage" name="local_image" type="file" accept="image/*" data-wishlist-image-file-preview="wishlistCreateImagePreview" />
-          </div>
-
         </div>
-
-        <div class="wishlist-form-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-          <button class="btn btn-primary rounded-pill px-4" type="submit">Save item</button>
-          <button class="btn btn-outline-secondary rounded-pill px-4" type="reset">Clear form</button>
-        </div>
-      </form>
+      </details>
     </div>
+
+    <div class="wishlist-form-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
+      <button class="btn btn-primary rounded-pill px-4" type="submit">Save item</button>
+      <button class="btn btn-outline-secondary rounded-pill px-4" type="reset">Clear form</button>
+    </div>
+  </form>
+</div>

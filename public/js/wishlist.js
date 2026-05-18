@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return url && url.origin === window.location.origin && url.pathname.startsWith('/wishlist');
   }
 
+  function isWishlistDetailUrl(url) {
+    return url
+      && url.origin === window.location.origin
+      && /^\/wishlist\/\d+\/?$/.test(url.pathname);
+  }
+
   function normalizeUrl(value) {
     return new URL(value || window.location.href, window.location.origin);
   }
@@ -86,6 +92,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function scrollToWishlistItems() {
+    const target = document.getElementById('wishlistItemsGrid');
+
+    if (!target) return;
+
+    const top = target.getBoundingClientRect().top + window.scrollY - 18;
+    window.scrollTo({ top: Math.max(top, 0), left: 0, behavior: 'smooth' });
+  }
+
   function openCreatePanelAtTop(folderName) {
     openCreatePanel();
 
@@ -148,10 +163,56 @@ document.addEventListener('DOMContentLoaded', function () {
     if (clearButton) clearButton.toggleAttribute('hidden', !hasQuery);
   }
 
+
+  function updateExistingItemsModalState() {
+    const targetSelect = document.getElementById('wishlistExistingTargetFolder');
+    const folderInput = document.getElementById('wishlistExistingTargetFolderName');
+    const ownerInput = document.getElementById('wishlistExistingTargetOwnerId');
+    if (!targetSelect) return;
+
+    const selectedOption = targetSelect.options[targetSelect.selectedIndex];
+    const targetFolder = selectedOption ? (selectedOption.dataset.folderName || '') : '';
+    const targetOwnerId = selectedOption ? (selectedOption.dataset.ownerId || '') : '';
+
+    if (folderInput) folderInput.value = targetFolder;
+    if (ownerInput) ownerInput.value = targetOwnerId;
+
+    document.querySelectorAll('[data-existing-folder-item]').forEach(function (card) {
+      const checkbox = card.querySelector('[data-existing-folder-checkbox]');
+      const itemFolder = card.dataset.itemFolder || '';
+      const itemOwnerId = card.dataset.itemOwnerId || '';
+      const belongsToOwner = !targetOwnerId || String(itemOwnerId) === String(targetOwnerId);
+      const isInTargetFolder = belongsToOwner && itemFolder === targetFolder;
+
+      card.toggleAttribute('hidden', !belongsToOwner);
+      card.classList.toggle('is-already-added', isInTargetFolder);
+
+      if (checkbox) {
+        checkbox.disabled = !belongsToOwner;
+        checkbox.checked = isInTargetFolder;
+      }
+    });
+  }
+
+  function chooseExistingItemsTarget(folderName, ownerId) {
+    const targetSelect = document.getElementById('wishlistExistingTargetFolder');
+    if (!targetSelect) return;
+
+    const matchingOption = Array.from(targetSelect.options).find(function (option) {
+      return (option.dataset.folderName || '') === folderName && String(option.dataset.ownerId || '') === String(ownerId || '');
+    }) || Array.from(targetSelect.options).find(function (option) {
+      return (option.dataset.folderName || '') === folderName;
+    });
+
+    if (matchingOption) targetSelect.value = matchingOption.value;
+    updateExistingItemsModalState();
+  }
+
   function initDynamicWishlistUi() {
     initFoldersState();
     initImagePreviews();
     initLiveSearchState();
+    updateExistingItemsModalState();
   }
 
   function buildFormRequest(form, submitter) {
@@ -275,7 +336,11 @@ document.addEventListener('DOMContentLoaded', function () {
         window.history.pushState({}, '', finalUrl.toString());
       }
 
-      window.scrollTo({ top: currentScrollY, left: 0, behavior: 'auto' });
+      if (finalUrl.pathname === '/wishlist' && requestBehavior.scrollToItems) {
+        requestAnimationFrame(scrollToWishlistItems);
+      } else {
+        window.scrollTo({ top: currentScrollY, left: 0, behavior: 'auto' });
+      }
       return true;
     } catch (error) {
       if (error.name === 'AbortError') return false;
@@ -311,6 +376,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const clickedSubmitter = event.target.closest('button[type="submit"], input[type="submit"]');
     if (clickedSubmitter) lastSubmitter = clickedSubmitter;
 
+    const uploadTrigger = event.target.closest('[data-wishlist-upload-trigger]');
+    if (uploadTrigger) {
+      event.preventDefault();
+      const fileInput = document.getElementById(uploadTrigger.dataset.wishlistUploadTrigger || '');
+      if (fileInput) fileInput.click();
+      return;
+    }
+
+    const resetPreviewButton = event.target.closest('[data-wishlist-reset-preview]');
+    if (resetPreviewButton) {
+      event.preventDefault();
+      const preview = document.getElementById(resetPreviewButton.dataset.wishlistResetPreview || '');
+      const fileInput = document.getElementById(resetPreviewButton.dataset.wishlistResetFile || '');
+      const urlInput = document.getElementById(resetPreviewButton.dataset.wishlistResetUrl || '');
+      const resetLocalInput = document.getElementById(resetPreviewButton.dataset.wishlistResetLocal || '');
+
+      if (fileInput) fileInput.value = '';
+      if (urlInput) urlInput.value = '';
+      if (resetLocalInput) resetLocalInput.value = '1';
+      setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : 'Preview');
+      return;
+    }
+
     const addChoiceOpen = event.target.closest('[data-wishlist-open-add-choice]');
     if (addChoiceOpen) {
       event.preventDefault();
@@ -323,14 +411,10 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
 
       if (!addExistingToFolderButton.disabled) {
-        const targetFolderSelect = document.getElementById('wishlistExistingTargetFolder');
         const targetFolder = addExistingToFolderButton.dataset.wishlistAddExistingFolder || '';
+        const targetOwnerId = addExistingToFolderButton.dataset.wishlistAddExistingOwnerId || '';
 
-        if (targetFolderSelect) {
-          targetFolderSelect.value = targetFolder;
-          targetFolderSelect.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-
+        chooseExistingItemsTarget(targetFolder, targetOwnerId);
         openWishlistModal(document.getElementById('wishlistExistingItemsModal'));
       }
 
@@ -346,7 +430,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const addExisting = event.target.closest('[data-wishlist-add-existing]');
     if (addExisting) {
       event.preventDefault();
-      if (!addExisting.disabled) openWishlistModal(document.getElementById('wishlistExistingItemsModal'));
+      if (!addExisting.disabled) {
+        updateExistingItemsModalState();
+        openWishlistModal(document.getElementById('wishlistExistingItemsModal'));
+      }
       return;
     }
 
@@ -396,14 +483,30 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    const createFolderButton = event.target.closest('[data-folder-create-open]');
+    if (createFolderButton) {
+      event.preventDefault();
+      const ownerSelect = document.getElementById('wishlistCreateFolderOwner');
+      const activeMemberButton = document.querySelector('[data-wishlist-buyer-filter].is-active');
+      const activeMemberId = activeMemberButton ? activeMemberButton.dataset.wishlistBuyerFilter : '';
+      if (ownerSelect && activeMemberId && activeMemberId !== 'all') ownerSelect.value = activeMemberId;
+      openWishlistModal(document.getElementById('wishlistFolderCreateModal'));
+      return;
+    }
+
     const renameButton = event.target.closest('[data-folder-rename-open]');
     if (renameButton) {
       event.preventDefault();
       const folderName = renameButton.dataset.folderRenameOpen || '';
+      const folderOwnerId = renameButton.dataset.folderOwnerId || '';
       const oldName = document.getElementById('wishlistRenameOldName');
+      const oldUserId = document.getElementById('wishlistRenameOldUserId');
       const newName = document.getElementById('wishlistRenameNewName');
+      const ownerSelect = document.getElementById('wishlistRenameOwner');
       if (oldName) oldName.value = folderName;
+      if (oldUserId) oldUserId.value = folderOwnerId;
       if (newName) newName.value = folderName;
+      if (ownerSelect && folderOwnerId) ownerSelect.value = folderOwnerId;
       openWishlistModal(document.getElementById('wishlistFolderRenameModal'));
       return;
     }
@@ -412,12 +515,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (deleteFolderButton) {
       event.preventDefault();
       const folderName = deleteFolderButton.dataset.folderDeleteOpen || '';
+      const folderOwnerId = deleteFolderButton.dataset.folderOwnerId || '';
       const itemCount = Number(deleteFolderButton.dataset.folderCount || 0);
       const folderInput = document.getElementById('wishlistDeleteFolderName');
+      const folderOwnerInput = document.getElementById('wishlistDeleteFolderOwnerId');
       const modalTitle = document.getElementById('wishlistDeleteModalTitle');
       const modalText = document.getElementById('wishlistDeleteModalText');
 
       if (folderInput) folderInput.value = folderName;
+      if (folderOwnerInput) folderOwnerInput.value = folderOwnerId;
       if (modalTitle) modalTitle.textContent = 'Delete “' + folderName + '”?';
       if (modalText) {
         modalText.textContent = itemCount > 0
@@ -471,10 +577,32 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    const buyerFilterButton = event.target.closest('[data-wishlist-buyer-filter]');
+    if (buyerFilterButton) {
+      event.preventDefault();
+      const form = document.getElementById('wishlistAdvancedFilters');
+      const buyerInput = form ? form.querySelector('input[name="buyer"]') : null;
+      if (buyerInput) buyerInput.value = buyerFilterButton.dataset.wishlistBuyerFilter || 'all';
+      submitWishlistForm(form);
+      return;
+    }
+
+    const folderLink = event.target.closest('[data-wishlist-folder-link]');
+    if (folderLink && !folderLink.target) {
+      const linkUrl = normalizeUrl(folderLink.href);
+      if (isWishlistUrl(linkUrl)) {
+        event.preventDefault();
+        replaceWishlistShell(linkUrl, { method: 'GET' }, { scrollToItems: true });
+      }
+      return;
+    }
+
     const wishlistLink = event.target.closest('a[href]');
     if (wishlistLink && !wishlistLink.target) {
       const linkUrl = normalizeUrl(wishlistLink.href);
       if (isWishlistUrl(linkUrl)) {
+        if (isWishlistDetailUrl(linkUrl)) return;
+
         event.preventDefault();
         replaceWishlistShell(linkUrl, { method: 'GET' });
       }
@@ -485,7 +613,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageUrlInput = event.target.closest('[data-wishlist-image-url-preview]');
     if (imageUrlInput) {
       const preview = document.getElementById(imageUrlInput.dataset.wishlistImageUrlPreview);
-      setPreviewContent(preview, imageUrlInput.value.trim(), preview ? preview.dataset.emptyLabel : 'Preview');
+      const form = imageUrlInput.closest('form');
+      const relatedFileInput = form ? form.querySelector('[data-wishlist-image-file-preview="' + imageUrlInput.dataset.wishlistImageUrlPreview + '"]') : null;
+      const resetLocalInput = document.getElementById(imageUrlInput.dataset.wishlistResetLocal || '');
+      const externalImageUrl = imageUrlInput.value.trim();
+
+      if (relatedFileInput) relatedFileInput.value = '';
+      if (resetLocalInput && externalImageUrl) resetLocalInput.value = '1';
+      setPreviewContent(preview, externalImageUrl, preview ? preview.dataset.emptyLabel : 'Preview');
       return;
     }
 
@@ -515,6 +650,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      const form = imageFileInput.closest('form');
+      const relatedUrlInput = form ? form.querySelector('[data-wishlist-image-url-preview="' + imageFileInput.dataset.wishlistImageFilePreview + '"]') : null;
+      const resetLocalInput = relatedUrlInput ? document.getElementById(relatedUrlInput.dataset.wishlistResetLocal || '') : null;
+
+      if (relatedUrlInput) relatedUrlInput.value = '';
+      if (resetLocalInput) resetLocalInput.value = '0';
+
       const reader = new FileReader();
       reader.onload = function (readerEvent) {
         setPreviewContent(preview, readerEvent.target.result, 'Preview');
@@ -523,11 +665,40 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    const existingTargetSelect = event.target.closest('#wishlistExistingTargetFolder');
+    if (existingTargetSelect) {
+      updateExistingItemsModalState();
+      return;
+    }
+
+    const existingItemCheckbox = event.target.closest('[data-existing-folder-checkbox]');
+    if (existingItemCheckbox) {
+      const existingItemCard = existingItemCheckbox.closest('[data-existing-folder-item]');
+      if (existingItemCard) existingItemCard.classList.toggle('is-already-added', existingItemCheckbox.checked);
+      return;
+    }
+
     const autoFilter = event.target.closest('[data-wishlist-auto-filter]');
     if (autoFilter) {
       const form = document.getElementById('wishlistAdvancedFilters');
       submitWishlistForm(form);
     }
+  });
+
+  document.addEventListener('reset', function (event) {
+    const form = event.target.closest('form');
+    if (!form || !form.classList.contains('wishlist-create-form')) return;
+
+    requestAnimationFrame(function () {
+      form.querySelectorAll('[data-wishlist-image-url-preview]').forEach(function (input) {
+        const preview = document.getElementById(input.dataset.wishlistImageUrlPreview);
+        setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : 'Preview');
+      });
+
+      form.querySelectorAll('[data-wishlist-image-file-preview]').forEach(function (input) {
+        input.value = '';
+      });
+    });
   });
 
   document.addEventListener('submit', function (event) {

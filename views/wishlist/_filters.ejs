@@ -25,26 +25,67 @@
       </div>
     </div>
 
-    <div class="wishlist-folders-panel mb-4" id="wishlistFoldersPanel" <%= shouldShowFolders || !hasFoldersToShow ? '' : 'hidden' %>>
-      <form class="row g-2 align-items-center mb-3 wishlist-folder-create-form" action="/wishlist/folders/create?<%= keepQuery %>" method="POST">
-        <input type="hidden" name="status" value="<%= activeStatus %>" />
-        <input type="hidden" name="folder" value="<%= activeFolder %>" />
-        <input type="hidden" name="sort" value="<%= activeSort %>" />
-        <input type="hidden" name="q" value="<%= searchQuery %>" />
-        <div class="col-sm-8 col-lg-5">
-          <div class="input-group input-group-sm wishlist-folder-create-input">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-folder-plus"></i></span>
-            <input class="form-control border-start-0" name="name" type="text" maxlength="100" placeholder="New folder name" required />
-          </div>
-        </div>
-        <div class="col-sm-auto">
-          <button class="btn btn-primary rounded-pill px-4 w-100" type="submit">
-            <i class="bi bi-plus-lg me-1"></i>Create folder
-          </button>
-        </div>
-      </form>
+    <%
+      const formatMemberTabLabel = (member) => {
+        const rawName = member.name || member.email || 'Family member';
+        const rawRole = member.role ? String(member.role).charAt(0).toUpperCase() + String(member.role).slice(1) : '';
+        return rawRole && !String(rawName).toLowerCase().endsWith(rawRole.toLowerCase()) ? `${rawName} ${rawRole}` : rawName;
+      };
+    %>
 
-      <% if (!hasFoldersToShow) { %>
+    <%
+      const activeMember = familyMembers.find((member) => String(member.id) === String(activeBuyer));
+      const activeMemberLabel = activeBuyer === 'all' ? 'All Family' : (activeMember ? formatMemberTabLabel(activeMember) : 'All Family');
+    %>
+
+    <div class="wishlist-folder-toolbar mb-4" aria-label="Wishlist folder controls">
+      <div class="wishlist-folder-viewer">
+        <span>Showing</span>
+        <strong><%= activeMemberLabel %></strong>
+      </div>
+
+      <div class="wishlist-folder-toolbar-actions">
+        <details class="wishlist-member-dropdown">
+          <summary class="wishlist-member-circle" aria-label="Choose family member content">
+            <i class="bi <%= activeBuyer === 'all' ? 'bi-people' : 'bi-person' %>"></i>
+          </summary>
+          <div class="wishlist-member-menu" role="group" aria-label="Show wishlist content for">
+            <button class="wishlist-member-menu-item <%= activeBuyer === 'all' ? 'is-active' : '' %>" type="button" data-wishlist-buyer-filter="all">
+              <i class="bi bi-people"></i>
+              <span>All Family</span>
+            </button>
+            <% familyMembers.forEach((member) => { %>
+              <button class="wishlist-member-menu-item <%= String(activeBuyer) === String(member.id) ? 'is-active' : '' %>" type="button" data-wishlist-buyer-filter="<%= member.id %>">
+                <i class="bi bi-person"></i>
+                <span><%= formatMemberTabLabel(member) %></span>
+              </button>
+            <% }) %>
+          </div>
+        </details>
+
+        <button class="btn btn-primary rounded-pill px-4 wishlist-create-folder-button" type="button" data-folder-create-open>
+          <i class="bi bi-plus-lg me-1"></i>Create Folder
+        </button>
+      </div>
+    </div>
+
+    <div class="wishlist-folders-panel mb-4" id="wishlistFoldersPanel" <%= shouldShowFolders || !hasFoldersToShow ? '' : 'hidden' %>>
+
+      <%
+        const visibleAllItems = activeBuyer === 'all'
+          ? allWishlistItems
+          : allWishlistItems.filter((item) => String(item.user_id) === String(activeBuyer));
+        const getFolderPreviewItems = (folderName, ownerId) => {
+          const source = allWishlistItems.filter((item) => (
+            (item.folder || '') === folderName
+            && (!ownerId || String(item.user_id) === String(ownerId))
+          ));
+          return source.slice(0, 6);
+        };
+        const getFolderStatKey = (folderName, ownerId) => `${ownerId || ''}::${String(folderName || '').toLowerCase()}`;
+        const folderCardsToShow = Array.isArray(folderCards) ? folderCards : [];
+      %>
+      <% if (!folderCardsToShow.length) { %>
         <div class="card border-0 rounded-4 bg-light wishlist-folder-empty">
           <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
             <span class="wishlist-folder-empty-icon"><i class="bi bi-folder2-open"></i></span>
@@ -56,41 +97,50 @@
         </div>
       <% } else { %>
         <div class="row g-3 wishlist-folder-grid">
-          <div class="col-md-6 col-xl-4">
-            <a class="card border-0 rounded-4 bg-light h-100 wishlist-folder-card <%= activeFolder === 'all' ? 'is-active' : '' %>" href="/wishlist?status=<%= encodeURIComponent(activeStatus) %>&sort=<%= encodeURIComponent(activeSort) %>&q=<%= encodeURIComponent(searchQuery) %>">
-              <div class="card-body p-3 d-flex align-items-center gap-3">
-                <span class="wishlist-folder-icon"><i class="bi bi-grid"></i></span>
-                <span class="wishlist-folder-main flex-grow-1">
-                  <strong>All items</strong>
-                  <small><%= summary.totalItems %> items</small>
-                </span>
-                <span class="wishlist-folder-amount"><%= formatMoney(summary.plannedTotal + summary.postponedTotal + summary.boughtTotal) %></span>
-              </div>
-            </a>
-          </div>
-
-          <% folders.forEach((folder) => { %>
-            <% const folderInfo = folderStats && folderStats[folder] ? folderStats[folder] : { count: 0, total: 0 }; %>
+          <% folderCardsToShow.forEach((folderCard) => { %>
+            <% const folder = folderCard.name; %>
+            <% const folderOwnerId = folderCard.user_id; %>
+            <% const folderOwnerName = folderCard.owner_name || 'Family member'; %>
+            <% const folderInfo = folderStats && folderStats[getFolderStatKey(folder, folderOwnerId)] ? folderStats[getFolderStatKey(folder, folderOwnerId)] : { count: 0, total: 0 }; %>
+            <% const previewItems = getFolderPreviewItems(folder, folderOwnerId); %>
             <div class="col-md-6 col-xl-4">
-              <article class="card border-0 rounded-4 bg-light h-100 wishlist-folder-card wishlist-folder-card-manageable <%= activeFolder === folder ? 'is-active' : '' %>">
-                <div class="card-body p-3 d-flex align-items-center gap-3">
-                  <a class="wishlist-folder-card-link flex-grow-1" href="/wishlist?folder=<%= encodeURIComponent(folder) %>&status=<%= encodeURIComponent(activeStatus) %>&sort=<%= encodeURIComponent(activeSort) %>&q=<%= encodeURIComponent(searchQuery) %>">
-                    <span class="wishlist-folder-icon"><i class="bi bi-folder"></i></span>
-                    <span class="wishlist-folder-main">
-                      <strong title="<%= folder %>"><%= folder %></strong>
-                      <small><%= folderInfo.count %> items</small>
-                    </span>
-                    <span class="wishlist-folder-amount"><%= formatMoney(folderInfo.total) %></span>
-                  </a>
+              <article class="card border-0 rounded-4 bg-light h-100 wishlist-folder-card wishlist-folder-card-preview wishlist-folder-card-manageable <%= activeFolder === folder ? 'is-active' : '' %>">
+                <a class="wishlist-folder-card-link" data-wishlist-folder-link href="/wishlist?folder=<%= encodeURIComponent(folder) %>&status=<%= encodeURIComponent(activeStatus) %>&sort=<%= encodeURIComponent(activeSort) %>&buyer=<%= encodeURIComponent(folderOwnerId) %>&q=<%= encodeURIComponent(searchQuery) %>">
+                  <span class="wishlist-folder-main">
+                    <strong title="<%= folder %>"><%= folder %></strong>
+                  </span>
+                  <div class="wishlist-folder-preview-grid" aria-hidden="true">
+                    <% for (let i = 0; i < 6; i += 1) { %>
+                      <% const previewItem = previewItems[i]; %>
+                      <span class="wishlist-folder-preview-cell">
+                        <% if (previewItem && previewItem.image_url) { %>
+                          <img src="<%= previewItem.image_url %>" alt="" />
+                        <% } else if (previewItem) { %>
+                          <i class="bi bi-bag-heart"></i>
+                        <% } %>
+                      </span>
+                    <% } %>
+                  </div>
+                </a>
 
-                  <div class="btn-group btn-group-sm wishlist-folder-actions" role="group" aria-label="Folder actions">
-                    <button type="button" class="btn btn-light rounded-3" data-wishlist-add-existing-folder="<%= folder %>" <%= allWishlistItems.length === 0 ? 'disabled' : '' %> aria-label="Add existing items to folder">
-                      <i class="bi bi-plus-lg"></i>
-                    </button>
-                    <button type="button" class="btn btn-light rounded-3" data-folder-rename-open="<%= folder %>" aria-label="Rename folder">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-light rounded-3 text-danger" data-folder-delete-open="<%= folder %>" data-folder-count="<%= folderInfo.count %>" aria-label="Delete folder">
+                <span class="wishlist-folder-owner" title="<%= folderOwnerName %>">
+                  <i class="bi bi-person"></i>
+                  <%= folderOwnerName %>
+                </span>
+
+                <div class="wishlist-folder-footer">
+                  <span class="wishlist-folder-total">
+                    <strong><%= formatMoney(folderInfo.total) %></strong>
+                    <small>Items: <%= folderInfo.count %></small>
+                  </span>
+                  <div class="wishlist-folder-actions" role="group" aria-label="Folder actions">
+                  <button type="button" class="btn btn-light" data-wishlist-add-existing-folder="<%= folder %>" data-wishlist-add-existing-owner-id="<%= folderOwnerId %>" <%= allWishlistItems.length === 0 ? 'disabled' : '' %> aria-label="Add existing items to folder">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                  <button type="button" class="btn btn-light" data-folder-rename-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" aria-label="Rename folder">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                    <button type="button" class="btn btn-light text-danger" data-folder-delete-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" data-folder-count="<%= folderInfo.count %>" aria-label="Delete folder">
                       <i class="bi bi-trash3"></i>
                     </button>
                   </div>
@@ -104,9 +154,10 @@
 
     <form class="wishlist-advanced-filters" id="wishlistAdvancedFilters" action="/wishlist" method="GET">
       <input type="hidden" name="folder" value="<%= activeFolder %>" />
+      <input type="hidden" name="buyer" value="<%= activeBuyer %>" />
 
       <div class="row g-3 align-items-center wishlist-filter-row">
-        <div class="col-lg-5 col-xl-5">
+        <div class="col-lg-4 col-xl-4">
           <div class="input-group wishlist-bootstrap-search <%= searchQuery ? 'has-live-query' : '' %>">
             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
             <input
@@ -141,12 +192,12 @@
           </div>
         </div>
 
-        <div class="col-lg-2 col-xl-2">
-          <select class="form-select wishlist-sort-select" name="sort" data-wishlist-auto-filter aria-label="Sort wishlist">
-          <option value="newest" <%= activeSort === 'newest' ? 'selected' : '' %>>Newest first</option>
-          <option value="oldest" <%= activeSort === 'oldest' ? 'selected' : '' %>>Oldest first</option>
-          <option value="price_desc" <%= activeSort === 'price_desc' ? 'selected' : '' %>>Price high to low</option>
-          <option value="price_asc" <%= activeSort === 'price_asc' ? 'selected' : '' %>>Price low to high</option>
+        <div class="col-lg-3 col-xl-3 d-flex gap-2 align-items-stretch justify-content-lg-end">
+          <select class="form-select wishlist-sort-select flex-grow-1" name="sort" data-wishlist-auto-filter aria-label="Sort wishlist">
+            <option value="newest" <%= activeSort === 'newest' ? 'selected' : '' %>>Newest first</option>
+            <option value="oldest" <%= activeSort === 'oldest' ? 'selected' : '' %>>Oldest first</option>
+            <option value="price_desc" <%= activeSort === 'price_desc' ? 'selected' : '' %>>Price high to low</option>
+            <option value="price_asc" <%= activeSort === 'price_asc' ? 'selected' : '' %>>Price low to high</option>
           </select>
         </div>
       </div>

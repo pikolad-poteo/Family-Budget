@@ -3,6 +3,7 @@
 <%
   const pageFilters = typeof filters !== 'undefined' ? filters : {};
   const pageFolders = (typeof folders !== 'undefined' && Array.isArray(folders)) ? folders : [];
+  const pageFolderCards = (typeof folderCards !== 'undefined' && Array.isArray(folderCards)) ? folderCards : pageFolders.map((folder) => ({ name: folder, user_id: 0, owner_name: '' }));
   const pageFolderStats = typeof folderStats !== 'undefined' ? folderStats : {};
   const pageWishlistItems = (typeof wishlistItems !== 'undefined' && Array.isArray(wishlistItems)) ? wishlistItems : [];
   const pageAllWishlistItems = (typeof allWishlistItems !== 'undefined' && Array.isArray(allWishlistItems)) ? allWishlistItems : [];
@@ -17,16 +18,20 @@
   const pageErrorMessage = typeof errorMessage !== 'undefined' ? errorMessage : null;
   const pageSuccessMessage = typeof successMessage !== 'undefined' ? successMessage : null;
 
+  const pageFamilyMembers = (typeof familyMembers !== 'undefined' && Array.isArray(familyMembers)) ? familyMembers : [];
+  const pageCurrentUser = typeof currentUser !== 'undefined' ? currentUser : null;
+
   const formatMoney = (value) => `${Number(value || 0).toFixed(2)} €`;
   const activeStatus = pageFilters.status || 'all';
   const activeFolder = pageFilters.folder || 'all';
   const activeSort = pageFilters.sort || 'newest';
+  const activeBuyer = pageFilters.buyer || 'all';
   const searchQuery = pageFilters.q || '';
   const hasFoldersToShow = Array.isArray(pageFolders) && pageFolders.length > 0;
-  const hasActiveFilters = activeStatus !== 'all' || activeFolder !== 'all' || activeSort !== 'newest' || Boolean(searchQuery);
+  const hasActiveFilters = activeStatus !== 'all' || activeFolder !== 'all' || activeSort !== 'newest' || activeBuyer !== 'all' || Boolean(searchQuery);
   const shouldShowFolders = hasFoldersToShow && activeFolder !== 'all';
   const currentFolderName = activeFolder !== 'all' ? activeFolder : '';
-  const keepQuery = `status=${encodeURIComponent(activeStatus)}&folder=${encodeURIComponent(activeFolder)}&sort=${encodeURIComponent(activeSort)}&q=${encodeURIComponent(searchQuery)}`;
+  const keepQuery = `status=${encodeURIComponent(activeStatus)}&folder=${encodeURIComponent(activeFolder)}&sort=${encodeURIComponent(activeSort)}&buyer=${encodeURIComponent(activeBuyer)}&q=${encodeURIComponent(searchQuery)}`;
   const statusLabels = {
     planned: 'Planned',
     postponed: 'Postponed',
@@ -45,6 +50,7 @@
     activeStatus,
     activeFolder,
     activeSort,
+    activeBuyer,
     searchQuery,
     hasFoldersToShow,
     hasActiveFilters,
@@ -57,9 +63,12 @@
     successMessage: pageSuccessMessage,
     summary: pageSummary,
     folders: pageFolders,
+    folderCards: pageFolderCards,
     folderStats: pageFolderStats,
     wishlistItems: pageWishlistItems,
-    allWishlistItems: pageAllWishlistItems
+    allWishlistItems: pageAllWishlistItems,
+    familyMembers: pageFamilyMembers,
+    currentUser: pageCurrentUser
   };
 %>
 

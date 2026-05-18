@@ -1,3 +1,50 @@
+<div class="wishlist-modal" id="wishlistFolderCreateModal" hidden>
+  <div class="wishlist-modal-backdrop" data-folder-modal-close></div>
+  <form class="wishlist-modal-card card border-0 rounded-4" action="/wishlist/folders/create?<%= keepQuery %>" method="POST">
+    <div class="wishlist-modal-header">
+      <div>
+        <p class="section-label">Create folder</p>
+        <h3>New folder</h3>
+      </div>
+      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <input type="hidden" name="status" value="<%= activeStatus %>" />
+    <input type="hidden" name="folder" value="<%= activeFolder %>" />
+    <input type="hidden" name="sort" value="<%= activeSort %>" />
+    <input type="hidden" name="buyer" value="<%= activeBuyer %>" />
+    <input type="hidden" name="q" value="<%= searchQuery %>" />
+
+    <div class="row g-3">
+      <div class="col-md-7">
+        <label class="form-label" for="wishlistCreateFolderName">Folder name</label>
+        <input class="form-control" name="name" id="wishlistCreateFolderName" maxlength="100" placeholder="Folder name" required />
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label" for="wishlistCreateFolderOwner">Family member</label>
+        <select class="form-select" name="user_id" id="wishlistCreateFolderOwner" required>
+          <% familyMembers.forEach((member) => { %>
+            <%
+              const rawName = member.name || member.email || 'Family member';
+              const rawRole = member.role ? String(member.role).charAt(0).toUpperCase() + String(member.role).slice(1) : '';
+              const memberLabel = rawRole && !String(rawName).toLowerCase().endsWith(rawRole.toLowerCase()) ? `${rawName} ${rawRole}` : rawName;
+            %>
+            <option value="<%= member.id %>" <%= String(activeBuyer) === String(member.id) || (activeBuyer === 'all' && currentUser && String(currentUser.id) === String(member.id)) ? 'selected' : '' %>>
+              <%= memberLabel %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
+
+    <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close>Cancel</button>
+      <button type="submit" class="btn btn-primary rounded-pill px-4">Create Folder</button>
+    </div>
+  </form>
+</div>
+
 <div class="wishlist-modal" id="wishlistFolderRenameModal" hidden>
   <div class="wishlist-modal-backdrop" data-folder-modal-close></div>
   <form class="wishlist-modal-card card border-0 rounded-4" action="/wishlist/folders/rename?<%= keepQuery %>" method="POST">
@@ -10,9 +57,23 @@
     </div>
 
     <input type="hidden" name="old_name" id="wishlistRenameOldName" />
+    <input type="hidden" name="old_user_id" id="wishlistRenameOldUserId" />
 
-    <label class="form-label" for="wishlistRenameNewName">New folder name</label>
-    <input class="form-control" name="new_name" id="wishlistRenameNewName" maxlength="100" required />
+    <div class="row g-3">
+      <div class="col-md-7">
+        <label class="form-label" for="wishlistRenameNewName">New folder name</label>
+        <input class="form-control" name="new_name" id="wishlistRenameNewName" maxlength="100" required />
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label" for="wishlistRenameOwner">Folder owner</label>
+        <select class="form-select" name="user_id" id="wishlistRenameOwner">
+          <% familyMembers.forEach((member) => { %>
+            <option value="<%= member.id %>"><%= member.name || member.email || 'Family member' %></option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
       <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close>Cancel</button>
@@ -33,6 +94,7 @@
     </div>
 
     <input type="hidden" name="name" id="wishlistDeleteFolderName" />
+    <input type="hidden" name="owner_id" id="wishlistDeleteFolderOwnerId" />
 
     <p class="wishlist-modal-text" id="wishlistDeleteModalText">
       Choose what should happen with the items inside this folder.
@@ -66,13 +128,13 @@
   <form class="wishlist-modal-card card border-0 rounded-4 wishlist-delete-item-modal" id="wishlistItemDeleteForm" action="/wishlist" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Delete wishlist item</p>
+        <p class="section-label">Delete item</p>
         <h3 id="wishlistItemDeleteTitle">Delete item?</h3>
       </div>
       <button type="button" class="wishlist-modal-close" data-wishlist-item-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
     </div>
 
-    <p class="wishlist-modal-text">This action will permanently remove the item from your wishlist.</p>
+    <p class="wishlist-modal-text">This action cannot be undone.</p>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
       <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-item-modal-close>Cancel</button>
@@ -130,21 +192,54 @@
     <input type="hidden" name="sort" value="<%= activeSort %>" />
     <input type="hidden" name="q" value="<%= searchQuery %>" />
 
+    <%
+      const existingFolderChoices = Array.isArray(folderCards) && folderCards.length
+        ? folderCards
+        : folders.map((folder) => ({ name: folder, user_id: currentUser ? currentUser.id : '', owner_name: '' }));
+      const existingDefaultChoice = existingFolderChoices.find((folderCard) => (
+        currentFolderName
+        && folderCard.name === currentFolderName
+        && (activeBuyer === 'all' || String(folderCard.user_id) === String(activeBuyer))
+      )) || existingFolderChoices[0];
+      const existingDefaultKey = existingDefaultChoice ? `${existingDefaultChoice.user_id}::${existingDefaultChoice.name}` : '';
+    %>
+
+    <input type="hidden" name="target_folder" id="wishlistExistingTargetFolderName" value="<%= existingDefaultChoice ? existingDefaultChoice.name : '' %>" />
+    <input type="hidden" name="target_owner_id" id="wishlistExistingTargetOwnerId" value="<%= existingDefaultChoice ? existingDefaultChoice.user_id : '' %>" />
+
     <div class="form-group wishlist-existing-target mb-3">
       <label class="form-label" for="wishlistExistingTargetFolder">Target folder</label>
-      <select class="form-select" id="wishlistExistingTargetFolder" name="target_folder" required>
-        <option value="" disabled <%= currentFolderName ? '' : 'selected' %>>Choose folder</option>
-        <% folders.forEach((folder) => { %>
-          <option value="<%= folder %>" <%= currentFolderName === folder ? 'selected' : '' %>><%= folder %></option>
+      <select class="form-select" id="wishlistExistingTargetFolder" required>
+        <% if (!existingFolderChoices.length) { %>
+          <option value="" disabled selected>Choose folder</option>
+        <% } %>
+        <% existingFolderChoices.forEach((folderCard) => { %>
+          <%
+            const folderKey = `${folderCard.user_id}::${folderCard.name}`;
+            const folderOwnerLabel = folderCard.owner_name ? ` · ${folderCard.owner_name}` : '';
+          %>
+          <option
+            value="<%= folderKey %>"
+            data-folder-name="<%= folderCard.name %>"
+            data-owner-id="<%= folderCard.user_id %>"
+            <%= existingDefaultKey === folderKey ? 'selected' : '' %>
+          >
+            <%= folderCard.name %><%= folderOwnerLabel %>
+          </option>
         <% }) %>
       </select>
     </div>
 
     <div class="wishlist-existing-items-list">
       <% allWishlistItems.forEach((item) => { %>
-        <% const alreadyInCurrentFolder = currentFolderName && item.folder === currentFolderName; %>
-        <label class="wishlist-existing-item-card <%= alreadyInCurrentFolder ? 'is-already-added' : '' %>">
-          <input type="checkbox" name="item_ids" value="<%= item.id %>" <%= alreadyInCurrentFolder ? 'disabled' : '' %> />
+        <% const alreadyInDefaultFolder = existingDefaultChoice && item.folder === existingDefaultChoice.name && String(item.user_id) === String(existingDefaultChoice.user_id); %>
+        <label
+          class="wishlist-existing-item-card <%= alreadyInDefaultFolder ? 'is-already-added' : '' %>"
+          data-existing-folder-item
+          data-item-folder="<%= item.folder || '' %>"
+          data-item-owner-id="<%= item.user_id %>"
+        >
+          <input type="checkbox" name="item_ids" value="<%= item.id %>" data-existing-folder-checkbox <%= alreadyInDefaultFolder ? 'checked' : '' %> />
           <span class="wishlist-existing-check"><i class="bi bi-check-lg"></i></span>
           <span class="wishlist-existing-media">
             <% if (item.image_url) { %>
@@ -163,7 +258,7 @@
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
       <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-add-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-primary rounded-pill px-4">Add selected</button>
+      <button type="submit" class="btn btn-primary rounded-pill px-4">Save folder items</button>
     </div>
   </form>
 </div>

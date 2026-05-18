@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Май 17 2026 г., 14:02
+-- Время создания: Май 18 2026 г., 23:58
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.0.30
 
@@ -256,7 +256,8 @@ INSERT INTO `family_activity_logs` (`id`, `family_id`, `actor_user_id`, `target_
 (93, 1, 1, NULL, 'member_removed', 'member', 5, 'Removed Dasha from the family.', '2026-05-12 15:12:42'),
 (94, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-13 15:00:26'),
 (95, 1, 1, NULL, 'family_avatar_updated', 'family', 1, 'Removed family avatar.', '2026-05-13 15:02:37'),
-(96, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-13 15:26:46');
+(96, 1, 2, NULL, 'family_avatar_updated', 'family', 1, 'Updated family avatar.', '2026-05-13 15:26:46'),
+(97, 1, 1, 11, 'member_added', 'member', 11, 'Added Dasha as viewer.', '2026-05-18 21:30:07');
 
 -- --------------------------------------------------------
 
@@ -279,7 +280,8 @@ CREATE TABLE `family_members` (
 
 INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `role`, `joined_at`, `updated_at`) VALUES
 (2, 1, 1, 'owner', '2026-04-21 15:24:26', '2026-05-10 12:41:35'),
-(3, 1, 2, 'editor', '2026-04-21 15:25:16', '2026-05-10 16:59:42');
+(3, 1, 2, 'editor', '2026-04-21 15:25:16', '2026-05-10 16:59:42'),
+(18, 1, 11, 'viewer', '2026-05-18 21:30:07', '2026-05-18 21:30:07');
 
 -- --------------------------------------------------------
 
@@ -422,15 +424,10 @@ CREATE TABLE `wishlist_folders` (
 
 INSERT INTO `wishlist_folders` (`id`, `user_id`, `family_id`, `name`, `created_at`) VALUES
 (1, 1, 1, 'General', '2026-05-08 08:01:22'),
-(2, 1, 1, 'Education', '2026-05-08 08:01:22'),
-(3, 1, 1, 'Clothes', '2026-05-08 08:01:22'),
 (4, 1, 1, 'Home and Kitchen', '2026-05-08 08:01:22'),
-(5, 1, 1, 'Gaming Setup', '2026-05-08 08:01:22'),
-(6, 1, 1, 'Very Long Folder Name For Layout Testing', '2026-05-08 08:01:22'),
-(7, 2, 1, 'Noortehnik', '2026-05-08 08:01:22'),
 (8, 2, 1, 'Car Audio', '2026-05-08 08:01:22'),
-(9, 2, 1, 'Clothes', '2026-05-08 08:01:22'),
-(10, 1, 1, 'Car Audio', '2026-05-15 16:10:04');
+(86, 2, 1, 'Gaming Setup', '2026-05-18 19:44:35'),
+(87, 1, 1, 'Education', '2026-05-18 19:44:47');
 
 -- --------------------------------------------------------
 
@@ -459,34 +456,33 @@ CREATE TABLE `wishlist_items` (
 --
 
 INSERT INTO `wishlist_items` (`id`, `user_id`, `family_id`, `title`, `amount`, `folder`, `status`, `description`, `product_url`, `image_url`, `desired_date`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'MacBook Air for Study', 1199.00, 'Education', 'planned', 'Laptop for university, development and diploma work.', 'https://example.com/macbook-air', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=MacBook+Air', '2026-06-10', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(2, 1, 1, 'JavaScript Architecture Book', 44.99, 'Education', 'planned', 'Book about modern JavaScript architecture and frontend patterns.', 'https://example.com/javascript-book', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=JavaScript+Book', '2026-05-20', '2026-05-08 08:01:22', '2026-05-11 19:51:50'),
-(3, 1, 1, 'SQL Practice Platform', 19.99, 'Education', 'bought', 'Monthly subscription for SQL practice tasks.', 'https://example.com/sql-practice', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=SQL+Practice', '2026-05-12', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(4, 1, 1, 'English Speaking Course', 149.00, 'Education', 'postponed', 'Course for improving speaking practice.', 'https://example.com/english-course', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=English+Course', '2026-08-15', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(5, 1, 1, 'Running Shoes', 139.99, 'Clothes', 'planned', 'Comfortable shoes for walking and running.', 'https://example.com/running-shoes', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Running+Shoes', '2026-06-05', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(6, 1, 1, 'Winter Jacket', 189.00, 'Clothes', 'postponed', 'Warm jacket for next winter season.', 'https://example.com/winter-jacket', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Winter+Jacket', '2026-10-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(7, 1, 1, 'Classic Hoodie', 49.99, 'Clothes', 'bought', 'Basic hoodie for everyday use.', 'https://example.com/hoodie', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Classic+Hoodie', '2026-05-18', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(8, 1, 1, 'Backpack for Laptop', 74.99, 'Clothes', 'planned', 'Backpack with laptop pocket and simple design.', 'https://example.com/backpack', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Laptop+Backpack', '2026-06-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
+(1, 1, 1, 'MacBook Air for Study', 1199.00, 'Education', 'planned', 'Laptop for university, development and diploma work.', NULL, NULL, NULL, '2026-05-08 08:01:22', '2026-05-18 21:35:24'),
+(2, 1, 1, 'JavaScript Architecture Book', 44.99, 'Education', 'planned', 'Book about modern JavaScript architecture and frontend patterns.', 'https://example.com/javascript-book', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=JavaScript+Book', '2026-05-20', '2026-05-08 08:01:22', '2026-05-18 19:44:47'),
+(3, 1, 1, 'SQL Practice Platform', 19.99, 'Education', 'bought', 'Monthly subscription for SQL practice tasks.', 'https://example.com/sql-practice', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=SQL+Practice', '2026-05-12', '2026-05-08 08:01:22', '2026-05-18 19:44:47'),
+(4, 1, 1, 'English Speaking Course', 149.00, 'Education', 'postponed', 'Course for improving speaking practice.', 'https://example.com/english-course', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=English+Course', '2026-08-15', '2026-05-08 08:01:22', '2026-05-18 19:44:47'),
+(5, 1, 1, 'Running Shoes', 139.99, NULL, 'planned', 'Comfortable shoes for walking and running.', 'https://example.com/running-shoes', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Running+Shoes', '2026-06-05', '2026-05-08 08:01:22', '2026-05-18 19:15:09'),
+(6, 1, 1, 'Winter Jacket', 189.00, NULL, 'postponed', 'Warm jacket for next winter season.', 'https://example.com/winter-jacket', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Winter+Jacket', '2026-10-01', '2026-05-08 08:01:22', '2026-05-18 19:15:09'),
+(7, 1, 1, 'Classic Hoodie', 49.99, NULL, 'bought', 'Basic hoodie for everyday use.', 'https://example.com/hoodie', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Classic+Hoodie', '2026-05-18', '2026-05-08 08:01:22', '2026-05-18 19:15:09'),
+(8, 1, 1, 'Backpack for Laptop', 74.99, NULL, 'planned', 'Backpack with laptop pocket and simple design.', 'https://example.com/backpack', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Laptop+Backpack', '2026-06-01', '2026-05-08 08:01:22', '2026-05-18 19:15:09'),
 (9, 1, 1, 'Coffee Machine', 449.00, 'Home and Kitchen', 'planned', 'Coffee machine for home use.', 'https://example.com/coffee-machine', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Coffee+Machine', '2026-06-25', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
 (10, 1, 1, 'Air Fryer', 119.99, 'Home and Kitchen', 'planned', 'Air fryer for quick meals.', 'https://example.com/air-fryer', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Air+Fryer', '2026-05-28', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
 (11, 1, 1, 'Chef Knife', 64.99, 'Home and Kitchen', 'bought', 'Good kitchen knife for daily cooking.', 'https://example.com/chef-knife', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Chef+Knife', '2026-05-09', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(12, 1, 1, 'Cutting Board Set', 22.99, 'Home and Kitchen', 'cancelled', 'Set of cutting boards.', 'https://example.com/cutting-board', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Cutting+Boards', NULL, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(13, 1, 1, 'Gaming Monitor 27 inch', 299.99, 'Gaming Setup', 'planned', 'Monitor for games, coding and design review.', 'https://example.com/gaming-monitor', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Gaming+Monitor', '2026-06-08', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(14, 1, 1, 'Mechanical Keyboard', 129.99, 'Gaming Setup', 'planned', 'Mechanical keyboard for coding.', 'https://example.com/mechanical-keyboard', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Mechanical+Keyboard', '2026-05-25', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(15, 1, 1, 'Gaming Chair', 219.00, 'Gaming Setup', 'postponed', 'Chair for long work and gaming sessions.', 'https://example.com/gaming-chair', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Gaming+Chair', '2026-09-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(16, 1, 1, 'Controller Charging Station', 29.99, 'Gaming Setup', 'planned', 'Charging station for controllers.', 'https://example.com/controller-charger', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Controller+Charger', '2026-05-23', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
+(13, 2, 1, 'Gaming Monitor 27 inch', 299.99, 'Gaming Setup', 'planned', 'Monitor for games, coding and design review.', 'https://example.com/gaming-monitor', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Gaming+Monitor', '2026-06-08', '2026-05-08 08:01:22', '2026-05-18 21:48:31'),
+(14, 2, 1, 'Mechanical Keyboard', 129.99, 'Gaming Setup', 'planned', 'Mechanical keyboard for coding.', 'https://example.com/mechanical-keyboard', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Mechanical+Keyboard', '2026-05-25', '2026-05-08 08:01:22', '2026-05-18 21:48:31'),
+(15, 2, 1, 'Gaming Chair', 219.00, 'Gaming Setup', 'postponed', 'Chair for long work and gaming sessions.', 'https://example.com/gaming-chair', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Gaming+Chair', '2026-09-01', '2026-05-08 08:01:22', '2026-05-18 21:48:31'),
+(16, 2, 1, 'Controller Charging Station', 29.99, 'Gaming Setup', 'planned', 'Charging station for controllers.', 'https://example.com/controller-charger', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Controller+Charger', '2026-05-23', '2026-05-08 08:01:22', '2026-05-18 21:48:31'),
 (17, 1, 1, 'Trip to Stockholm', 320.00, 'General', 'planned', 'Short weekend trip.', 'https://example.com/stockholm-trip', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Stockholm+Trip', '2026-06-20', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
 (18, 1, 1, 'Hotel in Riga', 180.00, 'General', 'planned', 'Hotel booking for two nights.', 'https://example.com/riga-hotel', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Riga+Hotel', '2026-07-05', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
 (19, 1, 1, 'Travel Backpack', 89.99, 'General', 'bought', 'Comfortable backpack for short trips.', 'https://example.com/travel-backpack', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Travel+Backpack', '2026-06-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(20, 1, 1, 'Passport Cover', 14.99, 'General', 'cancelled', 'Cover for passport and travel documents.', 'https://example.com/passport-cover', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Passport+Cover', NULL, '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(21, 1, 1, 'Used Family Car', 18500.00, 'Very Long Folder Name For Layout Testing', 'planned', 'Large amount item to test folder card price layout.', 'https://example.com/used-family-car', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Used+Family+Car', '2026-12-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(22, 1, 1, 'Home Renovation Materials', 7200.00, 'Very Long Folder Name For Layout Testing', 'postponed', 'Another large amount item to test long names and big prices.', 'https://example.com/home-renovation', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Home+Renovation', '2027-02-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(23, 1, 1, 'Premium Sofa', 1499.99, 'Very Long Folder Name For Layout Testing', 'planned', 'Furniture item for layout and amount testing.', 'https://example.com/premium-sofa', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Premium+Sofa', '2026-11-15', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(24, 2, 1, 'DSP Amplifier', 699.00, 'Noortehnik', 'planned', 'Car audio amplifier with DSP.', 'https://example.com/dsp-amplifier', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=DSP+Amplifier', '2026-06-30', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(25, 2, 1, 'Subwoofer Box', 249.00, 'Noortehnik', 'planned', 'Active subwoofer test item.', 'https://example.com/subwoofer-box', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Subwoofer+Box', '2026-07-10', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(26, 2, 1, 'Speaker Set', 129.99, 'Car Audio', 'bought', 'Front speaker set for car.', 'https://example.com/speaker-set', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Speaker+Set', '2026-05-29', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(27, 2, 1, 'Remote Bass Controller', 39.99, 'Car Audio', 'postponed', 'External controller for subwoofer volume.', 'https://example.com/bass-controller', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Bass+Controller', '2026-08-01', '2026-05-08 08:01:22', '2026-05-08 08:01:22'),
-(28, 2, 1, 'Summer T-Shirt', 19.99, 'Clothes', 'planned', 'Simple clothes item for user 2 folder testing.', 'https://example.com/summer-shirt', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Summer+T-Shirt', '2026-06-12', '2026-05-08 08:01:22', '2026-05-08 08:01:22');
+(21, 1, 1, 'Used Family Car', 18500.00, NULL, 'planned', 'Large amount item to test folder card price layout.', 'https://example.com/used-family-car', 'https://www.topgear.com/sites/default/files/news-listicle/image/2023/10/Best%20family%20cars%20to%20buy%20in%202023.jpg', NULL, '2026-05-08 08:01:22', '2026-05-18 07:59:11'),
+(22, 1, 1, 'Home Renovation Materials', 7200.00, NULL, 'postponed', 'Another large amount item to test long names and big prices.', 'https://example.com/home-renovation', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Home+Renovation', '2027-02-01', '2026-05-08 08:01:22', '2026-05-18 07:59:11'),
+(23, 1, 1, 'Premium Sofa', 1499.99, NULL, 'planned', 'Furniture item for layout and amount testing.', 'https://example.com/premium-sofa', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Premium+Sofa', '2026-11-15', '2026-05-08 08:01:22', '2026-05-18 07:59:11'),
+(24, 2, 1, 'DSP Amplifier', 699.00, 'Car Audio', 'planned', 'Car audio amplifier with DSP.', 'https://example.com/dsp-amplifier', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=DSP+Amplifier', '2026-06-30', '2026-05-08 08:01:22', '2026-05-18 21:43:44'),
+(25, 2, 1, 'Subwoofer Box', 249.00, 'Car Audio', 'planned', 'Active subwoofer test item.', 'https://example.com/subwoofer-box', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Subwoofer+Box', '2026-07-10', '2026-05-08 08:01:22', '2026-05-18 21:43:44'),
+(26, 2, 1, 'Speaker Set', 129.99, 'Car Audio', 'bought', 'Front speaker set for car.', 'https://example.com/speaker-set', NULL, NULL, '2026-05-08 08:01:22', '2026-05-18 21:43:44'),
+(27, 2, 1, 'Remote Bass Controller', 39.99, 'Car Audio', 'postponed', 'External controller for subwoofer volume.', 'https://example.com/bass-controller', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Bass+Controller', '2026-08-01', '2026-05-08 08:01:22', '2026-05-18 21:43:44'),
+(28, 2, 1, 'Summer T-Shirt', 19.99, NULL, 'planned', 'Simple clothes item for user 2 folder testing.', 'https://example.com/summer-shirt', 'https://dummyimage.com/900x600/e5e7eb/111827.png&text=Summer+T-Shirt', '2026-06-12', '2026-05-08 08:01:22', '2026-05-18 19:15:09'),
+(32, 2, 1, 'Sub Woofer Ground Zero', 79.00, 'Car Audio', 'planned', 'I need a new low speaker!', NULL, NULL, NULL, '2026-05-18 10:34:35', '2026-05-18 21:43:44');
 
 --
 -- Индексы сохранённых таблиц
@@ -618,13 +614,13 @@ ALTER TABLE `families`
 -- AUTO_INCREMENT для таблицы `family_activity_logs`
 --
 ALTER TABLE `family_activity_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
 
 --
 -- AUTO_INCREMENT для таблицы `family_members`
 --
 ALTER TABLE `family_members`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT для таблицы `password_reset_tokens`
@@ -648,13 +644,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `wishlist_folders`
 --
 ALTER TABLE `wishlist_folders`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT для таблицы `wishlist_items`
 --
 ALTER TABLE `wishlist_items`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
