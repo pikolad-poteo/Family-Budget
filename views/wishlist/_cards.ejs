@@ -4,15 +4,15 @@
       <article class="card border-0 shadow-sm rounded-4 section-card wishlist-empty-card">
         <div class="card-body p-5 text-center wishlist-empty-content">
           <div class="wishlist-empty-icon"><i class="bi bi-bag-heart"></i></div>
-          <h3 class="h4 fw-bold mb-2"><%= hasActiveFilters ? 'No items found' : 'No wishlist items yet' %></h3>
+          <h3 class="h4 fw-bold mb-2"><%= hasActiveFilters ? t('wishlist.noItemsFound') : t('wishlist.noWishlistItemsYet') %></h3>
           <p class="wishlist-toolbar-text mb-4">
-            <%= hasActiveFilters ? 'Change filters or add a new planned purchase right here.' : 'Create your first planned purchase right here.' %>
+            <%= hasActiveFilters ? t('wishlist.changeFiltersOrAdd') : t('wishlist.createFirstPlannedPurchase') %>
           </p>
 
           <button type="button" class="wishlist-empty-add-button" data-wishlist-open-add-choice>
             <span class="wishlist-add-card-icon"><i class="bi bi-plus-lg"></i></span>
-            <strong>Add item</strong>
-            <small>Create new or add existing card</small>
+            <strong><%= t('wishlist.addItem') %></strong>
+            <small><%= t('wishlist.createNewOrAddExisting') %></small>
           </button>
         </div>
       </article>
@@ -26,7 +26,7 @@
           <% if (item.image_url) { %>
             <img src="<%= item.image_url %>" alt="<%= item.title %>" />
           <% } else { %>
-            <div class="wishlist-image-placeholder"><i class="bi bi-bag-heart"></i><span>Preview</span></div>
+            <div class="wishlist-image-placeholder"><i class="bi bi-bag-heart"></i><span><%= t('wishlist.preview') %></span></div>
           <% } %>
           <span class="wishlist-card-status is-<%= item.status %>"><%= statusLabels[item.status] || item.status %></span>
         </div>
@@ -36,7 +36,7 @@
           <strong><%= formatMoney(item.amount) %></strong>
         </div>
         <% if (item.buyer_name) { %>
-          <p class="wishlist-item-buyer">Wanted by <%= item.buyer_name %></p>
+          <p class="wishlist-item-buyer"><%= t('wishlist.wantedBy') %> <%= item.buyer_name %></p>
         <% } %>
       </a>
     </div>
@@ -46,8 +46,8 @@
     <div class="col-sm-6 col-xl-4">
       <button type="button" class="card border-0 shadow-sm rounded-4 section-card wishlist-add-card w-100 h-100" data-wishlist-open-add-choice>
         <span class="wishlist-add-card-icon"><i class="bi bi-plus-lg"></i></span>
-        <strong>Add item</strong>
-        <small>Create new or add existing card</small>
+        <strong><%= t('wishlist.addItem') %></strong>
+        <small><%= t('wishlist.createNewOrAddExisting') %></small>
       </button>
     </div>
   <% } %>

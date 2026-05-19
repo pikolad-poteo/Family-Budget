@@ -3,10 +3,10 @@
   <form class="wishlist-modal-card card border-0 rounded-4" action="/wishlist/folders/create?<%= keepQuery %>" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Create folder</p>
-        <h3>New folder</h3>
+        <p class="section-label"><%= t('wishlist.createFolder') %></p>
+        <h3><%= t('wishlist.newFolder') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <input type="hidden" name="status" value="<%= activeStatus %>" />
@@ -17,16 +17,16 @@
 
     <div class="row g-3">
       <div class="col-md-7">
-        <label class="form-label" for="wishlistCreateFolderName">Folder name</label>
-        <input class="form-control" name="name" id="wishlistCreateFolderName" maxlength="100" placeholder="Folder name" required />
+        <label class="form-label" for="wishlistCreateFolderName"><%= t('wishlist.folderName') %></label>
+        <input class="form-control" name="name" id="wishlistCreateFolderName" maxlength="100" placeholder="<%= t('wishlist.folderName') %>" required />
       </div>
 
       <div class="col-md-5">
-        <label class="form-label" for="wishlistCreateFolderOwner">Family member</label>
+        <label class="form-label" for="wishlistCreateFolderOwner"><%= t('wishlist.familyMember') %></label>
         <select class="form-select" name="user_id" id="wishlistCreateFolderOwner" required>
           <% familyMembers.forEach((member) => { %>
             <%
-              const rawName = member.name || member.email || 'Family member';
+              const rawName = member.name || member.email || t('wishlist.familyMember');
               const rawRole = member.role ? String(member.role).charAt(0).toUpperCase() + String(member.role).slice(1) : '';
               const memberLabel = rawRole && !String(rawName).toLowerCase().endsWith(rawRole.toLowerCase()) ? `${rawName} ${rawRole}` : rawName;
             %>
@@ -39,8 +39,8 @@
     </div>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-primary rounded-pill px-4">Create Folder</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close><%= t('wishlist.cancel') %></button>
+      <button type="submit" class="btn btn-primary rounded-pill px-4"><%= t('wishlist.createFolder') %></button>
     </div>
   </form>
 </div>
@@ -50,10 +50,10 @@
   <form class="wishlist-modal-card card border-0 rounded-4" action="/wishlist/folders/rename?<%= keepQuery %>" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Rename folder</p>
-        <h3>Edit folder name</h3>
+        <p class="section-label"><%= t('wishlist.renameFolder') %></p>
+        <h3><%= t('wishlist.editFolderName') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <input type="hidden" name="old_name" id="wishlistRenameOldName" />
@@ -61,23 +61,23 @@
 
     <div class="row g-3">
       <div class="col-md-7">
-        <label class="form-label" for="wishlistRenameNewName">New folder name</label>
+        <label class="form-label" for="wishlistRenameNewName"><%= t('wishlist.newFolderName') %></label>
         <input class="form-control" name="new_name" id="wishlistRenameNewName" maxlength="100" required />
       </div>
 
       <div class="col-md-5">
-        <label class="form-label" for="wishlistRenameOwner">Folder owner</label>
+        <label class="form-label" for="wishlistRenameOwner"><%= t('wishlist.folderOwner') %></label>
         <select class="form-select" name="user_id" id="wishlistRenameOwner">
           <% familyMembers.forEach((member) => { %>
-            <option value="<%= member.id %>"><%= member.name || member.email || 'Family member' %></option>
+            <option value="<%= member.id %>"><%= member.name || member.email || t('wishlist.familyMember') %></option>
           <% }) %>
         </select>
       </div>
     </div>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-primary rounded-pill px-4">Save name</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close><%= t('wishlist.cancel') %></button>
+      <button type="submit" class="btn btn-primary rounded-pill px-4"><%= t('wishlist.saveName') %></button>
     </div>
   </form>
 </div>
@@ -87,38 +87,38 @@
   <form class="wishlist-modal-card card border-0 rounded-4" action="/wishlist/folders/delete?<%= keepQuery %>" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Delete folder</p>
-        <h3 id="wishlistDeleteModalTitle">Delete folder?</h3>
+        <p class="section-label"><%= t('wishlist.deleteFolder') %></p>
+        <h3 id="wishlistDeleteModalTitle"><%= t('wishlist.deleteFolderQuestion') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-folder-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <input type="hidden" name="name" id="wishlistDeleteFolderName" />
     <input type="hidden" name="owner_id" id="wishlistDeleteFolderOwnerId" />
 
     <p class="wishlist-modal-text" id="wishlistDeleteModalText">
-      Choose what should happen with the items inside this folder.
+      <%= t('wishlist.deleteFolderText') %>
     </p>
 
     <label class="wishlist-delete-option">
       <input type="radio" name="delete_action" value="move_to_general" checked />
       <span>
-        <strong>Delete only folder</strong>
-        <small>Remove folder from these items. They will stay visible in All items.</small>
+        <strong><%= t('wishlist.deleteOnlyFolder') %></strong>
+        <small><%= t('wishlist.deleteOnlyFolderHelp') %></small>
       </span>
     </label>
 
     <label class="wishlist-delete-option is-danger">
       <input type="radio" name="delete_action" value="delete_items" />
       <span>
-        <strong>Delete folder and items</strong>
-        <small>Remove this folder and all wishlist items inside it.</small>
+        <strong><%= t('wishlist.deleteFolderAndItems') %></strong>
+        <small><%= t('wishlist.deleteFolderAndItemsHelp') %></small>
       </span>
     </label>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-danger rounded-pill px-4">Delete folder</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-folder-modal-close><%= t('wishlist.cancel') %></button>
+      <button type="submit" class="btn btn-danger rounded-pill px-4"><%= t('wishlist.deleteFolder') %></button>
     </div>
   </form>
 </div>
@@ -128,17 +128,17 @@
   <form class="wishlist-modal-card card border-0 rounded-4 wishlist-delete-item-modal" id="wishlistItemDeleteForm" action="/wishlist" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Delete item</p>
-        <h3 id="wishlistItemDeleteTitle">Delete item?</h3>
+        <p class="section-label"><%= t('wishlist.deleteItem') %></p>
+        <h3 id="wishlistItemDeleteTitle"><%= t('wishlist.deleteItemQuestion') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-wishlist-item-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-wishlist-item-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
-    <p class="wishlist-modal-text">This action cannot be undone.</p>
+    <p class="wishlist-modal-text"><%= t('wishlist.actionCannotBeUndone') %></p>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-item-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-danger rounded-pill px-4">Delete item</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-item-modal-close><%= t('wishlist.cancel') %></button>
+      <button type="submit" class="btn btn-danger rounded-pill px-4"><%= t('wishlist.deleteItem') %></button>
     </div>
   </form>
 </div>
@@ -148,30 +148,30 @@
   <div class="wishlist-modal-card card border-0 rounded-4 wishlist-add-choice-modal-card">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Add item</p>
-        <h3>What do you want to add?</h3>
+        <p class="section-label"><%= t('wishlist.addItem') %></p>
+        <h3><%= t('wishlist.whatDoYouWantToAdd') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-wishlist-add-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-wishlist-add-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <div class="wishlist-add-choice-grid">
       <button type="button" class="wishlist-add-choice-card" data-wishlist-add-new>
         <span><i class="bi bi-plus-lg"></i></span>
-        <strong>Create new item</strong>
-        <small>Open the compact form and add a new wishlist card.</small>
+        <strong><%= t('wishlist.createNewItem') %></strong>
+        <small><%= t('wishlist.createNewItemHelp') %></small>
       </button>
 
       <button type="button" class="wishlist-add-choice-card" data-wishlist-add-existing <%= folders.length === 0 || allWishlistItems.length === 0 ? 'disabled' : '' %>>
         <span><i class="bi bi-collection"></i></span>
-        <strong>Add existing card</strong>
-        <small>Choose existing wishlist cards and move them into a folder.</small>
+        <strong><%= t('wishlist.addExistingCard') %></strong>
+        <small><%= t('wishlist.addExistingCardHelp') %></small>
       </button>
     </div>
 
     <% if (folders.length === 0) { %>
-      <p class="wishlist-modal-hint mt-3 mb-0">Create a folder first to add existing cards into a folder.</p>
+      <p class="wishlist-modal-hint mt-3 mb-0"><%= t('wishlist.createFolderFirstHint') %></p>
     <% } else if (allWishlistItems.length === 0) { %>
-      <p class="wishlist-modal-hint mt-3 mb-0">There are no existing cards yet. Create a new wishlist item first.</p>
+      <p class="wishlist-modal-hint mt-3 mb-0"><%= t('wishlist.noExistingCardsHint') %></p>
     <% } %>
   </div>
 </div>
@@ -181,10 +181,10 @@
   <form class="wishlist-modal-card card border-0 rounded-4 wishlist-existing-items-card" action="/wishlist/folders/add-items?<%= keepQuery %>" method="POST">
     <div class="wishlist-modal-header">
       <div>
-        <p class="section-label">Existing cards</p>
-        <h3>Add cards to folder</h3>
+        <p class="section-label"><%= t('wishlist.existingCards') %></p>
+        <h3><%= t('wishlist.addCardsToFolder') %></h3>
       </div>
-      <button type="button" class="wishlist-modal-close" data-wishlist-add-modal-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="wishlist-modal-close" data-wishlist-add-modal-close aria-label="<%= t('wishlist.close') %>"><i class="bi bi-x-lg"></i></button>
     </div>
 
     <input type="hidden" name="status" value="<%= activeStatus %>" />
@@ -208,10 +208,10 @@
     <input type="hidden" name="target_owner_id" id="wishlistExistingTargetOwnerId" value="<%= existingDefaultChoice ? existingDefaultChoice.user_id : '' %>" />
 
     <div class="form-group wishlist-existing-target mb-3">
-      <label class="form-label" for="wishlistExistingTargetFolder">Target folder</label>
+      <label class="form-label" for="wishlistExistingTargetFolder"><%= t('wishlist.targetFolder') %></label>
       <select class="form-select" id="wishlistExistingTargetFolder" required>
         <% if (!existingFolderChoices.length) { %>
-          <option value="" disabled selected>Choose folder</option>
+          <option value="" disabled selected><%= t('wishlist.chooseFolder') %></option>
         <% } %>
         <% existingFolderChoices.forEach((folderCard) => { %>
           <%
@@ -250,15 +250,15 @@
           </span>
           <span class="wishlist-existing-content">
             <strong title="<%= item.title %>"><%= item.title %></strong>
-            <small><%= item.folder || 'No folder' %> · <%= formatMoney(item.amount) %></small>
+            <small><%= item.folder || t('wishlist.noFolder') %> · <%= formatMoney(item.amount) %></small>
           </span>
         </label>
       <% }) %>
     </div>
 
     <div class="wishlist-modal-actions d-flex flex-wrap gap-2 justify-content-end mt-3">
-      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-add-modal-close>Cancel</button>
-      <button type="submit" class="btn btn-primary rounded-pill px-4">Save folder items</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-wishlist-add-modal-close><%= t('wishlist.cancel') %></button>
+      <button type="submit" class="btn btn-primary rounded-pill px-4"><%= t('wishlist.saveFolderItems') %></button>
     </div>
   </form>
 </div>
@@ -266,11 +266,11 @@
 <div class="wishlist-modal wishlist-image-modal" id="wishlistImageModal" hidden>
   <div class="wishlist-modal-backdrop" data-wishlist-image-close></div>
   <div class="wishlist-modal-card card border-0 rounded-4 wishlist-image-modal-card">
-    <button type="button" class="wishlist-modal-close wishlist-image-modal-close" data-wishlist-image-close aria-label="Close image"><i class="bi bi-x-lg"></i></button>
-    <img id="wishlistImageModalImg" src="" alt="Wishlist item image" />
+    <button type="button" class="wishlist-modal-close wishlist-image-modal-close" data-wishlist-image-close aria-label="<%= t('wishlist.closeImage') %>"><i class="bi bi-x-lg"></i></button>
+    <img id="wishlistImageModalImg" src="" alt="<%= t('wishlist.wishlistItemImage') %>" />
     <div class="wishlist-image-modal-footer">
-      <strong id="wishlistImageModalTitle">Item image</strong>
-      <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="wishlistImageModalEditButton">Edit item</button>
+      <strong id="wishlistImageModalTitle"><%= t('wishlist.itemImage') %></strong>
+      <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="wishlistImageModalEditButton"><%= t('wishlist.editItem') %></button>
     </div>
   </div>
 </div>

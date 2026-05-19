@@ -33,10 +33,10 @@
   const currentFolderName = activeFolder !== 'all' ? activeFolder : '';
   const keepQuery = `status=${encodeURIComponent(activeStatus)}&folder=${encodeURIComponent(activeFolder)}&sort=${encodeURIComponent(activeSort)}&buyer=${encodeURIComponent(activeBuyer)}&q=${encodeURIComponent(searchQuery)}`;
   const statusLabels = {
-    planned: 'Planned',
-    postponed: 'Postponed',
-    bought: 'Bought',
-    cancelled: 'Cancelled'
+    planned: t('wishlist.status.planned'),
+    postponed: t('wishlist.status.postponed'),
+    bought: t('wishlist.status.bought'),
+    cancelled: t('wishlist.status.cancelled')
   };
   const statusIcons = {
     planned: 'bi-calendar-check',
@@ -75,18 +75,18 @@
 <section class="container wishlist-shell">
   <%- include('./_flash', wishlistView) %>
   <%- include('../partials/page-overview', {
-    eyebrow: 'Management',
-    heading: 'Wishlist overview',
-    description: 'Plan future purchases, sort them by folders and check how your planned spending affects the current budget.',
+    eyebrow: t('wishlist.management'),
+    heading: t('wishlist.overviewTitle'),
+    description: t('wishlist.overviewDescription'),
     buttonId: 'toggleWishlistCreateButton',
     buttonTextId: 'toggleWishlistCreateButtonText',
     controlsId: 'wishlistCreatePanel',
-    buttonLabel: 'Add item',
+    buttonLabel: t('wishlist.addItem'),
     stats: [
-      { value: formatMoney(pageSummary.balance), label: 'Current balance' },
-      { value: formatMoney(pageSummary.plannedTotal), label: 'Planned spending' },
-      { value: formatMoney(pageSummary.balanceAfterPlans), label: 'Balance after plans' },
-      { value: pageSummary.totalItems, label: 'Wishlist items' }
+      { value: formatMoney(pageSummary.balance), label: t('wishlist.currentBalance') },
+      { value: formatMoney(pageSummary.plannedTotal), label: t('wishlist.plannedSpending') },
+      { value: formatMoney(pageSummary.balanceAfterPlans), label: t('wishlist.balanceAfterPlans') },
+      { value: pageSummary.totalItems, label: t('wishlist.wishlistItems') }
     ],
     createContent: include('./_create_modal', wishlistView)
   }) %>
@@ -94,6 +94,30 @@
   <%- include('./_shared_modals', wishlistView) %>
   <%- include('./_cards', wishlistView) %>
 </section>
+
+
+<script>
+  window.MyBudgetWishlistI18n = {
+    addItem: <%- JSON.stringify(t('wishlist.addItem')) %>,
+    hideForm: <%- JSON.stringify(t('wishlist.hideForm')) %>,
+    showFolders: <%- JSON.stringify(t('wishlist.showFolders')) %>,
+    hideFolders: <%- JSON.stringify(t('wishlist.hideFolders')) %>,
+    preview: <%- JSON.stringify(t('wishlist.preview')) %>,
+    noImage: <%- JSON.stringify(t('wishlist.noImage')) %>,
+    photoPreview: <%- JSON.stringify(t('wishlist.photoPreview')) %>,
+    deleteItemQuestion: <%- JSON.stringify(t('wishlist.deleteItemQuestionWithName')) %>,
+    deleteFolderQuestion: <%- JSON.stringify(t('wishlist.deleteFolderQuestionWithName')) %>,
+    item: <%- JSON.stringify(t('wishlist.item')) %>,
+    itemSingular: <%- JSON.stringify(t('wishlist.itemSingular')) %>,
+    itemPlural: <%- JSON.stringify(t('wishlist.itemPlural')) %>,
+    folderContainsItems: <%- JSON.stringify(t('wishlist.folderContainsItems')) %>,
+    chooseWhatToDoWithThem: <%- JSON.stringify(t('wishlist.chooseWhatToDoWithThem')) %>,
+    folderEmptySafeDelete: <%- JSON.stringify(t('wishlist.folderEmptySafeDelete')) %>,
+    wishlistItem: <%- JSON.stringify(t('wishlist.wishlistItem')) %>,
+    image: <%- JSON.stringify(t('wishlist.image')) %>,
+    itemImage: <%- JSON.stringify(t('wishlist.itemImage')) %>
+  };
+</script>
 
 <script src="/js/wishlist.js"></script>
 

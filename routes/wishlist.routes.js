@@ -59,7 +59,7 @@ function uploadWishlistImage(req, res, next) {
   wishlistUpload.single('local_image')(req, res, (error) => {
     if (error) {
       console.error('Wishlist upload error:', error.message);
-      setWishlistFlash(req, 'error', 'Failed to upload image. Please use JPG, PNG, WEBP or GIF up to 5 MB.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.uploadFailed'));
       return res.redirect(buildWishlistRedirect(req));
     }
     return next();
@@ -131,13 +131,13 @@ function resolveUpdatedWishlistImageUrl(req, existingImageUrl) {
   return existingIsLocal ? existingImageUrl : null;
 }
 
-async function getWishlistMembers(currentUser, familyId) {
+async function getWishlistMembers(currentUser, familyId, fallbackName = 'Me') {
   if (!familyId) {
-    return [{ id: currentUser.id, name: currentUser.name || 'Me' }];
+    return [{ id: currentUser.id, name: currentUser.name || fallbackName }];
   }
 
   const members = await getFamilyMembers(familyId);
-  return members.length ? members : [{ id: currentUser.id, name: currentUser.name || 'Me' }];
+  return members.length ? members : [{ id: currentUser.id, name: currentUser.name || fallbackName }];
 }
 
 function getWishlistBuyerFilterId(value, members) {
@@ -166,7 +166,7 @@ router.get('/wishlist', requireAuth, async (req, res) => {
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const sortValue = sanitizeWishlistText(req.query.sort, 50);
     const canEditBudget = getCanEditBudget(family);
     const filters = {
@@ -185,10 +185,10 @@ router.get('/wishlist', requireAuth, async (req, res) => {
     const summary = buildWishlistSummary(summaryItems, balance);
     const flash = req.session.wishlistFlash || null;
     delete req.session.wishlistFlash;
-    return res.render('wishlist/index', { title: 'Wishlist', activePage: 'wishlist', family, familyMembers, currentUser: req.session.user, canEditBudget, wishlistItems, allWishlistItems: summaryItems, folders, folderCards, folderStats, filters, summary, errorMessage: flash && flash.type === 'error' ? flash.message : '', successMessage: flash && flash.type === 'success' ? flash.message : '' });
+    return res.render('wishlist/index', { title: req.t('wishlist.pageTitle'), activePage: 'wishlist', family, familyMembers, currentUser: req.session.user, canEditBudget, wishlistItems, allWishlistItems: summaryItems, folders, folderCards, folderStats, filters, summary, errorMessage: flash && flash.type === 'error' ? flash.message : '', successMessage: flash && flash.type === 'success' ? flash.message : '' });
   } catch (error) {
     console.error('Wishlist page error:', error.message);
-    return res.render('wishlist/index', { title: 'Wishlist', activePage: 'wishlist', family: null, familyMembers: [], currentUser: req.session.user, canEditBudget: true, wishlistItems: [], allWishlistItems: [], folders: [], folderCards: [], folderStats: {}, filters: { status: 'all', folder: 'all', q: '', sort: 'newest', buyer: 'all' }, summary: { balance: 0, totalItems: 0, plannedTotal: 0, postponedTotal: 0, boughtTotal: 0, plannedCount: 0, boughtCount: 0, balanceAfterPlans: 0 }, errorMessage: 'Failed to load wishlist.', successMessage: '' });
+    return res.render('wishlist/index', { title: req.t('wishlist.pageTitle'), activePage: 'wishlist', family: null, familyMembers: [], currentUser: req.session.user, canEditBudget: true, wishlistItems: [], allWishlistItems: [], folders: [], folderCards: [], folderStats: {}, filters: { status: 'all', folder: 'all', q: '', sort: 'newest', buyer: 'all' }, summary: { balance: 0, totalItems: 0, plannedTotal: 0, postponedTotal: 0, boughtTotal: 0, plannedCount: 0, boughtCount: 0, balanceAfterPlans: 0 }, errorMessage: req.t('wishlist.messages.failedToLoadWishlist'), successMessage: '' });
   }
 });
 
@@ -202,12 +202,12 @@ router.get('/wishlist/:id', requireAuth, async (req, res) => {
     const item = await getWishlistItemByIdForUser(itemId, currentUserId, family ? family.id : null);
 
     if (!item) {
-      setWishlistFlash(req, 'error', 'Wishlist item not found.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.itemNotFound'));
       return res.redirect('/wishlist');
     }
 
     const folders = await getWishlistFoldersForUser(currentUserId, family ? family.id : null);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const canEditBudget = getCanEditBudget(family);
     const flash = req.session.wishlistFlash || null;
     delete req.session.wishlistFlash;
@@ -225,7 +225,7 @@ router.get('/wishlist/:id', requireAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Wishlist detail page error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to load wishlist item.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToLoadItem'));
     return res.redirect('/wishlist');
   }
 });
@@ -234,20 +234,20 @@ router.post('/wishlist/folders/create', requireAuth, requireBudgetEditor('wishli
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const selectedUserId = availableMemberIds.has(String(req.body.user_id)) ? Number(req.body.user_id) : currentUserId;
     const folderName = normalizeWishlistFolderName(req.body.name);
     if (!folderName || ['all', 'general'].includes(folderName.toLowerCase())) {
-      setWishlistFlash(req, 'error', 'Please enter a valid folder name.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.validFolderNameRequired'));
       return res.redirect(buildWishlistRedirect(req));
     }
     await ensureWishlistFolder(selectedUserId, family ? family.id : null, folderName);
-    setWishlistFlash(req, 'success', 'Folder created successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.folderCreated'));
     return res.redirect(`/wishlist?folder=${encodeURIComponent(folderName)}&buyer=${encodeURIComponent(selectedUserId)}`);
   } catch (error) {
     console.error('Wishlist folder creation error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to create wishlist folder.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToCreateFolder'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -256,22 +256,22 @@ router.post('/wishlist/folders/rename', requireAuth, requireBudgetEditor('wishli
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const oldName = normalizeWishlistFolderName(req.body.old_name);
     const newName = normalizeWishlistFolderName(req.body.new_name);
     const oldUserId = availableMemberIds.has(String(req.body.old_user_id)) ? Number(req.body.old_user_id) : currentUserId;
     const newUserId = availableMemberIds.has(String(req.body.user_id)) ? Number(req.body.user_id) : oldUserId;
     if (!oldName || !newName || ['all', 'general'].includes(oldName.toLowerCase()) || ['all', 'general'].includes(newName.toLowerCase())) {
-      setWishlistFlash(req, 'error', 'Please enter a valid folder name.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.validFolderNameRequired'));
       return res.redirect(buildWishlistRedirect(req));
     }
     await renameWishlistFolder({ userId: currentUserId, familyId: family ? family.id : null, oldName, newName, oldUserId, newUserId });
-    setWishlistFlash(req, 'success', 'Folder updated successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.folderUpdated'));
     return res.redirect(`/wishlist?folder=${encodeURIComponent(newName)}&buyer=${encodeURIComponent(newUserId)}`);
   } catch (error) {
     console.error('Wishlist folder rename error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to rename wishlist folder.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToRenameFolder'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -280,13 +280,13 @@ router.post('/wishlist/folders/delete', requireAuth, requireBudgetEditor('wishli
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const folderName = normalizeWishlistFolderName(req.body.name);
     const ownerId = availableMemberIds.has(String(req.body.owner_id)) ? Number(req.body.owner_id) : currentUserId;
     const deleteAction = req.body.delete_action === 'delete_items' ? 'delete_items' : 'move_to_general';
     if (!folderName || ['all', 'general'].includes(folderName.toLowerCase())) {
-      setWishlistFlash(req, 'error', 'This folder cannot be deleted.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.folderCannotBeDeleted'));
       return res.redirect(buildWishlistRedirect(req));
     }
     await deleteWishlistFolder({ userId: currentUserId, familyId: family ? family.id : null, folderName, deleteAction, ownerId });
@@ -294,7 +294,7 @@ router.post('/wishlist/folders/delete', requireAuth, requireBudgetEditor('wishli
     return res.redirect('/wishlist');
   } catch (error) {
     console.error('Wishlist folder delete error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to delete wishlist folder.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToDeleteFolder'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -304,7 +304,7 @@ router.post('/wishlist/folders/add-items', requireAuth, requireBudgetEditor('wis
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const targetFolder = normalizeWishlistFolderName(req.body.target_folder);
     const targetOwnerId = availableMemberIds.has(String(req.body.target_owner_id)) ? Number(req.body.target_owner_id) : currentUserId;
@@ -312,7 +312,7 @@ router.post('/wishlist/folders/add-items', requireAuth, requireBudgetEditor('wis
     const itemIds = rawIds.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0);
 
     if (!targetFolder) {
-      setWishlistFlash(req, 'error', 'Please choose a target folder.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.chooseTargetFolder'));
       return res.redirect(buildWishlistRedirect(req));
     }
 
@@ -324,11 +324,11 @@ router.post('/wishlist/folders/add-items', requireAuth, requireBudgetEditor('wis
       selectedItemIds: itemIds
     });
 
-    setWishlistFlash(req, 'success', 'Folder items were updated.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.folderItemsUpdated'));
     return res.redirect(`/wishlist?folder=${encodeURIComponent(targetFolder)}&buyer=${encodeURIComponent(targetOwnerId)}`);
   } catch (error) {
     console.error('Wishlist folder items sync error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to update folder items.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToUpdateFolderItems'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -337,7 +337,7 @@ router.post('/wishlist/create', requireAuth, requireBudgetEditor('wishlist'), up
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const selectedUserId = availableMemberIds.has(String(req.body.user_id)) ? Number(req.body.user_id) : currentUserId;
     const redirectUrl = buildWishlistRedirect(req);
@@ -350,16 +350,16 @@ router.post('/wishlist/create', requireAuth, requireBudgetEditor('wishlist'), up
     const imageUrl = resolveCreatedWishlistImageUrl(req);
     const desiredDate = sanitizeWishlistDate(req.body.desired_date);
     if (!title || !amount) {
-      setWishlistFlash(req, 'error', 'Item name and target price are required.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.itemNameAndPriceRequired'));
       return res.redirect(redirectUrl);
     }
     await ensureWishlistFolder(selectedUserId, family ? family.id : null, folder);
     await db.query(`INSERT INTO wishlist_items (user_id, family_id, title, amount, folder, status, description, product_url, image_url, desired_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [selectedUserId, family ? family.id : null, title, amount, folder, status, description, productUrl, imageUrl, desiredDate]);
-    setWishlistFlash(req, 'success', 'Wishlist item created successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.itemCreated'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Wishlist creation error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to create wishlist item.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToCreateItem'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -369,13 +369,13 @@ router.post('/wishlist/:id/update', requireAuth, requireBudgetEditor('wishlist')
   try {
     const currentUserId = req.session.user.id;
     const family = await getUserFamily(currentUserId);
-    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null);
+    const familyMembers = await getWishlistMembers(req.session.user, family ? family.id : null, req.t('wishlist.me'));
     const availableMemberIds = new Set(familyMembers.map((member) => String(member.id)));
     const selectedUserId = availableMemberIds.has(String(req.body.user_id)) ? Number(req.body.user_id) : currentUserId;
     const redirectUrl = buildWishlistRedirect(req);
     const existingItem = await getWishlistItemByIdForUser(itemId, currentUserId, family ? family.id : null);
     if (!existingItem) {
-      setWishlistFlash(req, 'error', 'Wishlist item not found.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.itemNotFound'));
       return res.redirect(redirectUrl);
     }
     const title = sanitizeWishlistText(req.body.title, 255);
@@ -387,7 +387,7 @@ router.post('/wishlist/:id/update', requireAuth, requireBudgetEditor('wishlist')
     const imageUrl = resolveUpdatedWishlistImageUrl(req, existingItem.image_url);
     const desiredDate = sanitizeWishlistDate(req.body.desired_date);
     if (!title || !amount) {
-      setWishlistFlash(req, 'error', 'Invalid wishlist item data.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.invalidItemData'));
       return res.redirect(redirectUrl);
     }
     await ensureWishlistFolder(selectedUserId, family ? family.id : null, folder);
@@ -398,11 +398,11 @@ router.post('/wishlist/:id/update', requireAuth, requireBudgetEditor('wishlist')
        WHERE id = ? AND ${workspace.clause} LIMIT 1`,
       [selectedUserId, title, amount, folder, status, description, productUrl, imageUrl, desiredDate, itemId, ...workspace.params]
     );
-    setWishlistFlash(req, 'success', 'Wishlist item updated successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.itemUpdated'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Wishlist update error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to update wishlist item.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToUpdateItem'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -416,7 +416,7 @@ router.post('/wishlist/:id/status', requireAuth, requireBudgetEditor('wishlist')
     const status = sanitizeWishlistStatus(req.body.status);
     const existingItem = await getWishlistItemByIdForUser(itemId, currentUserId, family ? family.id : null);
     if (!existingItem) {
-      setWishlistFlash(req, 'error', 'Wishlist item not found.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.itemNotFound'));
       return res.redirect(redirectUrl);
     }
     const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
@@ -424,11 +424,11 @@ router.post('/wishlist/:id/status', requireAuth, requireBudgetEditor('wishlist')
       `UPDATE wishlist_items SET status = ? WHERE id = ? AND ${workspace.clause} LIMIT 1`,
       [status, itemId, ...workspace.params]
     );
-    setWishlistFlash(req, 'success', 'Wishlist status updated successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.statusUpdated'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Wishlist status update error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to update wishlist status.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToUpdateStatus'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });
@@ -441,7 +441,7 @@ router.post('/wishlist/:id/delete', requireAuth, requireBudgetEditor('wishlist')
     const redirectUrl = buildWishlistRedirect(req);
     const existingItem = await getWishlistItemByIdForUser(itemId, currentUserId, family ? family.id : null);
     if (!existingItem) {
-      setWishlistFlash(req, 'error', 'Wishlist item not found.');
+      setWishlistFlash(req, 'error', req.t('wishlist.messages.itemNotFound'));
       return res.redirect(redirectUrl);
     }
     const workspace = getWorkspaceCondition(currentUserId, family ? family.id : null);
@@ -449,11 +449,11 @@ router.post('/wishlist/:id/delete', requireAuth, requireBudgetEditor('wishlist')
       `DELETE FROM wishlist_items WHERE id = ? AND ${workspace.clause} LIMIT 1`,
       [itemId, ...workspace.params]
     );
-    setWishlistFlash(req, 'success', 'Wishlist item deleted successfully.');
+    setWishlistFlash(req, 'success', req.t('wishlist.messages.itemDeleted'));
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Wishlist deletion error:', error.message);
-    setWishlistFlash(req, 'error', 'Failed to delete wishlist item.');
+    setWishlistFlash(req, 'error', req.t('wishlist.messages.failedToDeleteItem'));
     return res.redirect(buildWishlistRedirect(req));
   }
 });

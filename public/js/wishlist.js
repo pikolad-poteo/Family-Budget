@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const i18n = window.MyBudgetWishlistI18n || {};
+  const t = function (key, fallback) { return i18n[key] || fallback; };
+
   const folderStateKey = 'wishlistFoldersOpen';
   let liveSearchTimer = null;
   let getRequestController = null;
@@ -65,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
     panel.removeAttribute('hidden');
 
     if (button) button.setAttribute('aria-expanded', 'true');
-    if (buttonText) buttonText.textContent = 'Hide form';
+    if (buttonText) buttonText.textContent = t('hideForm', 'Hide form');
 
     const firstInput = panel.querySelector('input[name="title"]');
     if (firstInput) firstInput.focus({ preventScroll: true });
@@ -78,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (panel) panel.setAttribute('hidden', '');
     if (button) button.setAttribute('aria-expanded', 'false');
-    if (buttonText) buttonText.textContent = 'Add item';
+    if (buttonText) buttonText.textContent = t('addItem', 'Add item');
   }
 
   function scrollToCreatePanel() {
@@ -121,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     foldersPanel.toggleAttribute('hidden', !isOpen);
     if (foldersButton) foldersButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    if (foldersText) foldersText.textContent = isOpen ? 'Hide folders' : 'Show folders';
+    if (foldersText) foldersText.textContent = isOpen ? t('hideFolders', 'Hide folders') : t('showFolders', 'Show folders');
 
     sessionStorage.setItem(folderStateKey, isOpen ? '1' : '0');
   }
@@ -132,14 +135,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (src) {
       preview.innerHTML = '<img src="' + src.replace(/"/g, '&quot;') + '" alt="Photo preview" />';
     } else {
-      preview.innerHTML = '<i class="bi bi-image"></i><span>' + (label || preview.dataset.emptyLabel || 'Preview') + '</span>';
+      preview.innerHTML = '<i class="bi bi-image"></i><span>' + (label || preview.dataset.emptyLabel || t('preview', 'Preview')) + '</span>';
     }
   }
 
   function initImagePreviews() {
     document.querySelectorAll('[data-current-src]').forEach(function (preview) {
       if (!preview.querySelector('img')) {
-        setPreviewContent(preview, preview.dataset.currentSrc || '', preview.dataset.emptyLabel || 'No image');
+        setPreviewContent(preview, preview.dataset.currentSrc || '', preview.dataset.emptyLabel || t('noImage', 'No image'));
       }
     });
   }
@@ -395,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (fileInput) fileInput.value = '';
       if (urlInput) urlInput.value = '';
       if (resetLocalInput) resetLocalInput.value = '1';
-      setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : 'Preview');
+      setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : t('preview', 'Preview'));
       return;
     }
 
@@ -450,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('wishlistItemDeleteForm');
       const title = document.getElementById('wishlistItemDeleteTitle');
       if (form) form.action = deleteOpen.dataset.wishlistDeleteAction || '/wishlist';
-      if (title) title.textContent = 'Delete “' + (deleteOpen.dataset.wishlistDeleteTitle || 'item') + '”?';
+      if (title) title.textContent = t('deleteItemQuestion', 'Delete “{name}”?').replace('{name}', deleteOpen.dataset.wishlistDeleteTitle || t('item', 'item'));
       openWishlistModal(document.getElementById('wishlistItemDeleteModal'));
       return;
     }
@@ -465,9 +468,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (image) {
         image.src = imageOpen.dataset.wishlistImageOpen || '';
-        image.alt = (imageOpen.dataset.wishlistImageTitle || 'Wishlist item') + ' image';
+        image.alt = (imageOpen.dataset.wishlistImageTitle || t('wishlistItem', 'Wishlist item')) + ' ' + t('image', 'image');
       }
-      if (title) title.textContent = imageOpen.dataset.wishlistImageTitle || 'Item image';
+      if (title) title.textContent = imageOpen.dataset.wishlistImageTitle || t('itemImage', 'Item image');
       if (editButton) editButton.dataset.openEditAfterImage = imageOpen.dataset.wishlistImageEdit || '';
 
       openWishlistModal(modal);
@@ -524,11 +527,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (folderInput) folderInput.value = folderName;
       if (folderOwnerInput) folderOwnerInput.value = folderOwnerId;
-      if (modalTitle) modalTitle.textContent = 'Delete “' + folderName + '”?';
+      if (modalTitle) modalTitle.textContent = t('deleteFolderQuestion', 'Delete “{name}”?').replace('{name}', folderName);
       if (modalText) {
         modalText.textContent = itemCount > 0
-          ? 'This folder contains ' + itemCount + ' item' + (itemCount === 1 ? '' : 's') + '. Choose what to do with them.'
-          : 'This folder does not contain items yet. You can safely delete it.';
+          ? t('folderContainsItems', 'This folder contains {count} {itemWord}. {text}')
+              .replace('{count}', itemCount)
+              .replace('{itemWord}', itemCount === 1 ? t('itemSingular', 'item') : t('itemPlural', 'items'))
+              .replace('{text}', t('chooseWhatToDoWithThem', 'Choose what to do with them.'))
+          : t('folderEmptySafeDelete', 'This folder does not contain items yet. You can safely delete it.');
       }
       openWishlistModal(document.getElementById('wishlistFolderDeleteModal'));
       return;
@@ -620,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (relatedFileInput) relatedFileInput.value = '';
       if (resetLocalInput && externalImageUrl) resetLocalInput.value = '1';
-      setPreviewContent(preview, externalImageUrl, preview ? preview.dataset.emptyLabel : 'Preview');
+      setPreviewContent(preview, externalImageUrl, preview ? preview.dataset.emptyLabel : t('preview', 'Preview'));
       return;
     }
 
@@ -646,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!file) {
         const form = imageFileInput.closest('form');
         const relatedUrlInput = form ? form.querySelector('[data-wishlist-image-url-preview="' + imageFileInput.dataset.wishlistImageFilePreview + '"]') : null;
-        setPreviewContent(preview, relatedUrlInput ? relatedUrlInput.value.trim() : (preview ? preview.dataset.currentSrc : ''), preview ? preview.dataset.emptyLabel : 'Preview');
+        setPreviewContent(preview, relatedUrlInput ? relatedUrlInput.value.trim() : (preview ? preview.dataset.currentSrc : ''), preview ? preview.dataset.emptyLabel : t('preview', 'Preview'));
         return;
       }
 
@@ -692,7 +698,7 @@ document.addEventListener('DOMContentLoaded', function () {
     requestAnimationFrame(function () {
       form.querySelectorAll('[data-wishlist-image-url-preview]').forEach(function (input) {
         const preview = document.getElementById(input.dataset.wishlistImageUrlPreview);
-        setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : 'Preview');
+        setPreviewContent(preview, '', preview ? preview.dataset.emptyLabel : t('preview', 'Preview'));
       });
 
       form.querySelectorAll('[data-wishlist-image-file-preview]').forEach(function (input) {

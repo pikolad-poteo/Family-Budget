@@ -2,9 +2,9 @@
   <div class="card-body p-4">
     <div class="row align-items-center g-3 mb-4">
       <div class="col-lg-7">
-        <p class="section-label">Organization</p>
-        <h2 class="h3 fw-bold mb-1">Folders and filters</h2>
-        <p class="wishlist-toolbar-text mb-0">Keep planned purchases grouped and quickly find the item you need.</p>
+        <p class="section-label"><%= t('wishlist.organization') %></p>
+        <h2 class="h3 fw-bold mb-1"><%= t('wishlist.foldersAndFilters') %></h2>
+        <p class="wishlist-toolbar-text mb-0"><%= t('wishlist.filtersDescription') %></p>
       </div>
 
       <div class="col-lg-5 d-grid d-sm-flex justify-content-lg-end gap-2">
@@ -16,18 +16,18 @@
           aria-controls="wishlistFoldersPanel"
         >
           <i class="bi bi-folder2-open me-2"></i>
-          <span id="toggleWishlistFoldersText"><%= shouldShowFolders || !hasFoldersToShow ? 'Hide folders' : 'Show folders' %></span>
+          <span id="toggleWishlistFoldersText"><%= shouldShowFolders || !hasFoldersToShow ? t('wishlist.hideFolders') : t('wishlist.showFolders') %></span>
         </button>
 
         <% if (hasActiveFilters) { %>
-          <a href="/wishlist" class="btn btn-outline-secondary rounded-pill px-4 wishlist-reset-btn">Clear filters</a>
+          <a href="/wishlist" class="btn btn-outline-secondary rounded-pill px-4 wishlist-reset-btn"><%= t('wishlist.clearFilters') %></a>
         <% } %>
       </div>
     </div>
 
     <%
       const formatMemberTabLabel = (member) => {
-        const rawName = member.name || member.email || 'Family member';
+        const rawName = member.name || member.email || t('wishlist.familyMember');
         const rawRole = member.role ? String(member.role).charAt(0).toUpperCase() + String(member.role).slice(1) : '';
         return rawRole && !String(rawName).toLowerCase().endsWith(rawRole.toLowerCase()) ? `${rawName} ${rawRole}` : rawName;
       };
@@ -35,24 +35,24 @@
 
     <%
       const activeMember = familyMembers.find((member) => String(member.id) === String(activeBuyer));
-      const activeMemberLabel = activeBuyer === 'all' ? 'All Family' : (activeMember ? formatMemberTabLabel(activeMember) : 'All Family');
+      const activeMemberLabel = activeBuyer === 'all' ? t('wishlist.allFamily') : (activeMember ? formatMemberTabLabel(activeMember) : t('wishlist.allFamily'));
     %>
 
-    <div class="wishlist-folder-toolbar mb-4" aria-label="Wishlist folder controls">
+    <div class="wishlist-folder-toolbar mb-4" aria-label="<%= t('wishlist.folderControls') %>">
       <div class="wishlist-folder-viewer">
-        <span>Showing</span>
+        <span><%= t('wishlist.showing') %></span>
         <strong><%= activeMemberLabel %></strong>
       </div>
 
       <div class="wishlist-folder-toolbar-actions">
         <details class="wishlist-member-dropdown">
-          <summary class="wishlist-member-circle" aria-label="Choose family member content">
+          <summary class="wishlist-member-circle" aria-label="<%= t('wishlist.chooseFamilyMemberContent') %>">
             <i class="bi <%= activeBuyer === 'all' ? 'bi-people' : 'bi-person' %>"></i>
           </summary>
-          <div class="wishlist-member-menu" role="group" aria-label="Show wishlist content for">
+          <div class="wishlist-member-menu" role="group" aria-label="<%= t('wishlist.showWishlistContentFor') %>">
             <button class="wishlist-member-menu-item <%= activeBuyer === 'all' ? 'is-active' : '' %>" type="button" data-wishlist-buyer-filter="all">
               <i class="bi bi-people"></i>
-              <span>All Family</span>
+              <span><%= t('wishlist.allFamily') %></span>
             </button>
             <% familyMembers.forEach((member) => { %>
               <button class="wishlist-member-menu-item <%= String(activeBuyer) === String(member.id) ? 'is-active' : '' %>" type="button" data-wishlist-buyer-filter="<%= member.id %>">
@@ -64,7 +64,7 @@
         </details>
 
         <button class="btn btn-primary rounded-pill px-4 wishlist-create-folder-button" type="button" data-folder-create-open>
-          <i class="bi bi-plus-lg me-1"></i>Create Folder
+          <i class="bi bi-plus-lg me-1"></i><%= t('wishlist.createFolder') %>
         </button>
       </div>
     </div>
@@ -90,8 +90,8 @@
           <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
             <span class="wishlist-folder-empty-icon"><i class="bi bi-folder2-open"></i></span>
             <div>
-              <h3 class="h5 fw-bold mb-1">No folders yet</h3>
-              <p class="wishlist-toolbar-text mb-0">Create folders like Tech, Home or Travel to organize future purchases.</p>
+              <h3 class="h5 fw-bold mb-1"><%= t('wishlist.noFoldersYet') %></h3>
+              <p class="wishlist-toolbar-text mb-0"><%= t('wishlist.noFoldersDescription') %></p>
             </div>
           </div>
         </div>
@@ -100,7 +100,7 @@
           <% folderCardsToShow.forEach((folderCard) => { %>
             <% const folder = folderCard.name; %>
             <% const folderOwnerId = folderCard.user_id; %>
-            <% const folderOwnerName = folderCard.owner_name || 'Family member'; %>
+            <% const folderOwnerName = folderCard.owner_name || t('wishlist.familyMember'); %>
             <% const folderInfo = folderStats && folderStats[getFolderStatKey(folder, folderOwnerId)] ? folderStats[getFolderStatKey(folder, folderOwnerId)] : { count: 0, total: 0 }; %>
             <% const previewItems = getFolderPreviewItems(folder, folderOwnerId); %>
             <div class="col-md-6 col-xl-4">
@@ -131,16 +131,16 @@
                 <div class="wishlist-folder-footer">
                   <span class="wishlist-folder-total">
                     <strong><%= formatMoney(folderInfo.total) %></strong>
-                    <small>Items: <%= folderInfo.count %></small>
+                    <small><%= t('wishlist.items') %>: <%= folderInfo.count %></small>
                   </span>
-                  <div class="wishlist-folder-actions" role="group" aria-label="Folder actions">
-                  <button type="button" class="btn btn-light" data-wishlist-add-existing-folder="<%= folder %>" data-wishlist-add-existing-owner-id="<%= folderOwnerId %>" <%= allWishlistItems.length === 0 ? 'disabled' : '' %> aria-label="Add existing items to folder">
+                  <div class="wishlist-folder-actions" role="group" aria-label="<%= t('wishlist.folderActions') %>">
+                  <button type="button" class="btn btn-light" data-wishlist-add-existing-folder="<%= folder %>" data-wishlist-add-existing-owner-id="<%= folderOwnerId %>" <%= allWishlistItems.length === 0 ? 'disabled' : '' %> aria-label="<%= t('wishlist.addExistingItemsToFolder') %>">
                     <i class="bi bi-plus-lg"></i>
                   </button>
-                  <button type="button" class="btn btn-light" data-folder-rename-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" aria-label="Rename folder">
+                  <button type="button" class="btn btn-light" data-folder-rename-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" aria-label="<%= t('wishlist.renameFolder') %>">
                     <i class="bi bi-pencil"></i>
                   </button>
-                    <button type="button" class="btn btn-light text-danger" data-folder-delete-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" data-folder-count="<%= folderInfo.count %>" aria-label="Delete folder">
+                    <button type="button" class="btn btn-light text-danger" data-folder-delete-open="<%= folder %>" data-folder-owner-id="<%= folderOwnerId %>" data-folder-count="<%= folderInfo.count %>" aria-label="<%= t('wishlist.deleteFolder') %>">
                       <i class="bi bi-trash3"></i>
                     </button>
                   </div>
@@ -166,9 +166,9 @@
               id="wishlistLiveSearchInput"
               name="q"
               value="<%= searchQuery %>"
-              placeholder="Search wishlist"
+              placeholder="<%= t('wishlist.searchWishlist') %>"
               autocomplete="off"
-              aria-label="Search wishlist"
+              aria-label="<%= t('wishlist.searchWishlist') %>"
               data-wishlist-hot-search
             />
             <button
@@ -184,20 +184,20 @@
 
         <div class="col-lg-5 col-xl-5">
           <input type="hidden" name="status" value="<%= activeStatus %>" />
-          <div class="btn-group wishlist-filter-status-buttons wishlist-view-switch" role="group" aria-label="Filter by status">
-            <button class="btn wishlist-view-pill <%= activeStatus === 'all' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="all">All</button>
-            <button class="btn wishlist-view-pill <%= activeStatus === 'planned' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="planned">Planned</button>
-            <button class="btn wishlist-view-pill <%= activeStatus === 'postponed' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="postponed">Postponed</button>
-            <button class="btn wishlist-view-pill <%= activeStatus === 'bought' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="bought">Bought</button>
+          <div class="btn-group wishlist-filter-status-buttons wishlist-view-switch" role="group" aria-label="<%= t('wishlist.filterByStatus') %>">
+            <button class="btn wishlist-view-pill <%= activeStatus === 'all' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="all"><%= t('wishlist.all') %></button>
+            <button class="btn wishlist-view-pill <%= activeStatus === 'planned' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="planned"><%= t('wishlist.status.planned') %></button>
+            <button class="btn wishlist-view-pill <%= activeStatus === 'postponed' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="postponed"><%= t('wishlist.status.postponed') %></button>
+            <button class="btn wishlist-view-pill <%= activeStatus === 'bought' ? 'is-active' : '' %>" type="button" data-wishlist-status-filter="bought"><%= t('wishlist.status.bought') %></button>
           </div>
         </div>
 
         <div class="col-lg-3 col-xl-3 d-flex gap-2 align-items-stretch justify-content-lg-end">
-          <select class="form-select wishlist-sort-select flex-grow-1" name="sort" data-wishlist-auto-filter aria-label="Sort wishlist">
-            <option value="newest" <%= activeSort === 'newest' ? 'selected' : '' %>>Newest first</option>
-            <option value="oldest" <%= activeSort === 'oldest' ? 'selected' : '' %>>Oldest first</option>
-            <option value="price_desc" <%= activeSort === 'price_desc' ? 'selected' : '' %>>Price high to low</option>
-            <option value="price_asc" <%= activeSort === 'price_asc' ? 'selected' : '' %>>Price low to high</option>
+          <select class="form-select wishlist-sort-select flex-grow-1" name="sort" data-wishlist-auto-filter aria-label="<%= t('wishlist.sortWishlist') %>">
+            <option value="newest" <%= activeSort === 'newest' ? 'selected' : '' %>><%= t('wishlist.sort.newest') %></option>
+            <option value="oldest" <%= activeSort === 'oldest' ? 'selected' : '' %>><%= t('wishlist.sort.oldest') %></option>
+            <option value="price_desc" <%= activeSort === 'price_desc' ? 'selected' : '' %>><%= t('wishlist.sort.priceDesc') %></option>
+            <option value="price_asc" <%= activeSort === 'price_asc' ? 'selected' : '' %>><%= t('wishlist.sort.priceAsc') %></option>
           </select>
         </div>
       </div>
