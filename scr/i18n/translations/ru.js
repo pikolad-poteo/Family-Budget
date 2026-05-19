@@ -850,4 +850,107 @@ module.exports = {
     }
   }
 
+,
+
+  calendar: {
+    pageTitle: 'Календарь',
+    locale: 'ru-RU',
+    management: 'Управление',
+    overviewTitle: 'Обзор календаря',
+    overviewDescription: 'Управляйте семейными событиями, напоминаниями, задачами и важными датами в одном рабочем пространстве.',
+    addEvent: 'Добавить событие',
+    hideForm: 'Скрыть форму',
+    monthEvents: 'Событий за месяц',
+    selectedDay: 'Выбранный день',
+    selectedDate: 'Выбранная дата',
+    important: 'Важное',
+    familyMode: 'Семейный режим',
+    on: 'Вкл',
+    off: 'Выкл',
+    controls: 'Управление календарем',
+    navigation: 'Навигация календаря',
+    previousMonth: 'Предыдущий месяц',
+    nextMonth: 'Следующий месяц',
+    previousDay: 'Предыдущий день',
+    nextDay: 'Следующий день',
+    today: 'Сегодня',
+    view: 'Вид календаря',
+    month: 'Месяц',
+    day: 'День',
+    monthView: 'Вид месяца',
+    dayView: 'Вид дня',
+    monthCalendar: 'Календарь месяца',
+    openSelectedDay: 'Открыть выбранный день',
+    backToMonth: 'Назад к месяцу',
+    quickAdd: 'Быстрое добавление',
+    newEvent: 'Новое событие',
+    title: 'Название',
+    titlePlaceholder: 'Введите название события',
+    date: 'Дата',
+    color: 'Цвет',
+    chooseEventColor: 'Выберите цвет события',
+    type: 'Тип',
+    member: 'Участник',
+    allFamily: 'Вся семья',
+    moreOptions: 'Дополнительные настройки',
+    moreOptionsDescription: 'Время начала, описание, повторение и дополнительные детали события',
+    startTime: 'Время начала',
+    endTime: 'Время окончания',
+    allDay: 'Весь день',
+    repeat: 'Повторять',
+    repeatType: 'Тип повтора',
+    description: 'Описание',
+    descriptionPlaceholder: 'Добавьте заметку об этом событии',
+    saveEvent: 'Сохранить событие',
+    clear: 'Очистить',
+    noEventsForDay: 'На этот день событий нет',
+    noEventsDescription: 'Добавьте напоминание, семейную задачу, день рождения или важную дату через форму.',
+    editEvent: 'Редактировать событие',
+    saveChanges: 'Сохранить изменения',
+    toggleCompleted: 'Изменить статус выполнения',
+    delete: 'Удалить',
+    confirmDelete: 'Удалить это событие?',
+    noTime: 'Без времени',
+    more: 'еще',
+
+    weekdays: {
+      mon: 'Пн',
+      tue: 'Вт',
+      wed: 'Ср',
+      thu: 'Чт',
+      fri: 'Пт',
+      sat: 'Сб',
+      sun: 'Вс'
+    },
+
+    types: {
+      event: 'Событие',
+      reminder: 'Напоминание',
+      task: 'Задача',
+      birthday: 'День рождения'
+    },
+
+    repeatTypes: {
+      none: 'Нет',
+      noneLabel: 'Не повторяется',
+      daily: 'Ежедневно',
+      weekly: 'Еженедельно',
+      monthly: 'Ежемесячно',
+      yearly: 'Ежегодно'
+    },
+
+    messages: {
+      failedToLoadCalendar: 'Не удалось загрузить календарь.',
+      titleAndDateRequired: 'Введите название и дату события.',
+      eventCreated: 'Событие успешно создано.',
+      failedToCreateEvent: 'Не удалось создать событие.',
+      eventUpdateIncomplete: 'Данные для обновления события заполнены не полностью.',
+      eventUpdated: 'Событие успешно обновлено.',
+      failedToUpdateEvent: 'Не удалось обновить событие.',
+      failedToUpdateEventStatus: 'Не удалось обновить статус события.',
+      eventDeleted: 'Событие успешно удалено.',
+      failedToDeleteEvent: 'Не удалось удалить событие.'
+    }
+  }
+
 };

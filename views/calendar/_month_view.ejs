@@ -1,5 +1,5 @@
 <div class="calendar-weekdays">
-  <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+  <div><%= t('calendar.weekdays.mon') %></div><div><%= t('calendar.weekdays.tue') %></div><div><%= t('calendar.weekdays.wed') %></div><div><%= t('calendar.weekdays.thu') %></div><div><%= t('calendar.weekdays.fri') %></div><div><%= t('calendar.weekdays.sat') %></div><div><%= t('calendar.weekdays.sun') %></div>
 </div>
 
 <div class="calendar-month-grid">
@@ -35,7 +35,7 @@
           <% }) %>
 
           <% if (day.events.length > 2) { %>
-            <span class="calendar-more-events">+<%= day.events.length - 2 %> more</span>
+            <span class="calendar-more-events">+<%= day.events.length - 2 %> <%= t('calendar.more') %></span>
           <% } %>
         </div>
       </a>

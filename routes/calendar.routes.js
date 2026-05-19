@@ -21,12 +21,12 @@ function parseDate(value) {
   return parsed;
 }
 
-function formatMonthTitle(date) {
-  return new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(date);
+function formatMonthTitle(date, locale = 'en-US') {
+  return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date);
 }
 
-function formatHumanDate(dateInput) {
-  return new Intl.DateTimeFormat('en', {
+function formatHumanDate(dateInput, locale = 'en-US') {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -70,7 +70,9 @@ function sanitizeRecurring(value) {
   return allowed.includes(value) ? value : 'none';
 }
 
-function getEventTypeLabel(type) {
+function getEventTypeLabel(type, t) {
+  if (t) return t(`calendar.types.${type}`);
+
   switch (type) {
     case 'birthday': return 'Birthday';
     case 'reminder': return 'Reminder';
@@ -79,18 +81,26 @@ function getEventTypeLabel(type) {
   }
 }
 
+function getRecurringTypeLabel(type, t) {
+  if (t) return t(`calendar.repeatTypes.${type || 'none'}`);
+
+  const safeType = type || 'none';
+  return safeType.charAt(0).toUpperCase() + safeType.slice(1);
+}
+
 function getEventColorStyle(color) {
   return sanitizeColor(color);
 }
 
-function normalizeEvent(event) {
+function normalizeEvent(event, t) {
   return {
     ...event,
-    type_label: getEventTypeLabel(event.type),
+    type_label: getEventTypeLabel(event.type, t),
+    recurring_type_label: getRecurringTypeLabel(event.recurring_type, t),
     color_style: getEventColorStyle(event.color),
     event_time_label: Number(event.is_all_day) === 1
-      ? 'All day'
-      : String(event.event_time || '').slice(0, 5) || 'No time',
+      ? (t ? t('calendar.allDay') : 'All day')
+      : String(event.event_time || '').slice(0, 5) || (t ? t('calendar.noTime') : 'No time'),
     end_time_label: event.end_time ? String(event.end_time).slice(0, 5) : '',
     is_all_day: Number(event.is_all_day) === 1,
     is_important: Number(event.is_important) === 1,
@@ -99,7 +109,7 @@ function normalizeEvent(event) {
   };
 }
 
-function buildMonthMatrix(baseDate, events) {
+function buildMonthMatrix(baseDate, events, t) {
   const year = baseDate.getFullYear();
   const month = baseDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
@@ -110,7 +120,7 @@ function buildMonthMatrix(baseDate, events) {
   const eventsMap = events.reduce((acc, event) => {
     const key = formatDateLocal(new Date(event.event_date));
     if (!acc[key]) acc[key] = [];
-    acc[key].push(normalizeEvent(event));
+    acc[key].push(normalizeEvent(event, t));
     return acc;
   }, {});
 
@@ -176,6 +186,7 @@ function getScopeParams(familyId, userId) {
 router.get('/calendar', requireAuth, async (req, res) => {
   try {
     const currentUser = req.session.user;
+    const locale = req.t('calendar.locale');
     const currentUserId = currentUser.id;
     const family = await getUserFamily(currentUserId);
     const canEditBudget = getCanEditBudget(family);
@@ -228,17 +239,17 @@ router.get('/calendar', requireAuth, async (req, res) => {
     delete req.session.calendarFlash;
 
     return res.render('calendar/index', {
-      title: 'Calendar',
+      title: req.t('calendar.pageTitle'),
       activePage: 'calendar',
       family,
       canEditBudget,
       members,
       calendarView,
       selectedDate: selectedDateSafe,
-      formattedSelectedDate: formatHumanDate(selectedDateSafe),
-      monthTitle: formatMonthTitle(monthBaseDate),
-      monthMatrix: buildMonthMatrix(monthBaseDate, monthEvents),
-      dayEvents: dayEventsRows.map(normalizeEvent),
+      formattedSelectedDate: formatHumanDate(selectedDateSafe, locale),
+      monthTitle: formatMonthTitle(monthBaseDate, locale),
+      monthMatrix: buildMonthMatrix(monthBaseDate, monthEvents, req.t),
+      dayEvents: dayEventsRows.map((event) => normalizeEvent(event, req.t)),
       summary: {
         monthTotal: monthEvents.length,
         dayTotal: dayEventsRows.length,
@@ -258,16 +269,16 @@ router.get('/calendar', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Calendar page error:', error.message);
     return res.render('calendar/index', {
-      title: 'Calendar',
+      title: req.t('calendar.pageTitle'),
       activePage: 'calendar',
       family: null,
       canEditBudget: true,
       members: [],
       calendarView: 'month',
       selectedDate: formatDateLocal(new Date()),
-      formattedSelectedDate: formatHumanDate(formatDateLocal(new Date())),
-      monthTitle: formatMonthTitle(new Date()),
-      monthMatrix: buildMonthMatrix(new Date(), []),
+      formattedSelectedDate: formatHumanDate(formatDateLocal(new Date()), req.t('calendar.locale')),
+      monthTitle: formatMonthTitle(new Date(), req.t('calendar.locale')),
+      monthMatrix: buildMonthMatrix(new Date(), [], req.t),
       dayEvents: [],
       summary: { monthTotal: 0, dayTotal: 0, completed: 0, important: 0 },
       nav: {
@@ -277,7 +288,7 @@ router.get('/calendar', requireAuth, async (req, res) => {
         prevDay: formatDateLocal(new Date()),
         nextDay: formatDateLocal(new Date())
       },
-      errorMessage: 'Failed to load calendar.',
+      errorMessage: req.t('calendar.messages.failedToLoadCalendar'),
       successMessage: ''
     });
   }
@@ -298,7 +309,7 @@ router.post('/calendar/create', requireAuth, requireBudgetEditor('calendar'), as
     const recurringType = isRecurring ? sanitizeRecurring(req.body.recurring_type) : 'none';
 
     if (!title || !eventDate) {
-      req.session.calendarFlash = { type: 'error', message: 'Please enter event title and date.' };
+      req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.titleAndDateRequired') };
       return res.redirect(buildRedirect(req.body.redirect_view, eventDate));
     }
 
@@ -326,11 +337,11 @@ router.post('/calendar/create', requireAuth, requireBudgetEditor('calendar'), as
       ]
     );
 
-    req.session.calendarFlash = { type: 'success', message: 'Event created successfully.' };
+    req.session.calendarFlash = { type: 'success', message: req.t('calendar.messages.eventCreated') };
     return res.redirect(buildRedirect(req.body.redirect_view, eventDate));
   } catch (error) {
     console.error('Calendar create error:', error.message);
-    req.session.calendarFlash = { type: 'error', message: 'Failed to create event.' };
+    req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.failedToCreateEvent') };
     return res.redirect('/calendar');
   }
 });
@@ -351,7 +362,7 @@ router.post('/calendar/update', requireAuth, requireBudgetEditor('calendar'), as
     const recurringType = isRecurring ? sanitizeRecurring(req.body.recurring_type) : 'none';
 
     if (!id || !title || !eventDate) {
-      req.session.calendarFlash = { type: 'error', message: 'Event update data is incomplete.' };
+      req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.eventUpdateIncomplete') };
       return res.redirect(buildRedirect(req.body.redirect_view, req.body.redirect_date));
     }
 
@@ -394,11 +405,11 @@ router.post('/calendar/update', requireAuth, requireBudgetEditor('calendar'), as
       ]
     );
 
-    req.session.calendarFlash = { type: 'success', message: 'Event updated successfully.' };
+    req.session.calendarFlash = { type: 'success', message: req.t('calendar.messages.eventUpdated') };
     return res.redirect(buildRedirect(req.body.redirect_view, eventDate));
   } catch (error) {
     console.error('Calendar update error:', error.message);
-    req.session.calendarFlash = { type: 'error', message: 'Failed to update event.' };
+    req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.failedToUpdateEvent') };
     return res.redirect('/calendar');
   }
 });
@@ -429,7 +440,7 @@ router.post('/calendar/complete', requireAuth, requireBudgetEditor('calendar'), 
     return res.redirect(buildRedirect(req.body.redirect_view, req.body.redirect_date));
   } catch (error) {
     console.error('Calendar complete error:', error.message);
-    req.session.calendarFlash = { type: 'error', message: 'Failed to update event status.' };
+    req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.failedToUpdateEventStatus') };
     return res.redirect('/calendar');
   }
 });
@@ -451,11 +462,11 @@ router.post('/calendar/delete', requireAuth, requireBudgetEditor('calendar'), as
       [id, ...scopeParams]
     );
 
-    req.session.calendarFlash = { type: 'success', message: 'Event deleted successfully.' };
+    req.session.calendarFlash = { type: 'success', message: req.t('calendar.messages.eventDeleted') };
     return res.redirect(buildRedirect(req.body.redirect_view, req.body.redirect_date));
   } catch (error) {
     console.error('Calendar delete error:', error.message);
-    req.session.calendarFlash = { type: 'error', message: 'Failed to delete event.' };
+    req.session.calendarFlash = { type: 'error', message: req.t('calendar.messages.failedToDeleteEvent') };
     return res.redirect('/calendar');
   }
 });

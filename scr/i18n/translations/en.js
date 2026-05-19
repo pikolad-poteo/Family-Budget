@@ -850,4 +850,107 @@ module.exports = {
     }
   }
 
+,
+
+  calendar: {
+    pageTitle: 'Calendar',
+    locale: 'en-US',
+    management: 'Management',
+    overviewTitle: 'Calendar overview',
+    overviewDescription: 'Manage family events, reminders, tasks, and important dates in one clean workspace.',
+    addEvent: 'Add event',
+    hideForm: 'Hide form',
+    monthEvents: 'Month events',
+    selectedDay: 'Selected day',
+    selectedDate: 'Selected date',
+    important: 'Important',
+    familyMode: 'Family mode',
+    on: 'On',
+    off: 'Off',
+    controls: 'Calendar controls',
+    navigation: 'Calendar navigation',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    previousDay: 'Previous day',
+    nextDay: 'Next day',
+    today: 'Today',
+    view: 'Calendar view',
+    month: 'Month',
+    day: 'Day',
+    monthView: 'Month view',
+    dayView: 'Day view',
+    monthCalendar: 'Month calendar',
+    openSelectedDay: 'Open selected day',
+    backToMonth: 'Back to month',
+    quickAdd: 'Quick add',
+    newEvent: 'New event',
+    title: 'Title',
+    titlePlaceholder: 'Enter event title',
+    date: 'Date',
+    color: 'Color',
+    chooseEventColor: 'Choose event color',
+    type: 'Type',
+    member: 'Member',
+    allFamily: 'All family',
+    moreOptions: 'More options',
+    moreOptionsDescription: 'Start time, description, repeat settings and additional event details',
+    startTime: 'Start time',
+    endTime: 'End time',
+    allDay: 'All day',
+    repeat: 'Repeat',
+    repeatType: 'Repeat type',
+    description: 'Description',
+    descriptionPlaceholder: 'Add a note about this event',
+    saveEvent: 'Save event',
+    clear: 'Clear',
+    noEventsForDay: 'No events for this day',
+    noEventsDescription: 'Add a reminder, family task, birthday, or important date using the form.',
+    editEvent: 'Edit event',
+    saveChanges: 'Save changes',
+    toggleCompleted: 'Toggle completed',
+    delete: 'Delete',
+    confirmDelete: 'Delete this event?',
+    noTime: 'No time',
+    more: 'more',
+
+    weekdays: {
+      mon: 'Mon',
+      tue: 'Tue',
+      wed: 'Wed',
+      thu: 'Thu',
+      fri: 'Fri',
+      sat: 'Sat',
+      sun: 'Sun'
+    },
+
+    types: {
+      event: 'Event',
+      reminder: 'Reminder',
+      task: 'Task',
+      birthday: 'Birthday'
+    },
+
+    repeatTypes: {
+      none: 'None',
+      noneLabel: 'Does not repeat',
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
+      yearly: 'Yearly'
+    },
+
+    messages: {
+      failedToLoadCalendar: 'Failed to load calendar.',
+      titleAndDateRequired: 'Please enter event title and date.',
+      eventCreated: 'Event created successfully.',
+      failedToCreateEvent: 'Failed to create event.',
+      eventUpdateIncomplete: 'Event update data is incomplete.',
+      eventUpdated: 'Event updated successfully.',
+      failedToUpdateEvent: 'Failed to update event.',
+      failedToUpdateEventStatus: 'Failed to update event status.',
+      eventDeleted: 'Event deleted successfully.',
+      failedToDeleteEvent: 'Failed to delete event.'
+    }
+  }
+
 };

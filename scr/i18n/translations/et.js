@@ -850,4 +850,107 @@ module.exports = {
     }
   }
 
+,
+
+  calendar: {
+    pageTitle: 'Kalender',
+    locale: 'et-EE',
+    management: 'Haldus',
+    overviewTitle: 'Kalendri ülevaade',
+    overviewDescription: 'Halda pere sündmusi, meeldetuletusi, ülesandeid ja tähtsaid kuupäevi ühes tööruumis.',
+    addEvent: 'Lisa sündmus',
+    hideForm: 'Peida vorm',
+    monthEvents: 'Kuu sündmused',
+    selectedDay: 'Valitud päev',
+    selectedDate: 'Valitud kuupäev',
+    important: 'Tähtis',
+    familyMode: 'Pere režiim',
+    on: 'Sees',
+    off: 'Väljas',
+    controls: 'Kalendri juhtimine',
+    navigation: 'Kalendri navigeerimine',
+    previousMonth: 'Eelmine kuu',
+    nextMonth: 'Järgmine kuu',
+    previousDay: 'Eelmine päev',
+    nextDay: 'Järgmine päev',
+    today: 'Täna',
+    view: 'Kalendri vaade',
+    month: 'Kuu',
+    day: 'Päev',
+    monthView: 'Kuuvaade',
+    dayView: 'Päevavaade',
+    monthCalendar: 'Kuu kalender',
+    openSelectedDay: 'Ava valitud päev',
+    backToMonth: 'Tagasi kuu juurde',
+    quickAdd: 'Kiirlisamine',
+    newEvent: 'Uus sündmus',
+    title: 'Pealkiri',
+    titlePlaceholder: 'Sisesta sündmuse pealkiri',
+    date: 'Kuupäev',
+    color: 'Värv',
+    chooseEventColor: 'Vali sündmuse värv',
+    type: 'Tüüp',
+    member: 'Liige',
+    allFamily: 'Kogu pere',
+    moreOptions: 'Lisavalikud',
+    moreOptionsDescription: 'Algusaeg, kirjeldus, korduse seaded ja muud sündmuse detailid',
+    startTime: 'Algusaeg',
+    endTime: 'Lõppaeg',
+    allDay: 'Terve päev',
+    repeat: 'Korda',
+    repeatType: 'Korduse tüüp',
+    description: 'Kirjeldus',
+    descriptionPlaceholder: 'Lisa sündmuse kohta märkus',
+    saveEvent: 'Salvesta sündmus',
+    clear: 'Tühjenda',
+    noEventsForDay: 'Sellel päeval sündmusi pole',
+    noEventsDescription: 'Lisa vormi abil meeldetuletus, pereülesanne, sünnipäev või tähtis kuupäev.',
+    editEvent: 'Muuda sündmust',
+    saveChanges: 'Salvesta muudatused',
+    toggleCompleted: 'Muuda lõpetamise olekut',
+    delete: 'Kustuta',
+    confirmDelete: 'Kustutada see sündmus?',
+    noTime: 'Aeg puudub',
+    more: 'veel',
+
+    weekdays: {
+      mon: 'E',
+      tue: 'T',
+      wed: 'K',
+      thu: 'N',
+      fri: 'R',
+      sat: 'L',
+      sun: 'P'
+    },
+
+    types: {
+      event: 'Sündmus',
+      reminder: 'Meeldetuletus',
+      task: 'Ülesanne',
+      birthday: 'Sünnipäev'
+    },
+
+    repeatTypes: {
+      none: 'Puudub',
+      noneLabel: 'Ei kordu',
+      daily: 'Iga päev',
+      weekly: 'Iga nädal',
+      monthly: 'Iga kuu',
+      yearly: 'Iga aasta'
+    },
+
+    messages: {
+      failedToLoadCalendar: 'Kalendri laadimine ebaõnnestus.',
+      titleAndDateRequired: 'Sisesta sündmuse pealkiri ja kuupäev.',
+      eventCreated: 'Sündmus loodi edukalt.',
+      failedToCreateEvent: 'Sündmuse loomine ebaõnnestus.',
+      eventUpdateIncomplete: 'Sündmuse uuendamise andmed on puudulikud.',
+      eventUpdated: 'Sündmus uuendati edukalt.',
+      failedToUpdateEvent: 'Sündmuse uuendamine ebaõnnestus.',
+      failedToUpdateEventStatus: 'Sündmuse oleku uuendamine ebaõnnestus.',
+      eventDeleted: 'Sündmus kustutati edukalt.',
+      failedToDeleteEvent: 'Sündmuse kustutamine ebaõnnestus.'
+    }
+  }
+
 };

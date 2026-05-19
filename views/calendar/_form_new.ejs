@@ -1,7 +1,7 @@
 <div class="section-header">
   <div>
-    <p class="section-label">Quick add</p>
-    <h2>New event</h2>
+    <p class="section-label"><%= t('calendar.quickAdd') %></p>
+    <h2><%= t('calendar.newEvent') %></h2>
   </div>
 </div>
 
@@ -9,20 +9,20 @@
   <input type="hidden" name="redirect_view" value="<%= calendarView %>">
 
   <div class="form-group">
-    <label class="form-label" for="calendar-title">Title</label>
-    <input id="calendar-title" type="text" name="title" class="form-control" placeholder="Enter event title" required>
+    <label class="form-label" for="calendar-title"><%= t('calendar.title') %></label>
+    <input id="calendar-title" type="text" name="title" class="form-control" placeholder="<%= t('calendar.titlePlaceholder') %>" required>
   </div>
 
   <div class="form-grid">
     <div class="form-group">
-      <label class="form-label" for="calendar-date">Date</label>
+      <label class="form-label" for="calendar-date"><%= t('calendar.date') %></label>
       <input id="calendar-date" type="date" name="event_date" class="form-control" value="<%= selectedDate %>" required>
     </div>
 
     <div class="form-group calendar-color-field">
-      <label class="form-label" for="calendar-color">Color</label>
+      <label class="form-label" for="calendar-color"><%= t('calendar.color') %></label>
       <div class="calendar-color-control" style="--selected-color: #0d6efd;">
-        <input id="calendar-color" type="color" name="color" class="calendar-color-input" value="#0d6efd" aria-label="Choose event color">
+        <input id="calendar-color" type="color" name="color" class="calendar-color-input" value="#0d6efd" aria-label="<%= t('calendar.chooseEventColor') %>">
         <span class="calendar-color-preview" data-calendar-color-preview style="background-color: #0d6efd;"></span>
         <span class="calendar-color-value" data-calendar-color-value>#0d6efd</span>
       </div>
@@ -31,19 +31,19 @@
 
   <div class="form-grid">
     <div class="form-group">
-      <label class="form-label" for="calendar-type">Type</label>
+      <label class="form-label" for="calendar-type"><%= t('calendar.type') %></label>
       <select id="calendar-type" name="type" class="form-select">
-        <option value="event">Event</option>
-        <option value="reminder">Reminder</option>
-        <option value="task">Task</option>
-        <option value="birthday">Birthday</option>
+        <option value="event"><%= t('calendar.types.event') %></option>
+        <option value="reminder"><%= t('calendar.types.reminder') %></option>
+        <option value="task"><%= t('calendar.types.task') %></option>
+        <option value="birthday"><%= t('calendar.types.birthday') %></option>
       </select>
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="calendar-member">Member</label>
+      <label class="form-label" for="calendar-member"><%= t('calendar.member') %></label>
       <select id="calendar-member" name="member_name" class="form-select">
-        <option value="">All family</option>
+        <option value=""><%= t('calendar.allFamily') %></option>
         <% members.forEach(function(member) { %>
           <option value="<%= member.name %>"><%= member.name %></option>
         <% }) %>
@@ -54,8 +54,8 @@
   <details class="calendar-form-section calendar-form-section-muted calendar-more-options">
     <summary class="calendar-more-options-summary">
       <span>
-        <strong>More options</strong>
-        <small>Start time, description, repeat settings and additional event details</small>
+        <strong><%= t('calendar.moreOptions') %></strong>
+        <small><%= t('calendar.moreOptionsDescription') %></small>
       </span>
       <i class="bi bi-chevron-down" aria-hidden="true"></i>
     </summary>
@@ -63,12 +63,12 @@
     <div class="calendar-more-options-content">
       <div class="form-grid">
         <div class="form-group calendar-time-control">
-          <label class="form-label" for="calendar-time">Start time</label>
+          <label class="form-label" for="calendar-time"><%= t('calendar.startTime') %></label>
           <input id="calendar-time" type="time" name="event_time" class="form-control">
         </div>
 
         <div class="form-group calendar-end-time-control">
-          <label class="form-label" for="calendar-end-time">End time</label>
+          <label class="form-label" for="calendar-end-time"><%= t('calendar.endTime') %></label>
           <input id="calendar-end-time" type="time" name="end_time" class="form-control">
         </div>
       </div>
@@ -76,34 +76,34 @@
       <div class="calendar-toggle-group">
         <label class="calendar-toggle-btn">
           <input type="checkbox" name="is_all_day" value="1" data-calendar-all-day>
-          <span>All day</span>
+          <span><%= t('calendar.allDay') %></span>
         </label>
 
         <label class="calendar-toggle-btn">
           <input type="checkbox" name="is_important" value="1">
-          <span>Important</span>
+          <span><%= t('calendar.important') %></span>
         </label>
 
         <label class="calendar-toggle-btn">
           <input type="checkbox" name="is_recurring" value="1" data-calendar-recurring>
-          <span>Repeat</span>
+          <span><%= t('calendar.repeat') %></span>
         </label>
       </div>
 
       <div class="form-group calendar-recurring-control">
-        <label class="form-label" for="calendar-repeat">Repeat type</label>
+        <label class="form-label" for="calendar-repeat"><%= t('calendar.repeatType') %></label>
         <select id="calendar-repeat" name="recurring_type" class="form-select" disabled>
-          <option value="none">Does not repeat</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="yearly">Yearly</option>
+          <option value="none"><%= t('calendar.repeatTypes.noneLabel') %></option>
+          <option value="daily"><%= t('calendar.repeatTypes.daily') %></option>
+          <option value="weekly"><%= t('calendar.repeatTypes.weekly') %></option>
+          <option value="monthly"><%= t('calendar.repeatTypes.monthly') %></option>
+          <option value="yearly"><%= t('calendar.repeatTypes.yearly') %></option>
         </select>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="calendar-description">Description</label>
-        <textarea id="calendar-description" name="description" class="form-control form-textarea" rows="4" placeholder="Add a note about this event"></textarea>
+        <label class="form-label" for="calendar-description"><%= t('calendar.description') %></label>
+        <textarea id="calendar-description" name="description" class="form-control form-textarea" rows="4" placeholder="<%= t('calendar.descriptionPlaceholder') %>"></textarea>
       </div>
     </div>
   </details>
@@ -111,8 +111,8 @@
   <div class="calendar-form-actions calendar-form-actions-bottom">
     <button type="submit" class="btn btn-dark rounded-pill px-4">
       <i class="bi bi-check-lg me-2"></i>
-      Save event
+      <%= t('calendar.saveEvent') %>
     </button>
-    <button type="reset" class="btn btn-outline-secondary rounded-pill px-4">Clear</button>
+    <button type="reset" class="btn btn-outline-secondary rounded-pill px-4"><%= t('calendar.clear') %></button>
   </div>
 </form>

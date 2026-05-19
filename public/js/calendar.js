@@ -20,7 +20,7 @@
       button.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
 
       if (buttonText) {
-        buttonText.textContent = isOpening ? 'Hide form' : 'Add event';
+        buttonText.textContent = isOpening ? (window.calendarI18n && window.calendarI18n.hideForm ? window.calendarI18n.hideForm : 'Hide form') : (window.calendarI18n && window.calendarI18n.addEvent ? window.calendarI18n.addEvent : 'Add event');
       }
     });
   }
