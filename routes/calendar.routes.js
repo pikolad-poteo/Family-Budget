@@ -21,12 +21,37 @@ function parseDate(value) {
   return parsed;
 }
 
+
+function getSafeDateLocale(locale, fallback = 'en-US') {
+  const rawLocale = String(locale || '').trim();
+
+  try {
+    if (rawLocale && Intl.DateTimeFormat.supportedLocalesOf([rawLocale]).length) {
+      return rawLocale;
+    }
+  } catch (error) {
+    return fallback;
+  }
+
+  return fallback;
+}
+
+function getCalendarLocale(req) {
+  const localesByLanguage = {
+    en: 'en-US',
+    ru: 'ru-RU',
+    et: 'et-EE'
+  };
+
+  return getSafeDateLocale(req.t('calendar.locale'), localesByLanguage[req.language] || 'en-US');
+}
+
 function formatMonthTitle(date, locale = 'en-US') {
-  return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat(getSafeDateLocale(locale), { month: 'long', year: 'numeric' }).format(date);
 }
 
 function formatHumanDate(dateInput, locale = 'en-US') {
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(getSafeDateLocale(locale), {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -186,7 +211,7 @@ function getScopeParams(familyId, userId) {
 router.get('/calendar', requireAuth, async (req, res) => {
   try {
     const currentUser = req.session.user;
-    const locale = req.t('calendar.locale');
+    const locale = getCalendarLocale(req);
     const currentUserId = currentUser.id;
     const family = await getUserFamily(currentUserId);
     const canEditBudget = getCanEditBudget(family);
@@ -276,8 +301,8 @@ router.get('/calendar', requireAuth, async (req, res) => {
       members: [],
       calendarView: 'month',
       selectedDate: formatDateLocal(new Date()),
-      formattedSelectedDate: formatHumanDate(formatDateLocal(new Date()), req.t('calendar.locale')),
-      monthTitle: formatMonthTitle(new Date(), req.t('calendar.locale')),
+      formattedSelectedDate: formatHumanDate(formatDateLocal(new Date()), getCalendarLocale(req)),
+      monthTitle: formatMonthTitle(new Date(), getCalendarLocale(req)),
       monthMatrix: buildMonthMatrix(new Date(), [], req.t),
       dayEvents: [],
       summary: { monthTotal: 0, dayTotal: 0, completed: 0, important: 0 },
